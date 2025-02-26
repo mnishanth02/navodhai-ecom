@@ -3,8 +3,8 @@ import "server-only";
 import { VERIFICATION_TOKEN_EXP_MIN } from "../config/constants";
 import { lower } from "../db-helper";
 import { ApiResponse, validateAndExecute } from "../helper";
-import { sendVerificationEmail } from "../resend";
-import { SigninSchema, SignupSchema } from "../validator/auth-validtor";
+import { sendForgotPasswordEmail, sendVerificationEmail } from "../resend";
+import { ForgotPasswordSchema, SigninSchema, SignupSchema } from "../validator/auth-validtor";
 import { signIn } from "@/auth";
 import db from "@/drizzle/db";
 import { users, verificationTokens } from "@/drizzle/schema";
@@ -273,4 +273,41 @@ export async function createVerificationTokenAction(identifier: unknown): Promis
       return { token };
     }
   );
+}
+
+// ******************************************************
+// **************** forgotPasswordAction ****************
+// ******************************************************
+
+export async function forgotPasswordAction(
+  input: unknown
+): Promise<ApiResponse<{ success: boolean; data: { msg: string } }>> {
+  return validateAndExecute(ForgotPasswordSchema, input, async (parsedInput) => {
+    const email = parsedInput.email;
+
+    try {
+      const { data: existingUser } = await findUserByEmail(email);
+
+      // this is a false positive, to deter malicious users
+      if (!existingUser?.id) return { success: true, data: { msg: "Password reset email sent." } };
+
+      if (!existingUser.hashedPassword) {
+        return {
+          success: false,
+          data: { msg: "This user was created with OAuth, please sign in with OAuth" },
+        };
+      }
+
+      const { data: verificationToken } = await createVerificationTokenAction(existingUser.email);
+
+      if (verificationToken) {
+        await sendForgotPasswordEmail(existingUser.email, verificationToken.token);
+      }
+
+      return { success: true, data: { msg: "Password reset email sent." } };
+    } catch (err) {
+      console.error(err);
+      return { success: false, data: { msg: "Internal Server Error" } };
+    }
+  });
 }

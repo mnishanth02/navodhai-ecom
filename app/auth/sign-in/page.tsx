@@ -1,8 +1,7 @@
+import SignInFormProvider from "@/components/auth/signin-form-provider";
 
-const SignInPage = () => {
-  return (
-    <div>SignInPage</div>
-  )
-}
+const SignInPage = async () => {
+  return <SignInFormProvider />;
+};
 
-export default SignInPage
+export default SignInPage;

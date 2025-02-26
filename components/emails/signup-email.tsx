@@ -2,24 +2,24 @@ import { Body, Button, Container, Head, Heading, Hr, Html, Preview, Section, Tex
 import { Tailwind } from "@react-email/tailwind";
 import * as React from "react";
 
-interface VerifyEmailProps {
+interface SignupEmailProps {
   token: string;
   verificationTokenExpMin: number;
   baseUrl: string;
 }
 
-export const VerifyEmail = ({ token, verificationTokenExpMin, baseUrl }: VerifyEmailProps) => {
+export const SignupEmail = ({ token, verificationTokenExpMin, baseUrl }: SignupEmailProps) => {
   return (
     <Html>
       <Head />
       <Preview>Welcome to Navodhai Store - Verify Your Email</Preview>
       <Tailwind>
-        <Body className="bg-gray-100 font-sans">
-          <Container className="mx-auto px-0 py-5">
+        <Body className="bg-zinc-100 font-sans">
+          <Container className="mx-auto p-5">
             <Section className="mx-auto max-w-600 rounded-lg bg-white shadow-sm">
               {/* Header */}
               <Section className="rounded-t-lg bg-blue-500 px-8 py-10 text-center">
-                <Heading className="m-0 text-2xl font-bold text-white">Navodhai Store </Heading>
+                <Heading className="m-0 text-2xl font-bold text-white">Navodhai Store</Heading>
               </Section>
 
               {/* Content */}
@@ -33,28 +33,31 @@ export const VerifyEmail = ({ token, verificationTokenExpMin, baseUrl }: VerifyE
                   This verification link will expire in <strong>{verificationTokenExpMin} minutes</strong>.
                 </Text>
 
-                <Button
-                  className="w-full rounded-md bg-green-600 px-8 py-3 text-center font-bold text-white transition-colors hover:bg-green-700"
-                  href={`${baseUrl}/auth/verify-email?token=${token}`}
-                >
-                  Verify Email Address
-                </Button>
+                <Section className="py-8 text-center">
+                  <Button
+                    className="rounded-md bg-green-600 px-8 py-3 text-center font-bold text-white hover:bg-green-700"
+                    href={`${baseUrl}/auth/verify-email?token=${token}`}
+                  >
+                    Verify Email Address
+                  </Button>
+                </Section>
 
-                <Section className="mt-8 rounded-md bg-gray-50 p-5">
-                  <Text className="m-0 text-sm leading-5 text-gray-500">
-                    If you did not create an account with Navodhai Store, you can safely ignore this email.
+                {/* Security Notice */}
+                <Section className="mb-5 rounded-md bg-slate-50 p-5">
+                  <Text className="m-0 text-sm leading-5 text-slate-500">
+                    If you didn&apos;t create an account with Navodhai Store, you can safely ignore this email.
                   </Text>
                 </Section>
               </Section>
 
-              <Hr className="my-8 border-gray-200" />
+              <Hr className="my-2 border-gray-200" />
 
               {/* Footer */}
-              <Section className="rounded-b-lg bg-gray-50 px-8 py-6">
-                <Text className="mb-2 text-center text-sm leading-5 text-gray-500">
+              <Section className="rounded-b-lg bg-slate-50 px-8 py-6">
+                <Text className="mb-2 text-center text-sm leading-5 text-slate-500">
                   Need help? Contact our support team
                 </Text>
-                <Text className="m-0 text-center text-xs text-gray-400">
+                <Text className="m-0 text-center text-xs text-slate-400">
                   © {new Date().getFullYear()} Navodhai Store. All rights reserved.
                 </Text>
               </Section>
@@ -66,4 +69,4 @@ export const VerifyEmail = ({ token, verificationTokenExpMin, baseUrl }: VerifyE
   );
 };
 
-export default VerifyEmail;
+export default SignupEmail;

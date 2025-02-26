@@ -20,5 +20,13 @@ export const SignupSchema = z.object({
     .refine((value) => /^[a-zA-Z0-9_.-]*$/.test(value ?? ""), "Use only letters, numbers, and common symbols"),
 });
 
+export const ForgotPasswordSchema = z.object({
+  email: z
+    .string({ message: "Your email must be a string." })
+    .nonempty({ message: "Please enter your email." })
+    .email({ message: "The email address is badly formatted." }),
+});
+
 export type SigninSchemaType = z.infer<typeof SigninSchema>;
 export type SignupSchemaType = z.infer<typeof SignupSchema>;
+export type ForgotPasswordSchemaType = z.infer<typeof ForgotPasswordSchema>;
