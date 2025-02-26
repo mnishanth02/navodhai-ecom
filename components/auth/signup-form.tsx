@@ -154,7 +154,7 @@ export const SignUpForm: FC = () => {
         primaryButton={{
           text: "Continue to Sign In",
           variant: "default",
-          onClick: () => router.push("/auth/sign-in"),
+          onClick: () => router.push("/auth/sign-in/email"),
         }}
         className="sm:max-w-md"
       />

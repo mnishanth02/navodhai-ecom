@@ -100,7 +100,7 @@ const VerificationSuccess = () => (
     </Alert>
     <div className="text-center">
       <p className="text-muted-foreground mb-4">You can now sign in to your account.</p>
-      <Link className={buttonVariants()} href="/auth/sign-in">
+      <Link className={buttonVariants()} href="/auth/sign-in/email">
         Sign In
       </Link>
     </div>

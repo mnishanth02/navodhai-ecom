@@ -23,7 +23,7 @@ const CardWrapper: FC<CardWrapperProps> = ({ children, backButtonHref, backButto
   return (
     <div className="flex-center flex-col gap-4">
       <div className="flex-center mb-4 gap-4">
-        <Image src={"/logo.png"} alt="logo" quality={100} width={40} height={40} className="" />
+        <Image src={"/logo.png"} alt="logo" quality={100} width={40} height={40} className="rounded-lg" />
         <div className={cn("h2", font.className)}>{siteConfig.name}</div>
       </div>
       <Card className="z-20 min-w-[450px] shadow-md">

@@ -12,7 +12,7 @@ export const resend = new Resend(serverEnv.RESEND_API_KEY);
 
 export const sendVerificationEmail = async (email: string, token: string) => {
   await resend.emails.send({
-    from: "verify@navodhai.store",
+    from: "Navodhai Store <onboarding@resend.dev>",
     to: "delivered@resend.dev", // TODO - need to update with proper email in production
     // to: [email],
     subject: "Welcome to Navodhai Store - Verify Your Email",

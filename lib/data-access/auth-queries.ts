@@ -82,33 +82,28 @@ export async function signupQuery(input: unknown): Promise<ApiResponse<{ userId:
       timeCost: 3,
     });
 
-    // Create user with transaction
-    const newUser = await db.transaction(async (tx) => {
-      const user = await tx
-        .insert(users)
-        .values({
-          name: sanitizedName,
-          email: sanitizedEmail,
-          hashedPassword,
-        })
-        .returning({
-          id: users.id,
-          email: users.email,
-        })
-        .then((res) => res[0]);
+    const newUser = await db
+      .insert(users)
+      .values({
+        name: sanitizedName,
+        email: sanitizedEmail,
+        hashedPassword,
+      })
+      .returning({
+        id: users.id,
+        email: users.email,
+      })
+      .then((res) => res[0]);
 
-      if (!user?.email) {
-        throw new Error("Failed to create user record");
-      }
+    if (!newUser?.email) {
+      throw new Error("Failed to create user record");
+    }
 
-      const tokenResponse = await createVerificationTokenAction(user.email);
-      if (!tokenResponse.success || !tokenResponse.data) {
-        throw new Error("Failed to create verification token");
-      }
-      await sendVerificationEmail(user.email, tokenResponse.data.token);
-
-      return user;
-    });
+    const tokenResponse = await createVerificationTokenAction(newUser.email);
+    if (!tokenResponse.success || !tokenResponse.data) {
+      throw new Error("Failed to create verification token");
+    }
+    await sendVerificationEmail(newUser.email, tokenResponse.data.token);
 
     return {
       userId: newUser.id,
