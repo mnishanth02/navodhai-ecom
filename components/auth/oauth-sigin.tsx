@@ -41,12 +41,7 @@ const OauthSignIn = () => {
 
   return (
     <div className="flex-center flex-col gap-4">
-      <Button
-        size="lg"
-        className="w-full font-medium "
-        onClick={() => onClick("google")}
-        disabled={isLoading !== null}
-      >
+      <Button size="lg" className="w-full font-medium" onClick={() => onClick("google")} disabled={isLoading !== null}>
         {isLoading === "google" ? (
           <div className="flex-center gap-2">
             <div className="border-primary h-4 w-4 animate-spin rounded-full border-2 border-t-transparent" />

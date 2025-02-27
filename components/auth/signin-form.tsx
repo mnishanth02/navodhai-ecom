@@ -73,7 +73,7 @@ export const SignInForm = () => {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        {serverError && <div className="text-destructive bg-destructive/10 rounded-md p-3 text-sm">{serverError}</div>}
+        {serverError && <div className="text-primary bg-destructive rounded-md p-3 text-sm">{serverError}</div>}
 
         <div className="space-y-4">
           <FormField

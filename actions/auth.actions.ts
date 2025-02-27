@@ -2,9 +2,8 @@
 
 import "server-only";
 
+import { handleAuthError, handleValidationError } from "@/lib/utils/error-handler";
 import {
-  deleteVerificationTokenByIdentifier,
-  findVerificationTokenByToken,
   forgotPasswordAction as forgotPasswordQuery,
   resetPasswordAction as resetPasswordQuery,
   signinQuery,
@@ -39,12 +38,7 @@ export async function signupAction(formData: FormData): Promise<ActionResult> {
     // Validate input
     const validationResult = SignupSchema.safeParse(rawFormData);
     if (!validationResult.success) {
-      return {
-        success: false,
-        error: {
-          validationErrors: validationResult.error.flatten().fieldErrors,
-        },
-      };
+      return handleValidationError(validationResult.error.flatten().fieldErrors);
     }
 
     // Call signup query
@@ -66,16 +60,7 @@ export async function signupAction(formData: FormData): Promise<ActionResult> {
       message: result.data?.message || "Account created successfully",
     };
   } catch (error) {
-    console.error("[Signup Error]", error);
-    return {
-      success: false,
-      error: {
-        serverError: {
-          message: error instanceof Error ? error.message : "An unexpected error occurred during signup",
-          code: "INTERNAL_ERROR",
-        },
-      },
-    };
+    return handleAuthError(error, "signup");
   }
 }
 
@@ -91,12 +76,7 @@ export async function signinAction(formData: FormData): Promise<ActionResult> {
     // Validate input
     const validationResult = SigninSchema.safeParse(rawFormData);
     if (!validationResult.success) {
-      return {
-        success: false,
-        error: {
-          validationErrors: validationResult.error.flatten().fieldErrors,
-        },
-      };
+      return handleValidationError(validationResult.error.flatten().fieldErrors);
     }
 
     // Call signin query
@@ -118,36 +98,22 @@ export async function signinAction(formData: FormData): Promise<ActionResult> {
       message: result.data?.message || "Successfully signed in",
     };
   } catch (error) {
-    console.error("[Signin Error]", error);
-    return {
-      success: false,
-      error: {
-        serverError: {
-          message: error instanceof Error ? error.message : "An unexpected error occurred during signin",
-          code: "INTERNAL_ERROR",
-        },
-      },
-    };
+    return handleAuthError(error, "signin");
   }
 }
 
 // Forgot password action
-export async function forgotPasswordAction(formData: FormData): Promise<ActionResult> {
+export async function forgotPasswordAction(input: FormData | { email: string }): Promise<ActionResult> {
   try {
-    // Parse form data into an object
-    const rawFormData = {
-      email: formData.get("email"),
-    };
+    // Parse input into an object
+    const rawFormData = input instanceof FormData
+      ? { email: input.get("email") }
+      : input;
 
     // Validate input
     const validationResult = ForgotPasswordSchema.safeParse(rawFormData);
     if (!validationResult.success) {
-      return {
-        success: false,
-        error: {
-          validationErrors: validationResult.error.flatten().fieldErrors,
-        },
-      };
+      return handleValidationError(validationResult.error.flatten().fieldErrors);
     }
 
     // Call forgot password query
@@ -166,20 +132,10 @@ export async function forgotPasswordAction(formData: FormData): Promise<ActionRe
 
     return {
       success: true,
-      message: data?.data.msg || "Password reset email sent successfully",
+      message: data?.data?.msg || "Password reset email sent successfully",
     };
   } catch (error) {
-    console.error("[Forgot Password Error]", error);
-    return {
-      success: false,
-      error: {
-        serverError: {
-          message:
-            error instanceof Error ? error.message : "An unexpected error occurred during password reset request",
-          code: "INTERNAL_ERROR",
-        },
-      },
-    };
+    return handleAuthError(error, "forgot_password");
   }
 }
 
@@ -193,17 +149,12 @@ export async function resetPasswordAction(
     // Validate input
     const validationResult = ResetPasswordSchema.safeParse(values);
     if (!validationResult.success) {
-      return {
-        success: false,
-        error: {
-          validationErrors: validationResult.error.flatten().fieldErrors,
-        },
-      };
+      return handleValidationError(validationResult.error.flatten().fieldErrors);
     }
 
     // Call reset password query
     const result = await resetPasswordQuery(email, token, validationResult.data);
-    
+
     if (!result.success) {
       return {
         success: false,
@@ -221,16 +172,7 @@ export async function resetPasswordAction(
       message: "Password reset successfully",
     };
   } catch (error) {
-    console.error("[Reset Password Error]", error);
-    return {
-      success: false,
-      error: {
-        serverError: {
-          message: error instanceof Error ? error.message : "An unexpected error occurred during password reset",
-          code: "INTERNAL_ERROR",
-        },
-      },
-    };
+    return handleAuthError(error, "reset_password");
   }
 }
 
@@ -250,69 +192,24 @@ export async function verifyEmailAction(prevState: ActionResult | null, formData
       };
     }
 
-    // Find verification token
-    const verificationTokenResponse = await findVerificationTokenByToken(token);
-    if (!verificationTokenResponse.success || !verificationTokenResponse.data) {
+    const result = await verifyCredentialsEmailAction(token);
+    if (!result.success) {
       return {
         success: false,
         error: {
           serverError: {
-            message: "Invalid verification token",
-            code: "INVALID_TOKEN",
+            message: result.error?.message || "Failed to verify email",
+            code: "VERIFY_EMAIL_FAILED",
           },
         },
       };
     }
-
-    const verificationToken = verificationTokenResponse.data;
-
-    // Check if token is expired
-    if (
-      !verificationToken.expires ||
-      new Date(verificationToken.expires) < new Date(Date.now() - 24 * 60 * 60 * 1000)
-    ) {
-      return {
-        success: false,
-        error: {
-          serverError: {
-            message: "Verification token has expired",
-            code: "TOKEN_EXPIRED",
-          },
-        },
-      };
-    }
-
-    // Verify email
-    const verifyResult = await verifyCredentialsEmailAction(token);
-    if (!verifyResult.success) {
-      return {
-        success: false,
-        error: {
-          serverError: {
-            message: "Failed to verify email",
-            code: "VERIFICATION_FAILED",
-          },
-        },
-      };
-    }
-
-    // Delete verification token
-    await deleteVerificationTokenByIdentifier(verificationToken.identifier);
 
     return {
       success: true,
       message: "Email verified successfully",
     };
   } catch (error) {
-    console.error("[Email Verification Error]", error);
-    return {
-      success: false,
-      error: {
-        serverError: {
-          message: error instanceof Error ? error.message : "An unexpected error occurred during email verification",
-          code: "INTERNAL_ERROR",
-        },
-      },
-    };
+    return handleAuthError(error, "verify_email");
   }
 }
