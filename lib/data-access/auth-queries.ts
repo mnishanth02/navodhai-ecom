@@ -4,7 +4,7 @@ import { VERIFICATION_TOKEN_EXP_MIN } from "../config/constants";
 import { lower } from "../db-helper";
 import { ApiResponse, validateAndExecute } from "../helper";
 import { sendForgotPasswordEmail, sendVerificationEmail } from "../resend";
-import { ForgotPasswordSchema, SigninSchema, SignupSchema } from "../validator/auth-validtor";
+import { ForgotPasswordSchema, ResetPasswordSchema, SigninSchema, SignupSchema } from "../validator/auth-validtor";
 import { signIn } from "@/auth";
 import db from "@/drizzle/db";
 import { users, verificationTokens } from "@/drizzle/schema";
@@ -304,5 +304,53 @@ export async function forgotPasswordAction(
       console.error(err);
       return { success: false, data: { msg: "Internal Server Error" } };
     }
+  });
+}
+
+// ******************************************************
+// **************** resetPasswordAction ****************
+// ******************************************************
+
+export async function resetPasswordAction(
+  email: (typeof users.$inferSelect)["email"],
+  token: (typeof verificationTokens.$inferSelect)["token"],
+  values: unknown
+): Promise<ApiResponse<void>> {
+  return validateAndExecute(ResetPasswordSchema, values, async (parsedValues) => {
+    const password = parsedValues.password;
+
+    const existingTokenResponse = await findVerificationTokenByToken(token);
+
+    if (!existingTokenResponse.success || !existingTokenResponse.data) {
+      // Delete expired token from the table
+      await deleteVerificationTokenByIdentifier(email);
+      throw new Error("Token is invalid");
+    }
+
+    const existingToken = existingTokenResponse.data;
+
+    if (new Date(existingToken.expires) < new Date()) {
+      await deleteVerificationTokenByIdentifier(email);
+      throw new Error("Token is expired");
+    }
+
+    const existingUserResponse = await findUserByEmail(email);
+
+    if (
+      !existingUserResponse.success ||
+      !existingUserResponse.data ||
+      existingUserResponse.data.email.toLowerCase() !== existingToken.identifier
+    ) {
+      throw new Error("Oops, something went wrong");
+    }
+
+    const hashedPassword = await argon2.hash(password, {
+      type: argon2.argon2id,
+      memoryCost: 65536,
+      timeCost: 3,
+    });
+
+    await db.update(users).set({ hashedPassword }).where(eq(users.email, email));
+    await deleteVerificationTokenByIdentifier(email);
   });
 }

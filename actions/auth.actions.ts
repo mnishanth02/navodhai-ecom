@@ -6,11 +6,12 @@ import {
   deleteVerificationTokenByIdentifier,
   findVerificationTokenByToken,
   forgotPasswordAction as forgotPasswordQuery,
+  resetPasswordAction as resetPasswordQuery,
   signinQuery,
   signupQuery,
   verifyCredentialsEmailAction,
 } from "@/lib/data-access/auth-queries";
-import { ForgotPasswordSchema, SigninSchema, SignupSchema } from "@/lib/validator/auth-validtor";
+import { ForgotPasswordSchema, ResetPasswordSchema, SigninSchema, SignupSchema } from "@/lib/validator/auth-validtor";
 
 // Define action result types
 export type ActionResult = {
@@ -175,6 +176,57 @@ export async function forgotPasswordAction(formData: FormData): Promise<ActionRe
         serverError: {
           message:
             error instanceof Error ? error.message : "An unexpected error occurred during password reset request",
+          code: "INTERNAL_ERROR",
+        },
+      },
+    };
+  }
+}
+
+// Reset password action
+export async function resetPasswordAction(
+  email: string,
+  token: string,
+  values: unknown
+): Promise<ActionResult> {
+  try {
+    // Validate input
+    const validationResult = ResetPasswordSchema.safeParse(values);
+    if (!validationResult.success) {
+      return {
+        success: false,
+        error: {
+          validationErrors: validationResult.error.flatten().fieldErrors,
+        },
+      };
+    }
+
+    // Call reset password query
+    const result = await resetPasswordQuery(email, token, validationResult.data);
+    
+    if (!result.success) {
+      return {
+        success: false,
+        error: {
+          serverError: {
+            message: result.error?.message || "Failed to reset password",
+            code: "RESET_PASSWORD_FAILED",
+          },
+        },
+      };
+    }
+
+    return {
+      success: true,
+      message: "Password reset successfully",
+    };
+  } catch (error) {
+    console.error("[Reset Password Error]", error);
+    return {
+      success: false,
+      error: {
+        serverError: {
+          message: error instanceof Error ? error.message : "An unexpected error occurred during password reset",
           code: "INTERNAL_ERROR",
         },
       },

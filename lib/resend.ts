@@ -26,7 +26,7 @@ export const sendVerificationEmail = async (email: string, token: string) => {
 
 export const sendForgotPasswordEmail = async (email: string, token: string) => {
   await resend.emails.send({
-    from: "reset@navodhai.store",
+    from: "Navodhai Store <onboarding@resend.dev>",
     to: "delivered@resend.dev", // TODO - need to update with proper email in production
     // to: [email],
     subject: "Reset Your Password - Navodhai store",

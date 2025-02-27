@@ -4,45 +4,21 @@ import { Button } from "../ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
 import { Input } from "../ui/input";
 import { ForgotPasswordForm } from "./forgot-password-form";
-import { ActionResult, signinAction } from "@/actions/auth.actions";
+import { signinAction } from "@/actions/auth.actions";
 import { SigninSchema, SigninSchemaType } from "@/lib/validator/auth-validtor";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useActionState } from "react";
-import { useFormStatus } from "react-dom";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-
-// Submit Button Component with loading state
-function SubmitButton() {
-  const { pending } = useFormStatus();
-
-  return (
-    <Button disabled={pending} type="submit" className="h-11 w-full">
-      {pending ? (
-        <>
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          Signing in...
-        </>
-      ) : (
-        "Sign in"
-      )}
-    </Button>
-  );
-}
-
-// Initial state matching ActionResult type
-const initialState: ActionResult = {
-  success: false,
-  message: undefined,
-  error: undefined,
-};
 
 export const SignInForm = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
   const callbackUrl = searchParams.get("callbackUrl");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [serverError, setServerError] = useState<string | null>(null);
 
   const form = useForm<SigninSchemaType>({
     resolver: zodResolver(SigninSchema),
@@ -50,37 +26,55 @@ export const SignInForm = () => {
       email: "",
       password: "",
     },
+    mode: "onSubmit",
   });
 
-  const handleSignin = async (_: ActionResult, formData: FormData): Promise<ActionResult> => {
-    const result = await signinAction(formData);
-    // console.log(result);
+  const onSubmit = async (data: SigninSchemaType) => {
+    setIsSubmitting(true);
+    setServerError(null);
 
-    if (result.success) {
-      toast.success("Login Successful");
-      form.reset();
-      router.push(callbackUrl || "/profile");
-    } else if (result.error) {
-      if (result.error.validationErrors) {
-        const errors = Object.values(result.error.validationErrors).flat();
-        console.log(errors);
+    try {
+      const formData = new FormData();
+      formData.append("email", data.email);
+      formData.append("password", data.password);
 
-        toast.error(errors.join(", "));
-      } else if (result.error.serverError) {
-        toast.error(result.error.serverError.message);
-      } else {
-        toast.error("Something went wrong");
+      const result = await signinAction(formData);
+
+      if (result.success) {
+        toast.success("Login Successful");
+        form.reset();
+        router.push(callbackUrl || "/profile");
+      } else if (result.error) {
+        if (result.error.validationErrors) {
+          // Set form errors for each field
+          const errors = result.error.validationErrors;
+
+          Object.entries(errors).forEach(([field, messages]) => {
+            if (field === "email" || field === "password") {
+              form.setError(field as keyof SigninSchemaType, {
+                type: "server",
+                message: messages[0],
+              });
+            }
+          });
+        } else if (result.error.serverError) {
+          setServerError(result.error.serverError.message);
+        } else {
+          setServerError("Something went wrong");
+        }
       }
+    } catch {
+      setServerError("An unexpected error occurred");
+    } finally {
+      setIsSubmitting(false);
     }
-
-    return result;
   };
-
-  const [, formAction] = useActionState(handleSignin, initialState);
 
   return (
     <Form {...form}>
-      <form action={formAction} className="space-y-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        {serverError && <div className="text-destructive bg-destructive/10 rounded-md p-3 text-sm">{serverError}</div>}
+
         <div className="space-y-4">
           <FormField
             control={form.control}
@@ -89,14 +83,7 @@ export const SignInForm = () => {
               <FormItem>
                 <FormLabel>Email</FormLabel>
                 <FormControl>
-                  <Input
-                    {...field}
-                    name="email"
-                    placeholder="Enter your email"
-                    type="email"
-                    autoComplete="email"
-                    className="h-11"
-                  />
+                  <Input {...field} placeholder="Enter your email" type="email" autoComplete="email" className="h-11" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -112,21 +99,17 @@ export const SignInForm = () => {
                 <FormControl>
                   <Input
                     {...field}
-                    name="password"
                     placeholder="Enter your password"
                     type="password"
                     autoComplete="current-password"
                     className="h-11"
                   />
                 </FormControl>
-                {/* <Button
-                  size="sm"
-                  variant="ghost"
-                  asChild
-                  className="text-muted-foreground hover:text-primary flex justify-end px-0 font-normal"
-                >
-                  <Link href="/auth/reset">Forgot password?</Link>
-                </Button> */}
+                {/* <div className="flex justify-end">
+                  <Link href="/auth/forgot-password" className="text-sm text-muted-foreground hover:text-primary hover:underline">
+                    Forgot Password?
+                  </Link>
+                </div> */}
                 <ForgotPasswordForm />
                 <FormMessage />
               </FormItem>
@@ -134,7 +117,16 @@ export const SignInForm = () => {
           />
         </div>
 
-        <SubmitButton />
+        <Button type="submit" className="h-11 w-full" disabled={isSubmitting}>
+          {isSubmitting ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Signing in...
+            </>
+          ) : (
+            "Sign in"
+          )}
+        </Button>
       </form>
     </Form>
   );
