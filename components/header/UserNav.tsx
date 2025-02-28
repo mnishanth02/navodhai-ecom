@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
 import { siteConfig } from "@/lib/config/site";
+import { DEFAULT_SIGNIN_REDIRECT } from "@/lib/routes";
 import { LogOut, Settings, User } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -60,7 +61,7 @@ export function UserNav() {
   }
 
   const handleSignOut = async () => {
-    await signOut({ redirect: true, callbackUrl: "/" });
+    await signOut({ redirect: true, callbackUrl: DEFAULT_SIGNIN_REDIRECT });
   };
 
   return (
