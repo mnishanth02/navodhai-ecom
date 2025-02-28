@@ -10,7 +10,10 @@ declare module "next-auth" {
   interface Session {
     user: {
       /** The user's postal address. */
-      //   address: string
+      role?: (typeof users.$inferSelect)["role"];
+      isActive?: (typeof users.$inferSelect)["isActive"];
+      isBanned?: (typeof users.$inferSelect)["isBanned"];
+      emailVerified?: (typeof users.$inferSelect)["emailVerified"];
       /**
        * By default, TypeScript merges new interface properties and overwrites existing ones.
        * In this case, the default session user properties will be overwritten,
@@ -21,10 +24,10 @@ declare module "next-auth" {
   }
 
   interface User extends DefaultUser {
-    emailVerified: Date | null;
-    role: string;
-    isActive: boolean;
-    isBanned: boolean;
+    emailVerified: (typeof users.$inferSelect)["emailVerified"];
+    role: (typeof users.$inferSelect)["role"];
+    isActive: (typeof users.$inferSelect)["isActive"];
+    isBanned: (typeof users.$inferSelect)["isBanned"];
   }
 }
 
@@ -32,7 +35,10 @@ declare module "next-auth/jwt" {
   /** Returned by the `jwt` callback and `auth`, when using JWT sessions */
   interface JWT {
     /** OpenID ID Token */
-    idToken?: string;
+    // idToken?: string;
+    role?: (typeof users.$inferSelect)["role"];
+    isActive?: (typeof users.$inferSelect)["isActive"];
+    isBanned?: (typeof users.$inferSelect)["isBanned"];
   }
 }
 

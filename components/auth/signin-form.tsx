@@ -5,17 +5,17 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "../ui/input";
 import { ForgotPasswordForm } from "./forgot-password-form";
 import { signinAction } from "@/actions/auth.actions";
+import { DEFAULT_SIGNIN_REDIRECT } from "@/lib/routes";
 import { SigninSchema, SigninSchemaType } from "@/lib/validator/auth-validtor";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 export const SignInForm = () => {
   const searchParams = useSearchParams();
-  const router = useRouter();
   const callbackUrl = searchParams.get("callbackUrl");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
@@ -43,7 +43,8 @@ export const SignInForm = () => {
       if (result.success) {
         toast.success("Login Successful");
         form.reset();
-        router.push(callbackUrl || "/profile");
+        window.location.href = callbackUrl || DEFAULT_SIGNIN_REDIRECT;
+        // router.push(callbackUrl || "/");
       } else if (result.error) {
         if (result.error.validationErrors) {
           // Set form errors for each field
