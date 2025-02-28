@@ -4,10 +4,12 @@ import * as schema from "./drizzle/schema";
 import { usersInsertSchema } from "./drizzle/schema/auth";
 import { userRoleSchema } from "./drizzle/schema/enums";
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
-import { getTableColumns } from "drizzle-orm";
+import { eq, getTableColumns } from "drizzle-orm";
 import { NextAuthConfig } from "next-auth";
 import Google from "next-auth/providers/google";
 import { z } from "zod";
+import { DEFAULT_SIGNIN_REDIRECT } from "./lib/routes";
+import { oauthVerifyEmailAction } from "./lib/data-access/auth-queries";
 
 export default {
   providers: [
@@ -56,6 +58,151 @@ export default {
         .then((res) => res[0]);
 
       return dbUser;
+    },
+  },
+  callbacks: {
+    authorized({ auth, request }) {
+      const { nextUrl } = request;
+      const isLoggedIn = !!auth?.user;
+
+      // Protected routes that require authentication
+      const protectedPaths = [
+        "/profile",
+        "/orders",
+        "/cart",
+        "/checkout",
+        "/wishlist",
+        "/settings",
+      ];
+
+      const isProtectedPath = protectedPaths.some(path =>
+        nextUrl.pathname.startsWith(path)
+      );
+
+      // Admin/staff only routes
+      const adminPaths = ["/admin", "/dashboard"];
+      const isAdminPath = adminPaths.some(path =>
+        nextUrl.pathname.startsWith(path)
+      );
+
+      if (isProtectedPath || isAdminPath) {
+        if (!isLoggedIn) {
+          return false; // Redirect to sign in
+        }
+
+        // For admin paths, check role
+        if (isAdminPath) {
+          const userRole = auth?.user?.role;
+          return userRole === "admin" || userRole === "staff";
+        }
+
+        return true;
+      }
+
+      // Auth pages redirect logged in users
+      const isAuthPath = nextUrl.pathname.startsWith("/auth");
+      if (isAuthPath && isLoggedIn) {
+        return Response.redirect(new URL(DEFAULT_SIGNIN_REDIRECT, nextUrl));
+      }
+
+      return true;
+    },
+
+    async signIn({ user, account, profile }) {
+      // Check if user is banned
+      if (user.isBanned === true) {
+        return false;
+      }
+
+      // For OAuth sign-in, update user data if needed
+      if (account?.provider === "google" && profile && user.id) {
+        const dbUser = await db.query.users.findFirst({
+          where: eq(schema.users.id, user.id)
+        });
+
+        if (dbUser) {
+          await db.update(schema.users)
+            .set({
+              name: profile.name || dbUser.name,
+              image: profile.picture || dbUser.image,
+              emailVerified: profile.email_verified ? new Date() : dbUser.emailVerified
+            })
+            .where(eq(schema.users.id, dbUser.id));
+        }
+      }
+
+      // Verify email for OAuth providers
+      if (account?.provider === "google" && profile?.email_verified) {
+        return true;
+      }
+
+      if (account?.provider === "credentials") {
+        return !!user.emailVerified;
+      }
+
+      return false;
+    },
+
+    async jwt({ token, user, trigger, session }) {
+      if (!token.maxAge) {
+        token.maxAge = 30 * 24 * 60 * 60;
+      }
+
+      if (user?.id) {
+        const dbUser = await db.query.users.findFirst({
+          where: eq(schema.users.id, user.id),
+          columns: {
+            id: true,
+            role: true,
+            isActive: true,
+            isBanned: true,
+            name: true,
+          },
+        });
+
+        if (dbUser) {
+          token.id = dbUser.id;
+          token.name = dbUser.name;
+          token.role = dbUser.role;
+          token.isActive = dbUser.isActive ?? false;
+          token.isBanned = dbUser.isBanned ?? false;
+        }
+      }
+
+      if (trigger === "update" && session?.user) {
+        return { ...token, ...session.user };
+      }
+
+      return token;
+    },
+
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.id = token.id as string;
+        session.user.role = token.role as "customer" | "admin" | "staff";
+        session.user.isActive = token.isActive as boolean;
+        session.user.isBanned = token.isBanned as boolean;
+      }
+
+      return session;
+    },
+  },
+
+  events: {
+    async linkAccount({ user, account }) {
+      if (["google"].includes(account.provider) && user.email) {
+        await oauthVerifyEmailAction(user.email);
+      }
+    },
+
+    async signIn({ user }) {
+      if (user.id) {
+        // Update last login timestamp
+        await db
+          .update(schema.users)
+          .set({ lastLoginAt: new Date() })
+          .where(eq(schema.users.id, user.id));
+      }
     },
   },
 } satisfies NextAuthConfig;

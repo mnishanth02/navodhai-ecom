@@ -43,7 +43,7 @@ export const SignInForm = () => {
       if (result.success) {
         toast.success("Login Successful");
         form.reset();
-        router.push(callbackUrl || "/profile");
+        router.push(callbackUrl || "/");
       } else if (result.error) {
         if (result.error.validationErrors) {
           // Set form errors for each field
