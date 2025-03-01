@@ -1,3 +1,4 @@
+import { ActionResult } from "@/types/api";
 import { z } from "zod";
 
 // Simple validation error type
@@ -54,6 +55,7 @@ export async function validateAndExecute<T extends z.ZodType, R>(
   }
 }
 
+
 // Simple error creator
 const createError = <T>(message: string, code: string, validationErrors?: ValidationError): ApiResponse<T> => ({
   success: false,
@@ -68,4 +70,12 @@ const createError = <T>(message: string, code: string, validationErrors?: Valida
 const createSuccess = <T>(data?: T): ApiResponse<T> => ({
   success: true,
   ...(data !== undefined && { data }),
+});
+
+
+// Create action response
+export const createActionResponse = <T>(success: boolean, data?: T, message?: string): ActionResult => ({
+  success,
+  ...(data !== undefined && { data }),
+  ...(message !== undefined && { message }),
 });

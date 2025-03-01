@@ -1,7 +1,5 @@
 "use server";
 
-import "server-only";
-
 import { handleAuthError, handleValidationError } from "@/lib/utils/error-handler";
 import {
   forgotPasswordAction as forgotPasswordQuery,
@@ -11,22 +9,12 @@ import {
   verifyCredentialsEmailAction,
 } from "@/lib/data-access/auth-queries";
 import { ForgotPasswordSchema, ResetPasswordSchema, SigninSchema, SignupSchema } from "@/lib/validator/auth-validtor";
+import { ActionResult } from "@/types/api";
+import { users } from "@/drizzle/schema";
 
-// Define action result types
-export type ActionResult = {
-  success: boolean;
-  message?: string;
-  error?: {
-    validationErrors?: Record<string, string[]>;
-    serverError?: {
-      message: string;
-      code?: string;
-    };
-  };
-};
 
 // Signup action
-export async function signupAction(formData: FormData): Promise<ActionResult> {
+export async function signupAction(formData: FormData): Promise<ActionResult<typeof users.$inferSelect>> {
   try {
     // Parse form data into an object
     const rawFormData = {
@@ -65,7 +53,7 @@ export async function signupAction(formData: FormData): Promise<ActionResult> {
 }
 
 // Signin action
-export async function signinAction(formData: FormData): Promise<ActionResult> {
+export async function signinAction(formData: FormData): Promise<ActionResult<typeof users.$inferSelect>> {
   try {
     // Parse form data into an object
     const rawFormData = {
@@ -103,7 +91,7 @@ export async function signinAction(formData: FormData): Promise<ActionResult> {
 }
 
 // Forgot password action
-export async function forgotPasswordAction(input: FormData | { email: string }): Promise<ActionResult> {
+export async function forgotPasswordAction(input: FormData | { email: string }): Promise<ActionResult<typeof users.$inferSelect>> {
   try {
     // Parse input into an object
     const rawFormData = input instanceof FormData
@@ -144,7 +132,7 @@ export async function resetPasswordAction(
   email: string,
   token: string,
   values: unknown
-): Promise<ActionResult> {
+): Promise<ActionResult<typeof users.$inferSelect>> {
   try {
     // Validate input
     const validationResult = ResetPasswordSchema.safeParse(values);
@@ -177,7 +165,7 @@ export async function resetPasswordAction(
 }
 
 // Email verification action
-export async function verifyEmailAction(prevState: ActionResult | null, formData: FormData): Promise<ActionResult> {
+export async function verifyEmailAction(prevState: ActionResult<typeof users.$inferSelect> | null, formData: FormData): Promise<ActionResult<typeof users.$inferSelect>> {
   try {
     const token = formData.get("token");
     if (!token || typeof token !== "string") {

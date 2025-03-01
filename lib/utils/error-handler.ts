@@ -1,4 +1,4 @@
-import { ActionResult } from "@/actions/auth.actions";
+import { ActionResult } from "@/types/api";
 
 /**
  * Generic error handler for authentication actions
@@ -6,7 +6,7 @@ import { ActionResult } from "@/actions/auth.actions";
  * @param context - The context where the error occurred (e.g., "signin", "signup")
  * @returns ActionResult with formatted error message and code
  */
-export const handleAuthError = (error: unknown, context: string): ActionResult => {
+export const handleAuthError = <T>(error: unknown, context: string): ActionResult<T> => {
     // Log the error for monitoring
     console.error(`[Auth Error - ${context}]`, error);
 
@@ -40,9 +40,9 @@ export const handleAuthError = (error: unknown, context: string): ActionResult =
  * @param fieldErrors - Object containing field-specific validation errors
  * @returns ActionResult with validation errors
  */
-export const handleValidationError = (
+export const handleValidationError = <T>(
     fieldErrors: Record<string, string[]>
-): ActionResult => ({
+): ActionResult<T> => ({
     success: false,
     error: {
         validationErrors: fieldErrors,

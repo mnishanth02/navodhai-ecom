@@ -1,14 +1,20 @@
-import Footer from "@/components/common/footer";
-import { Header } from "@/components/header";
+import { auth } from "@/auth";
+import { getStoreByIdUserIdQuery } from "@/lib/data-access/store-quries";
+import { redirect } from "next/navigation";
 
-const PublicLayout = async ({ children }: { children: React.ReactNode }) => {
-  return (
-    <div className="flex min-h-screen flex-col">
-      <Header />
-      <div className="flex-1">{children}</div>
-      <Footer />
-    </div>
-  );
+const SetupLayout = async ({ children }: { children: React.ReactNode }) => {
+  const session = await auth();
+
+  if (!session || !session.user.id) {
+    redirect("/auth/sign-in");
+  }
+  const { data: store } = await getStoreByIdUserIdQuery(session.user.id);
+
+  if (store?.data) {
+    redirect(`/${store.data.id}`);
+  }
+
+  return <>{children}</>;
 };
 
-export default PublicLayout;
+export default SetupLayout;

@@ -3,7 +3,7 @@
 import { useStoreModal } from "@/store/use-store-modal";
 import { useEffect } from "react";
 
-const MainPage = () => {
+const SetupPage = () => {
   const { isOpen, onOpen } = useStoreModal();
 
   useEffect(() => {
@@ -12,11 +12,7 @@ const MainPage = () => {
     }
   }, [isOpen, onOpen]);
 
-  return (
-    <div className="flex h-screen flex-col items-center justify-center">
-      <div></div>
-    </div>
-  );
+  return null;
 };
 
-export default MainPage;
+export default SetupPage;
