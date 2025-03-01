@@ -12,7 +12,6 @@ declare module "next-auth" {
       /** The user's postal address. */
       role?: (typeof users.$inferSelect)["role"];
       isActive?: (typeof users.$inferSelect)["isActive"];
-      isBanned?: (typeof users.$inferSelect)["isBanned"];
       emailVerified?: (typeof users.$inferSelect)["emailVerified"];
       /**
        * By default, TypeScript merges new interface properties and overwrites existing ones.
@@ -27,7 +26,6 @@ declare module "next-auth" {
     emailVerified: (typeof users.$inferSelect)["emailVerified"];
     role: (typeof users.$inferSelect)["role"];
     isActive: (typeof users.$inferSelect)["isActive"];
-    isBanned: (typeof users.$inferSelect)["isBanned"];
   }
 }
 
@@ -38,7 +36,6 @@ declare module "next-auth/jwt" {
     // idToken?: string;
     role?: (typeof users.$inferSelect)["role"];
     isActive?: (typeof users.$inferSelect)["isActive"];
-    isBanned?: (typeof users.$inferSelect)["isBanned"];
   }
 }
 
@@ -49,6 +46,5 @@ declare module "@auth/core/adapters" {
     emailVerified: (typeof users.$inferSelect)["emailVerified"];
     role: (typeof users.$inferSelect)["role"];
     isActive: (typeof users.$inferSelect)["isActive"];
-    isBanned: (typeof users.$inferSelect)["isBanned"];
   }
 }

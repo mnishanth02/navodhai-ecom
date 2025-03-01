@@ -48,7 +48,6 @@ export default {
         ...insertData,
         role: userRoleSchema.enum.customer,
         isActive: true,
-        isBanned: false,
       };
 
       const dbUser = await db
@@ -109,10 +108,6 @@ export default {
     },
 
     async signIn({ user, account, profile }) {
-      // Check if user is banned
-      if (user.isBanned === true) {
-        return false;
-      }
 
       // For OAuth sign-in, update user data if needed
       if (account?.provider === "google" && profile && user.id) {
@@ -155,7 +150,6 @@ export default {
             id: true,
             role: true,
             isActive: true,
-            isBanned: true,
             name: true,
           },
         });
@@ -165,7 +159,6 @@ export default {
           token.name = dbUser.name;
           token.role = dbUser.role;
           token.isActive = dbUser.isActive ?? false;
-          token.isBanned = dbUser.isBanned ?? false;
         }
       }
 
@@ -181,7 +174,6 @@ export default {
         session.user.id = token.id as string;
         session.user.role = token.role as "customer" | "admin" | "staff";
         session.user.isActive = token.isActive as boolean;
-        session.user.isBanned = token.isBanned as boolean;
       }
 
       return session;

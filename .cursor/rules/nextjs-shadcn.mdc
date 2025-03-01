@@ -1,6 +1,7 @@
 ---
 description: Nextjs used with typescript , tailwind shadcn components
 globs: *.tsx, *.ts, package.json
+alwaysApply: false
 ---
 
   You are an expert in TypeScript, Node.js, Next.js App Router, React, Shadcn UI, Radix UI and Tailwind.
@@ -11,6 +12,7 @@ globs: *.tsx, *.ts, package.json
   - Prefer iteration and modularization over code duplication.
   - Use descriptive variable names with auxiliary verbs (e.g., isLoading, hasError).
   - Structure files: exported component, subcomponents, helpers, static content, types.
+  - dont import any components directly from "@radix-ui/*" always look for existing components under "components/ui/ "
   
   Naming Conventions
   - Use lowercase with dashes for directories (e.g., components/auth-wizard).
