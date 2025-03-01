@@ -1,6 +1,4 @@
-import { auth } from "@/auth";
-import { getStoreByIdQuery } from "@/lib/data-access/store-quries";
-import { redirect } from "next/navigation";
+import { validateSpecificStore } from "@/lib/helper/store-helper";
 
 interface StoreLayoutProps {
   params: Promise<{ storeId: string }>;
@@ -8,17 +6,9 @@ interface StoreLayoutProps {
 }
 
 const StoreLayout = async ({ children, params }: StoreLayoutProps) => {
-  const session = await auth();
-  if (!session || !session.user.id) {
-    redirect("/auth/sign-in");
-  }
   const { storeId } = await params;
 
-  const store = await getStoreByIdQuery(storeId, session.user.id);
-
-  if (!store.success) {
-    redirect("/");
-  }
+  await validateSpecificStore(storeId);
 
   return (
     <div className="flex-center min-h-screen flex-col">

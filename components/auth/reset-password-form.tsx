@@ -46,7 +46,7 @@ export const ResetPasswordForm = ({ email, token }: ResetPasswordFormProps) => {
           Object.entries(res.error.validationErrors).forEach(([field, messages]) => {
             if (field in values) {
               form.setError(field as keyof ResetPasswordSchemaType, {
-                message: messages[0],
+                message: messages.message,
               });
             }
           });

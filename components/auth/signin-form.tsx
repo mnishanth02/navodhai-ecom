@@ -54,7 +54,7 @@ export const SignInForm = () => {
             if (field === "email" || field === "password") {
               form.setError(field as keyof SigninSchemaType, {
                 type: "server",
-                message: messages[0],
+                message: messages.message,
               });
             }
           });

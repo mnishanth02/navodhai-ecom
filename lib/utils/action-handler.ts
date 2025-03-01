@@ -1,12 +1,12 @@
-import { ActionResult } from "@/types/api";
+import { ActionResponse } from "@/types/api";
 
 /**
  * Generic error handler for authentication actions
  * @param error - The error object caught in the try-catch block
  * @param context - The context where the error occurred (e.g., "signin", "signup")
- * @returns ActionResult with formatted error message and code
+ * @returns ActionResponse with formatted error message and code
  */
-export const handleAuthError = <T>(error: unknown, context: string): ActionResult<T> => {
+export const handleAuthError = <T>(error: unknown, context: string): ActionResponse<T> => {
     // Log the error for monitoring
     console.error(`[Auth Error - ${context}]`, error);
 
@@ -17,7 +17,7 @@ export const handleAuthError = <T>(error: unknown, context: string): ActionResul
             error: {
                 serverError: {
                     message: error.message,
-                    code: `${context.toUpperCase()}_ERROR`,
+                    code: 500,
                 },
             },
         };
@@ -29,7 +29,7 @@ export const handleAuthError = <T>(error: unknown, context: string): ActionResul
         error: {
             serverError: {
                 message: `An unexpected error occurred during ${context}`,
-                code: "INTERNAL_ERROR",
+                code: 500,
             },
         },
     };
@@ -38,13 +38,24 @@ export const handleAuthError = <T>(error: unknown, context: string): ActionResul
 /**
  * Creates a validation error result
  * @param fieldErrors - Object containing field-specific validation errors
- * @returns ActionResult with validation errors
+ * @returns ActionResponse with validation errors
  */
 export const handleValidationError = <T>(
     fieldErrors: Record<string, string[]>
-): ActionResult<T> => ({
-    success: false,
-    error: {
-        validationErrors: fieldErrors,
-    },
-});
+): ActionResponse<T> => {
+    // Convert field errors to ValidationError array
+    const validationErrors = Object.entries(fieldErrors).flatMap(([field, messages]) =>
+        messages.map(message => ({ field, message }))
+    );
+
+    return {
+        success: false,
+        error: {
+            serverError: {
+                message: "Validation failed",
+                code: 400,
+            },
+            validationErrors,
+        },
+    };
+};

@@ -33,7 +33,7 @@ const StoreModal = () => {
           onClose();
           window.location.assign(`/${result.data?.id}`);
         } else {
-          toast.error(result.message);
+          toast.error(result.error.serverError?.message);
         }
       });
     } catch (error) {

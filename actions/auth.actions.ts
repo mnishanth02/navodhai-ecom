@@ -1,6 +1,6 @@
 "use server";
 
-import { handleAuthError, handleValidationError } from "@/lib/utils/error-handler";
+import { handleAuthError, handleValidationError } from "@/lib/utils/action-handler";
 import {
   forgotPasswordAction as forgotPasswordQuery,
   resetPasswordAction as resetPasswordQuery,
@@ -9,12 +9,12 @@ import {
   verifyCredentialsEmailAction,
 } from "@/lib/data-access/auth-queries";
 import { ForgotPasswordSchema, ResetPasswordSchema, SigninSchema, SignupSchema } from "@/lib/validator/auth-validtor";
-import { ActionResult } from "@/types/api";
+import { ActionResponse } from "@/types/api";
 import { users } from "@/drizzle/schema";
 
 
 // Signup action
-export async function signupAction(formData: FormData): Promise<ActionResult<typeof users.$inferSelect>> {
+export async function signupAction(formData: FormData): Promise<ActionResponse<typeof users.$inferSelect>> {
   try {
     // Parse form data into an object
     const rawFormData = {
@@ -37,7 +37,7 @@ export async function signupAction(formData: FormData): Promise<ActionResult<typ
         error: {
           serverError: {
             message: result.error?.message || "Failed to create account",
-            code: "SIGNUP_FAILED",
+            code: 500,
           },
         },
       };
@@ -53,7 +53,7 @@ export async function signupAction(formData: FormData): Promise<ActionResult<typ
 }
 
 // Signin action
-export async function signinAction(formData: FormData): Promise<ActionResult<typeof users.$inferSelect>> {
+export async function signinAction(formData: FormData): Promise<ActionResponse<typeof users.$inferSelect>> {
   try {
     // Parse form data into an object
     const rawFormData = {
@@ -75,7 +75,7 @@ export async function signinAction(formData: FormData): Promise<ActionResult<typ
         error: {
           serverError: {
             message: result.error?.message || "Failed to sign in",
-            code: "SIGNIN_FAILED",
+            code: 500,
           },
         },
       };
@@ -91,7 +91,7 @@ export async function signinAction(formData: FormData): Promise<ActionResult<typ
 }
 
 // Forgot password action
-export async function forgotPasswordAction(input: FormData | { email: string }): Promise<ActionResult<typeof users.$inferSelect>> {
+export async function forgotPasswordAction(input: FormData | { email: string }): Promise<ActionResponse<typeof users.$inferSelect>> {
   try {
     // Parse input into an object
     const rawFormData = input instanceof FormData
@@ -105,14 +105,14 @@ export async function forgotPasswordAction(input: FormData | { email: string }):
     }
 
     // Call forgot password query
-    const { success, data, error } = await forgotPasswordQuery(validationResult.data);
-    if (!success) {
+    const result = await forgotPasswordQuery(validationResult.data);
+    if (!result.success) {
       return {
         success: false,
         error: {
           serverError: {
-            message: error?.message || "Failed to send password reset email",
-            code: "FORGOT_PASSWORD_FAILED",
+            message: result.error?.message || "Failed to send password reset email",
+            code: 500,
           },
         },
       };
@@ -120,7 +120,7 @@ export async function forgotPasswordAction(input: FormData | { email: string }):
 
     return {
       success: true,
-      message: data?.data?.msg || "Password reset email sent successfully",
+      message: result.data?.msg || "Password reset email sent successfully",
     };
   } catch (error) {
     return handleAuthError(error, "forgot_password");
@@ -132,7 +132,7 @@ export async function resetPasswordAction(
   email: string,
   token: string,
   values: unknown
-): Promise<ActionResult<typeof users.$inferSelect>> {
+): Promise<ActionResponse<typeof users.$inferSelect>> {
   try {
     // Validate input
     const validationResult = ResetPasswordSchema.safeParse(values);
@@ -149,7 +149,7 @@ export async function resetPasswordAction(
         error: {
           serverError: {
             message: result.error?.message || "Failed to reset password",
-            code: "RESET_PASSWORD_FAILED",
+            code: 500,
           },
         },
       };
@@ -165,7 +165,7 @@ export async function resetPasswordAction(
 }
 
 // Email verification action
-export async function verifyEmailAction(prevState: ActionResult<typeof users.$inferSelect> | null, formData: FormData): Promise<ActionResult<typeof users.$inferSelect>> {
+export async function verifyEmailAction(prevState: ActionResponse<typeof users.$inferSelect> | null, formData: FormData): Promise<ActionResponse<typeof users.$inferSelect>> {
   try {
     const token = formData.get("token");
     if (!token || typeof token !== "string") {
@@ -174,7 +174,7 @@ export async function verifyEmailAction(prevState: ActionResult<typeof users.$in
         error: {
           serverError: {
             message: "Invalid verification token",
-            code: "INVALID_TOKEN",
+            code: 400,
           },
         },
       };
@@ -187,7 +187,7 @@ export async function verifyEmailAction(prevState: ActionResult<typeof users.$in
         error: {
           serverError: {
             message: result.error?.message || "Failed to verify email",
-            code: "VERIFY_EMAIL_FAILED",
+            code: 500,
           },
         },
       };

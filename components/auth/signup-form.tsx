@@ -54,7 +54,7 @@ export const SignUpForm: FC = () => {
             if (field === "name" || field === "email" || field === "password") {
               form.setError(field as keyof SignupSchemaType, {
                 type: "server",
-                message: messages[0],
+                message: messages.message,
               });
             }
           });

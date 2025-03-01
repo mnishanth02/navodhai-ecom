@@ -1,6 +1,6 @@
 "use client";
 
-import { ModalProvider } from "./moda-provider";
+import { ModalProvider } from "./modal-provider";
 import { ThemeProvider } from "./theme-provider";
 import { Toaster } from "@ui/sonner";
 import { SessionProvider } from "next-auth/react";

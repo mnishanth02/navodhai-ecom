@@ -1,19 +1,27 @@
 "use server"
 
 import { auth } from "@/auth";
-import { ActionResult } from "@/types/api";
+import { ActionResponse } from "@/types/api";
 import { createStoreQuery } from "@/lib/data-access/store-quries";
-import { createActionResponse } from "@/lib/helper";
 import { StoreSchema, StoreSchemaType } from "@/lib/validator/store-validator";
 import { stores } from "@/drizzle/schema";
+import { handleValidationError } from "@/lib/utils/action-handler";
 
 
-export async function createStoreAction(formData: StoreSchemaType): Promise<ActionResult<typeof stores.$inferSelect>> {
+export async function createStoreAction(formData: StoreSchemaType): Promise<ActionResponse<typeof stores.$inferSelect | null>> {
 
     const session = await auth()
 
     if (!session || !session?.user) {
-        return createActionResponse(false, undefined, "Unauthorized")
+        return {
+            success: false,
+            error: {
+                serverError: {
+                    message: "Unauthorized",
+                    code: 401
+                }
+            }
+        }
     }
 
     const { id: userId } = session.user
@@ -21,15 +29,26 @@ export async function createStoreAction(formData: StoreSchemaType): Promise<Acti
     const validationResult = StoreSchema.safeParse({ name: formData.name, userId });
 
     if (!validationResult.success) {
-        return createActionResponse(false, undefined, "Invalid input")
+        return handleValidationError(validationResult.error.flatten().fieldErrors);
     }
 
     const store = await createStoreQuery(validationResult.data.name, userId as string)
 
     if (store.success) {
-        return createActionResponse(true, store.data, "Store created successfully")
+        return {
+            success: true,
+            data: store.data,
+            message: "Store created successfully"
+        }
     }
 
-    return createActionResponse(false, undefined, "Store creation failed")
-
+    return {
+        success: false,
+        error: {
+            serverError: {
+                message: "Store creation failed",
+                code: 500
+            }
+        }
+    }
 }

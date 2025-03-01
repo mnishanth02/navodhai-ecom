@@ -46,7 +46,7 @@ export const ForgotPasswordForm = () => {
             if (field === "email") {
               form.setError(field as keyof ForgotPasswordSchemaType, {
                 type: "server",
-                message: messages[0],
+                message: messages.message,
               });
             }
           });
