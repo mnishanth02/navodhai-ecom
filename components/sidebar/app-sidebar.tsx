@@ -11,7 +11,7 @@ import * as React from "react";
 
 const getDashboardNavItems = (storeId: string) => [
   {
-    title: "Dashboard",
+    title: "Overview",
     url: `/${storeId}`,
     icon: LayoutDashboard,
     isActive: true,

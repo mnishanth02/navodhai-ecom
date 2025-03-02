@@ -1,12 +1,14 @@
 "use client";
 
 import { deleteStore, updateStore } from "@/actions/store.actions";
+import { ApiAlert } from "@/components/common/api-alert";
 import { InputWithLabel } from "@/components/common/input-with-label";
 import { AlertModal } from "@/components/modals/alert-modal";
 import PageHeading from "@/components/store/page-heading";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Separator } from "@/components/ui/separator";
+import { env } from "@/data/env/client-env";
 import { StoreType } from "@/drizzle/schema/store";
 import { StoreSchema, StoreSchemaType } from "@/lib/validator/store-validator";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -91,7 +93,7 @@ const SettingsForm = ({ initialData }: SettingsFormProps) => {
           <Trash className="h-4 w-4" />
         </Button>
       </div>
-      <Separator />
+      <Separator className="mb-6" />
       {serverError && <div className="text-destructive bg-destructive/10 rounded-md p-3 text-sm">{serverError}</div>}
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -115,6 +117,12 @@ const SettingsForm = ({ initialData }: SettingsFormProps) => {
           </Button>
         </form>
       </Form>
+      <Separator className="my-4" />
+      <ApiAlert
+        title="NEXT_PUBLIC_API_URL"
+        description={`${env.NEXT_PUBLIC_SERVER_URL}/api/${initialData.id}`}
+        variant="public"
+      />
     </>
   );
 };

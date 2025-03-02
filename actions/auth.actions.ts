@@ -1,6 +1,6 @@
 "use server";
 
-import { actionClient, ActionError } from "@/lib/safe-action";
+import { actionClient } from "@/lib/safe-action";
 import { z } from "zod";
 import {
   forgotPasswordAction as forgotPasswordQuery,
@@ -10,6 +10,7 @@ import {
   verifyCredentialsEmailAction,
 } from "@/lib/data-access/auth-queries";
 import { ForgotPasswordSchema, SigninSchema, SignupSchema } from "@/lib/validator/auth-validtor";
+import { ActionError } from "@/lib/error";
 
 // Signup action
 export const signup = actionClient
