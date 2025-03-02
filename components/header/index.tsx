@@ -1,8 +1,8 @@
 "use client";
 
-import { MobileNav } from "./MobileNav";
-import { Nav } from "./Nav";
-import { UserNav } from "./UserNav";
+import { MobileNav } from "./mobile-nav";
+import { Nav } from "./nav";
+import { UserNav } from "./user-nav";
 import ThemeToggle from "@/components/common/theme-toggle";
 import { siteConfig } from "@/lib/config/site";
 import { cn } from "@/lib/utils";

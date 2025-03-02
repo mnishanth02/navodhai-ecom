@@ -1,11 +1,11 @@
 import { validateSpecificStore } from "@/lib/helper/store-helper";
 import { redirect } from "next/navigation";
 
-interface DashboardPageProps {
+interface SettingsPageProps {
   params: Promise<{ storeId: string }>;
 }
 
-const StoreDashboardPage = async ({ params }: DashboardPageProps) => {
+const SettingsPage = async ({ params }: SettingsPageProps) => {
   const { storeId } = await params;
 
   const store = await validateSpecificStore(storeId);
@@ -14,7 +14,7 @@ const StoreDashboardPage = async ({ params }: DashboardPageProps) => {
     redirect("/");
   }
 
-  return <div>StoreDashboardPage - {store.name}</div>;
+  return <div>SettingsPage - {store.name}</div>;
 };
 
-export default StoreDashboardPage;
+export default SettingsPage;

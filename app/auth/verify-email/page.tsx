@@ -1,3 +1,4 @@
+import Loader from "@/components/common/loader";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,7 +7,7 @@ import {
   findVerificationTokenByToken,
   verifyCredentialsEmailAction,
 } from "@/lib/data-access/auth-queries";
-import { CheckCircle, Loader2, XCircle } from "lucide-react";
+import { CheckCircle, XCircle } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
 
@@ -21,7 +22,7 @@ export default async function Page({ searchParams }: PageProps) {
 
   return (
     <main className="container py-8">
-      <Suspense fallback={<LoadingState />}>
+      <Suspense fallback={<Loader />}>
         <VerificationContent token={token} />
       </Suspense>
     </main>
@@ -61,12 +62,6 @@ async function VerificationContent({ token }: { token: string }) {
     return <TokenIsInvalidState message="An unexpected error occurred during email verification" />;
   }
 }
-
-const LoadingState = () => (
-  <div className="flex items-center justify-center p-8">
-    <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
-  </div>
-);
 
 const VerificationCard = ({ children }: { children: React.ReactNode }) => (
   <Card className="mx-auto mt-8 max-w-md">

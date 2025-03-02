@@ -152,3 +152,53 @@ export async function getStoreByUserIdQuery(userId: string): Promise<ApiResponse
         };
     }
 }
+
+
+// ******************************************************
+// *******************  getAllStoreByUserIdQuery ****************
+// ******************************************************
+export async function getAllStoreByUserIdQuery(userId: string): Promise<ApiResponse<typeof stores.$inferSelect[]>> {
+    try {
+        // Validate inputs with Zod
+        const schema = z.object({ userId: z.string() });
+        const validatedData = schema.parse({ userId });
+
+        const allStores = await db.query.stores.findMany({
+            where: eq(stores.userId, validatedData.userId),
+        });
+
+        if (allStores && allStores.length > 0) {
+            return {
+                success: true,
+                data: allStores,
+            };
+        }
+
+        return {
+            success: false,
+            error: {
+                code: 404,
+                message: "No stores found",
+            }
+        }
+
+    } catch (error) {
+        if (error instanceof z.ZodError) {
+            return {
+                success: false,
+                error: {
+                    code: 400,
+                    message: `Validation error: ${error.errors.map(e => e.message).join(', ')}`,
+                }
+            };
+        }
+
+        return {
+            success: false,
+            error: {
+                code: 500,
+                message: error instanceof Error ? error.message : "An unknown error occurred",
+            }
+        };
+    }
+}

@@ -1,10 +1,10 @@
 "use client";
 
 import { MotionSpan } from "@/components/common/MontionComp";
-import { navConfig } from "@/lib/config/navItems";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
+import { useMemo } from "react";
 
 interface NavProps {
   containerStyles?: string;
@@ -15,23 +15,32 @@ interface NavProps {
 
 export function Nav({ containerStyles, linkStyles, underlineStyles, onLinkClick }: NavProps) {
   const path = usePathname();
+  const params = useParams();
+
+  const routes = useMemo(() => {
+    return [
+      {
+        href: `/${params.storeId}/settings`,
+        label: "settings",
+        isActive: path === `/${params.storeId}/settings`,
+      },
+    ];
+  }, [params.storeId, path]);
 
   return (
     <nav className={containerStyles}>
-      {navConfig.mainNav.map((link) => {
-        const isActive = path === link.href;
-
+      {routes.map((route) => {
         return (
           <Link
-            key={link.href}
-            href={link.href}
-            className={cn("group relative py-2 transition-colors", linkStyles, isActive && "text-foreground")}
+            key={route.href}
+            href={route.href}
+            className={cn("group relative py-2 transition-colors", linkStyles, route.isActive && "text-foreground")}
             onClick={() => onLinkClick?.()}
-            aria-current={isActive ? "page" : undefined}
+            aria-current={route.isActive ? "page" : undefined}
           >
             <span className="relative text-lg">
-              {link.title.charAt(0).toUpperCase() + link.title.slice(1)}
-              {isActive && (
+              {route.label.charAt(0).toUpperCase() + route.label.slice(1)}
+              {route.isActive && (
                 <MotionSpan
                   initial={{ y: "-100%" }}
                   animate={{ y: 0 }}

@@ -1,7 +1,7 @@
 "use client";
 
 import { Socials } from "../common/Socials";
-import { Nav } from "./Nav";
+import { Nav } from "./nav";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";

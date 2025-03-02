@@ -33,3 +33,9 @@ export const storesInsertSchema = createInsertSchema(stores);
 
 //  updateQueries
 export const storesUpdateSchema = createUpdateSchema(stores);
+
+
+//  Types
+export type StoreType = typeof stores.$inferSelect;
+export type NewStoreType = typeof storesInsertSchema;
+export type UpdateStoreType = typeof storesUpdateSchema;
