@@ -1,6 +1,6 @@
 "use client";
 
-import { deleteStoreAction, updateStoreAction } from "@/actions/store.action";
+import { deleteStore, updateStore } from "@/actions/store.actions";
 import { InputWithLabel } from "@/components/common/input-with-label";
 import { AlertModal } from "@/components/modals/alert-modal";
 import PageHeading from "@/components/store/page-heading";
@@ -11,8 +11,9 @@ import { StoreType } from "@/drizzle/schema/store";
 import { StoreSchema, StoreSchemaType } from "@/lib/validator/store-validator";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Trash } from "lucide-react";
+import { useAction } from "next-safe-action/hooks";
 import { useRouter } from "next/navigation";
-import React, { useState, useTransition } from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -21,9 +22,8 @@ interface SettingsFormProps {
 }
 
 const SettingsForm = ({ initialData }: SettingsFormProps) => {
-  const [isPending, startTransition] = useTransition();
-  const [isDeleting, setIsDeleting] = useState(false);
   const [open, setOpen] = useState(false);
+  const [serverError, setServerError] = useState<string | null>(null);
   const router = useRouter();
 
   const form = useForm<StoreSchemaType>({
@@ -31,48 +31,54 @@ const SettingsForm = ({ initialData }: SettingsFormProps) => {
     defaultValues: initialData,
   });
 
-  const onSubmit = (data: StoreSchemaType) => {
-    startTransition(async () => {
-      try {
-        const result = await updateStoreAction({
-          name: data.name,
-          storeId: initialData.id,
-        });
-
-        if (result.success) {
-          router.refresh();
-          toast.success(result.message || "Store updated successfully");
-        } else {
-          toast.error(result.error?.serverError?.message || "Something went wrong");
-        }
-      } catch (error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : "Something went wrong";
-        toast.error(errorMessage);
+  const { execute: executeUpdate, isPending: isUpdating } = useAction(updateStore, {
+    onExecute: () => {
+      setServerError(null);
+    },
+    onSuccess: (data) => {
+      toast.success(data.data?.message || "Store updated successfully");
+      router.refresh();
+    },
+    onError: (error) => {
+      if (error.error?.serverError) {
+        setServerError(error.error.serverError);
+        toast.error(error.error.serverError);
+      } else {
+        toast.error("Something went wrong");
       }
+    },
+  });
+
+  const { execute: executeDelete, isPending: isDeleting } = useAction(deleteStore, {
+    onExecute: () => {
+      setServerError(null);
+    },
+    onSuccess: (data) => {
+      toast.success(data.data?.message || "Store deleted successfully");
+      router.push("/");
+    },
+    onError: (error) => {
+      if (error.error?.serverError) {
+        setServerError(error.error.serverError);
+        toast.error(error.error.serverError);
+      } else {
+        toast.error("Something went wrong");
+      }
+    },
+    onSettled: () => {
+      setOpen(false);
+    },
+  });
+
+  const onSubmit = (data: StoreSchemaType) => {
+    executeUpdate({
+      name: data.name,
+      storeId: initialData.id,
     });
   };
 
-  const onDelete = async () => {
-    setIsDeleting(true);
-    startTransition(async () => {
-      try {
-        const result = await deleteStoreAction(initialData.id);
-
-        if (result.success) {
-          // router.refresh();
-          router.push("/");
-          toast.success(result.message || "Store deleted successfully");
-        } else {
-          toast.error(result.error?.serverError?.message || "Something went wrong");
-        }
-      } catch (error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : "Something went wrong";
-        toast.error(errorMessage);
-      } finally {
-        setOpen(false);
-        setIsDeleting(false);
-      }
-    });
+  const onDelete = () => {
+    executeDelete({ storeId: initialData.id });
   };
 
   return (
@@ -81,23 +87,24 @@ const SettingsForm = ({ initialData }: SettingsFormProps) => {
       <div className="flex-between">
         <PageHeading title="Settings" description="Manage store preferences" />
 
-        <Button variant="destructive" size="icon" disabled={isPending || isDeleting} onClick={() => setOpen(true)}>
+        <Button variant="destructive" size="icon" disabled={isUpdating || isDeleting} onClick={() => setOpen(true)}>
           <Trash className="h-4 w-4" />
         </Button>
       </div>
       <Separator />
+      {serverError && <div className="text-destructive bg-destructive/10 rounded-md p-3 text-sm">{serverError}</div>}
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <div className="grid grid-cols-3 gap-8">
             <InputWithLabel
               fieldTitle="Store Name"
-              disabled={isPending || isDeleting}
+              disabled={isUpdating || isDeleting}
               nameInSchema="name"
               placeholder="Store Name"
             />
           </div>
-          <Button type="submit" disabled={isPending || isDeleting}>
-            {isPending ? (
+          <Button type="submit" disabled={isUpdating || isDeleting}>
+            {isUpdating ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Saving...

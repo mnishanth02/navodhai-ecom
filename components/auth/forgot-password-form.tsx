@@ -1,13 +1,14 @@
 "use client";
 
 import AppDialog from "../common/app-dialog";
-import { forgotPasswordAction } from "@/actions/auth.actions";
+import { forgotPassword } from "@/actions/auth.actions";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { ForgotPasswordSchema, ForgotPasswordSchemaType } from "@/lib/validator/auth-validtor";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
+import { useAction } from "next-safe-action/hooks";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -23,44 +24,30 @@ export const ForgotPasswordForm = () => {
     mode: "onSubmit",
   });
 
-  const onSubmit = async (data: ForgotPasswordSchemaType) => {
-    setIsSubmitting(true);
-    setServerError(null);
-
-    try {
-      const formData = new FormData();
-      formData.append("email", data.email);
-
-      const result = await forgotPasswordAction(formData);
-
-      if (result.success) {
-        toast.success(result.message || "Password reset email sent successfully");
-        form.reset();
-        setIsDialogOpen(false);
-      } else if (result.error) {
-        if (result.error.validationErrors) {
-          // Set form errors for each field
-          const errors = result.error.validationErrors;
-
-          Object.entries(errors).forEach(([field, messages]) => {
-            if (field === "email") {
-              form.setError(field as keyof ForgotPasswordSchemaType, {
-                type: "server",
-                message: messages.message,
-              });
-            }
-          });
-        } else if (result.error.serverError) {
-          setServerError(result.error.serverError.message);
-        } else {
-          setServerError("Something went wrong");
-        }
+  const { execute } = useAction(forgotPassword, {
+    onExecute: () => {
+      setIsSubmitting(true);
+      setServerError(null);
+    },
+    onSuccess: (data) => {
+      toast.success(data.data?.message || "Password reset email sent successfully");
+      form.reset();
+      setIsDialogOpen(false);
+    },
+    onError: (error) => {
+      if (error.error?.serverError) {
+        setServerError(error.error.serverError);
+      } else {
+        setServerError("Something went wrong");
       }
-    } catch {
-      setServerError("An unexpected error occurred");
-    } finally {
+    },
+    onSettled: () => {
       setIsSubmitting(false);
-    }
+    },
+  });
+
+  const onSubmit = (data: ForgotPasswordSchemaType) => {
+    execute(data);
   };
 
   const formContent = (

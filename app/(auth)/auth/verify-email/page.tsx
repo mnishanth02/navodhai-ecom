@@ -11,9 +11,9 @@ import { CheckCircle, XCircle } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
 
-type PageProps = { searchParams: Promise<{ token: string }> };
+type PageProps = { searchParams: Promise<{ token?: string }> };
 
-export default async function Page({ searchParams }: PageProps) {
+export default async function VerifyEmailPage({ searchParams }: PageProps) {
   const { token } = await searchParams;
 
   if (!token) {
@@ -47,9 +47,10 @@ async function VerificationContent({ token }: { token: string }) {
       return <TokenIsInvalidState message="Verification token has expired" />;
     }
 
-    // Verify email
-    const verifyResult = await verifyCredentialsEmailAction(token);
-    if (!verifyResult.success) {
+    // Verify email using direct server action
+    const verificationResult = await verifyCredentialsEmailAction(token);
+    if (!verificationResult.success) {
+      console.error("[Email Verification Error]", verificationResult.error);
       return <TokenIsInvalidState message="Failed to verify email" />;
     }
 
