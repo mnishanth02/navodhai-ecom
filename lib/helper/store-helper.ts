@@ -4,18 +4,14 @@ import { cache } from 'react'
 import { auth } from "@/auth"
 import { getAllStoreByUserIdQuery, getStoreByIdQuery, getStoreByUserIdQuery } from "@/lib/data-access/store-quries"
 import { redirect } from "next/navigation"
+import { User } from "next-auth"
 
-// Type for authenticated user with guaranteed ID
-type AuthenticatedUser = {
-    id: string;
-    [key: string]: unknown;
-}
 
 /**
  * Check authentication and return user with guaranteed ID
  * This function is not cached as it should always check the current session
  */
-export const checkAuth = async (): Promise<AuthenticatedUser> => {
+export const checkAuth = async (): Promise<User> => {
     const session = await auth()
 
     if (!session?.user?.id) {
@@ -33,6 +29,9 @@ export const checkAuth = async (): Promise<AuthenticatedUser> => {
  */
 export const getCurrentUserId = cache(async (): Promise<string> => {
     const user = await checkAuth()
+    if (!user.id) {
+        redirect("/auth/sign-in")
+    }
     return user.id
 })
 

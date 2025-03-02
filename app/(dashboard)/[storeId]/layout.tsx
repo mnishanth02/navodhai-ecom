@@ -1,6 +1,8 @@
 import Footer from "@/components/common/footer";
-import Navbar from "@/components/header/navbar";
-import { validateSpecificStore } from "@/lib/helper/store-helper";
+import { AppSidebar } from "@/components/sidebar/app-sidebar";
+import { Header } from "@/components/sidebar/header";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { checkAuth, getAllStoresByUserId, validateSpecificStore } from "@/lib/helper/store-helper";
 import { redirect } from "next/navigation";
 
 interface StoreLayoutProps {
@@ -11,18 +13,23 @@ interface StoreLayoutProps {
 const StoreLayout = async ({ children, params }: StoreLayoutProps) => {
   const { storeId } = await params;
 
+  const user = await checkAuth();
   const store = await validateSpecificStore(storeId);
+  const allStores = await getAllStoresByUserId();
 
-  if (!store) {
+  if (!user || !store) {
     redirect("/");
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <Navbar />
-      <div className="flex-1">{children}</div>
-      <Footer />
-    </div>
+    <SidebarProvider>
+      <AppSidebar user={user} stores={allStores} currentStoreId={storeId} />
+      <SidebarInset>
+        <Header storeName={store.name} />
+        <div className="flex-1 flex-col gap-4 p-4 pt-0">{children}</div>
+        <Footer />
+      </SidebarInset>
+    </SidebarProvider>
   );
 };
 

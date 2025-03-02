@@ -1,5 +1,6 @@
 import { Body, Button, Container, Head, Heading, Hr, Html, Preview, Section, Text } from "@react-email/components";
 import { Tailwind } from "@react-email/tailwind";
+import Link from "next/link";
 import * as React from "react";
 
 interface ForgotPasswordEmailProps {
@@ -8,10 +9,10 @@ interface ForgotPasswordEmailProps {
   baseUrl: string;
 }
 
-export const ForgotPasswordEmail: React.FC<ForgotPasswordEmailProps> = ({ 
-  token, 
-  verificationTokenExpMin, 
-  baseUrl 
+export const ForgotPasswordEmail: React.FC<ForgotPasswordEmailProps> = ({
+  token,
+  verificationTokenExpMin,
+  baseUrl,
 }) => {
   const currentYear = new Date().getFullYear();
   const resetUrl = `${baseUrl}/auth/forgot-password?token=${token}`;
@@ -51,12 +52,12 @@ export const ForgotPasswordEmail: React.FC<ForgotPasswordEmailProps> = ({
                 </Section>
 
                 {/* Alternative Link */}
-                <Text className="mb-8 text-sm leading-6 text-gray-600 text-center">
+                <Text className="mb-8 text-center text-sm leading-6 text-gray-600">
                   If the button doesn&apos;t work, copy and paste this link into your browser:
                   <br />
-                  <a href={resetUrl} className="text-blue-600 underline break-all">
+                  <Link href={resetUrl} className="break-all text-blue-600 underline">
                     {resetUrl}
-                  </a>
+                  </Link>
                 </Text>
 
                 {/* Security Notice */}
