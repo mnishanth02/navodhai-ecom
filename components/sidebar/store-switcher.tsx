@@ -30,11 +30,13 @@ export function StoreSwitcher({
   const router = useRouter();
   const { onOpen } = useStoreModal();
 
-  // Find the active team based on activeTeamId or default to first team
-  const [activeStore, setActiveStore] = React.useState(stores.find((store) => store.id === activeStoreId) || stores[0]);
+  // Get active store directly from stores prop using useMemo
+  const activeStore = React.useMemo(
+    () => stores.find((store) => store.id === activeStoreId) || stores[0],
+    [stores, activeStoreId]
+  );
 
   const handleStoreSelect = (store: (typeof stores)[0]) => {
-    setActiveStore(store);
     router.push(`/${store.id}`);
   };
 

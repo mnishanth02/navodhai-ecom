@@ -27,18 +27,27 @@ const StoreModal = () => {
   const onSubmit = async (values: StoreSchemaType) => {
     try {
       startTransition(async () => {
-        const result = await createStoreAction(values);
+        const result = await createStoreAction(values.name);
 
         if (result.success) {
+          toast.success(result.message || "Store created successfully");
+          form.reset();
           onClose();
           window.location.assign(`/${result.data?.id}`);
         } else {
-          toast.error(result.error.serverError?.message);
+          if (result.error.validationErrors) {
+            // Handle validation errors
+            result.error.validationErrors.forEach((error) => {
+              toast.error(error.message);
+            });
+          } else {
+            toast.error(result.error.serverError?.message || "Failed to create store");
+          }
         }
       });
     } catch (error) {
       toast.error("Something went wrong");
-      console.log(error);
+      console.error(error);
     }
   };
 

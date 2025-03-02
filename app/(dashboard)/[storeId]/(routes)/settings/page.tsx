@@ -1,3 +1,4 @@
+import SettingsForm from "./components/settings-form";
 import { validateSpecificStore } from "@/lib/helper/store-helper";
 import { redirect } from "next/navigation";
 
@@ -14,7 +15,7 @@ const SettingsPage = async ({ params }: SettingsPageProps) => {
     redirect("/");
   }
 
-  return <div>SettingsPage - {store.name}</div>;
+  return <SettingsForm initialData={store} />;
 };
 
 export default SettingsPage;
