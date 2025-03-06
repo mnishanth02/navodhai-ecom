@@ -9,8 +9,11 @@ import { NextAuthConfig } from "next-auth";
 import Google from "next-auth/providers/google";
 import { z } from "zod";
 import { DEFAULT_SIGNIN_REDIRECT } from "./lib/routes";
-import { oauthVerifyEmailAction } from "./lib/data-access/auth-queries";
-
+import { findUserByEmail, oauthVerifyEmailAction } from "./lib/data-access/auth-queries";
+import Credentials from "next-auth/providers/credentials";
+import { SigninSchema } from "./lib/validator/auth-validtor";
+import { OAuthAccountAlreadyLinkedError } from "./lib/error";
+import argon2 from "argon2";
 export default {
   providers: [
     Google({
@@ -22,6 +25,29 @@ export default {
           access_type: "offline",
           response_type: "code",
         },
+      },
+    }),
+    Credentials({
+      async authorize(credentials) {
+        const parsedCredentials = SigninSchema.safeParse(credentials);
+
+        if (parsedCredentials.success) {
+          const { email, password } = parsedCredentials.data;
+          const user = await findUserByEmail(email);
+
+          if (!user.success || !user.data) return null;
+
+          if (!user.data.hashedPassword) throw new OAuthAccountAlreadyLinkedError();
+
+          const passwordsMatch = await argon2.verify(user.data.hashedPassword, password);
+
+          if (passwordsMatch) {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const { hashedPassword, ...userWithoutPassword } = user.data;
+            return userWithoutPassword;
+          }
+        }
+        return null;
       },
     }),
   ],
