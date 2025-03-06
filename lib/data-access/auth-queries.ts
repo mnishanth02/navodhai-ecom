@@ -8,10 +8,10 @@ import { ForgotPasswordSchema, ResetPasswordSchema, SigninSchema, SignupSchema }
 import { signIn } from "@/auth";
 import db from "@/drizzle/db";
 import { users, verificationTokens } from "@/drizzle/schema";
-import argon2 from "argon2";
 import { and, eq, isNull } from "drizzle-orm";
 import { AuthError } from "next-auth";
 import { z } from "zod";
+import { hashPassword } from "@/lib/hash";
 
 // ******************************************************
 // ************ oauthVerifyEmailAction ******************
@@ -137,11 +137,13 @@ export async function signupQuery(input: unknown): Promise<ApiResponse<{ userId:
     }
 
     // Hash password
-    const hashedPassword = await argon2.hash(password, {
-      type: argon2.argon2id,
-      memoryCost: 65536,
-      timeCost: 3,
-    });
+    // const hashedPassword = await argon2.hash(password, {
+    //   type: argon2.argon2id,
+    //   memoryCost: 65536,
+    //   timeCost: 3,
+    // });
+
+    const hashedPassword = await hashPassword(password);
 
     const newUser = await db
       .insert(users)
@@ -668,11 +670,13 @@ export async function resetPasswordAction(
       };
     }
 
-    const hashedPassword = await argon2.hash(password, {
-      type: argon2.argon2id,
-      memoryCost: 65536,
-      timeCost: 3,
-    });
+    // const hashedPassword = await argon2.hash(password, {
+    //   type: argon2.argon2id,
+    //   memoryCost: 65536,
+    //   timeCost: 3,
+    // });
+
+    const hashedPassword = await hashPassword(password);
 
     await db.update(users).set({ hashedPassword }).where(eq(users.email, email));
     await deleteVerificationTokenByIdentifier(email);

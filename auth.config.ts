@@ -13,7 +13,7 @@ import { findUserByEmail, oauthVerifyEmailAction } from "./lib/data-access/auth-
 import Credentials from "next-auth/providers/credentials";
 import { SigninSchema } from "./lib/validator/auth-validtor";
 import { OAuthAccountAlreadyLinkedError } from "./lib/error";
-import argon2 from "argon2";
+import { verifyPassword } from "./lib/hash";
 export default {
   providers: [
     Google({
@@ -39,7 +39,9 @@ export default {
 
           if (!user.data.hashedPassword) throw new OAuthAccountAlreadyLinkedError();
 
-          const passwordsMatch = await argon2.verify(user.data.hashedPassword, password);
+          // const passwordsMatch = await argon2.verify(user.data.hashedPassword, password);
+
+          const passwordsMatch = await verifyPassword(password, user.data.hashedPassword);
 
           if (passwordsMatch) {
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
