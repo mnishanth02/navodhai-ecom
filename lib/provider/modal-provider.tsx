@@ -1,7 +1,7 @@
 "use client";
 
 import StoreModal from "@/components/modals/store-modal";
-import { useMounted } from "@/hooks/use-mounted";
+import { useMounted } from "@/hooks/general/use-mounted";
 
 export const ModalProvider = () => {
   const mounted = useMounted();
