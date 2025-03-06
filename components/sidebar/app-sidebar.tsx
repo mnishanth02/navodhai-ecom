@@ -119,15 +119,15 @@ export function AppSidebar({ user, stores, currentStoreId, ...props }: AppSideba
   const navItems = getDashboardNavItems(currentStoreId);
 
   return (
-    <Sidebar collapsible="icon" {...props}>
+    <Sidebar collapsible="icon" { ...props }>
       <SidebarHeader>
-        <StoreSwitcher stores={formattedStores} activeStoreId={currentStoreId} />
+        <StoreSwitcher stores={ formattedStores } activeStoreId={ currentStoreId } />
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={navItems} />
+        <NavMain items={ navItems } />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={user} />
+        <NavUser user={ user } />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

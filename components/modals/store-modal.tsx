@@ -5,7 +5,7 @@ import { Form } from "../ui/form";
 import { createStore } from "@/actions/store.actions";
 import { InputWithLabel } from "@/components/common/input-with-label";
 import { StoreSchema, StoreSchemaType } from "@/lib/validator/store-validator";
-import { useStoreModal } from "@/store/use-store-modal";
+import { useStoreModal } from "@/hooks/store/use-store-modal";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Modal } from "@ui/modal";
 import { useAction } from "next-safe-action/hooks";
@@ -64,25 +64,25 @@ const StoreModal = () => {
     <Modal
       title="Create Store"
       description="Add a new store to manage products and categories"
-      isOpen={isOpen}
-      onClose={onClose}
+      isOpen={ isOpen }
+      onClose={ onClose }
     >
       <div className="space-y-4 py-2 pb-4">
-        {serverError && <div className="text-destructive bg-destructive/10 rounded-md p-3 text-sm">{serverError}</div>}
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)}>
+        { serverError && <div className="text-destructive bg-destructive/10 rounded-md p-3 text-sm">{ serverError }</div> }
+        <Form { ...form }>
+          <form onSubmit={ form.handleSubmit(onSubmit) }>
             <InputWithLabel
               fieldTitle="Name"
-              disabled={isSubmitting}
+              disabled={ isSubmitting }
               nameInSchema="name"
               placeholder="E-commerce Store"
             />
             <div className="flex items-center justify-end gap-x-2 pt-6">
-              <Button type="button" variant="outline" onClick={onClose}>
+              <Button type="button" variant="outline" onClick={ onClose }>
                 Cancel
               </Button>
-              <Button disabled={isSubmitting} type="submit">
-                {isSubmitting ? "Loading..." : "Continue"}
+              <Button disabled={ isSubmitting } type="submit">
+                { isSubmitting ? "Loading..." : "Continue" }
               </Button>
             </div>
           </form>
