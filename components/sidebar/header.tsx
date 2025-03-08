@@ -23,16 +23,16 @@ export function Header({ storeName }: HeaderProps) {
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem className="hidden md:block">
-              <BreadcrumbLink href="/">Dashboard</BreadcrumbLink>
+              <BreadcrumbLink href="/">{ storeName }</BreadcrumbLink>
             </BreadcrumbItem>
-            {storeName && (
+            { storeName && (
               <>
                 <BreadcrumbSeparator className="hidden md:block" />
                 <BreadcrumbItem>
-                  <BreadcrumbPage>{storeName}</BreadcrumbPage>
+                  <BreadcrumbPage>{ storeName }</BreadcrumbPage>
                 </BreadcrumbItem>
               </>
-            )}
+            ) }
           </BreadcrumbList>
         </Breadcrumb>
       </div>

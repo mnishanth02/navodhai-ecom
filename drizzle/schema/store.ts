@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { index, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 import { users } from "./auth";
 import { relations } from "drizzle-orm";
 import { createInsertSchema, createUpdateSchema } from "drizzle-zod";
@@ -15,7 +15,34 @@ export const stores = pgTable("store", {
     deletedAt: timestamp("deleted_at", { mode: "date" }), // For soft delete
     createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { mode: "date" }).defaultNow().notNull(),
-});
+}, (table) => [index("store_name_idx").on(table.name)]);
+
+
+// Billboards
+export const billboard = pgTable(
+    "billboard",
+    {
+        id: text("id")
+            .primaryKey()
+            .$defaultFn(() => crypto.randomUUID()),
+        storeId: text("store_id")
+            .notNull()
+            .references(() => stores.id, { onDelete: "cascade" }),
+        label: text("label").notNull(),
+        imageUrl: text("image_url").notNull(),
+        createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+        updatedAt: timestamp("updated_at", { mode: "date" }).defaultNow().notNull(),
+    },
+    (table) => [index("store_id_idx").on(table.storeId)]
+);
+
+
+
+// ----------------------- RELATIONS -----------------------
+
+//  convert below prisma relations to drizzle relations
+
+//
 
 export const storeRelations = relations(stores, ({ one }) => ({
     user: one(users, {

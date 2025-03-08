@@ -5,7 +5,7 @@ import { NavMain } from "@/components/sidebar/nav-main";
 import { NavUser } from "@/components/sidebar/nav-user";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from "@/components/ui/sidebar";
 import { StoreType } from "@/drizzle/schema/store";
-import { BarChart, LayoutDashboard, Package, Settings2, ShoppingBag, Sliders, Store, Users } from "lucide-react";
+import { BarChart, GalleryHorizontalEnd, LayoutDashboard, Package, Settings2, ShoppingBag, Sliders, Store, Users } from "lucide-react";
 import { User } from "next-auth";
 import * as React from "react";
 
@@ -14,7 +14,12 @@ const getDashboardNavItems = (storeId: string) => [
     title: "Overview",
     url: `/${storeId}`,
     icon: LayoutDashboard,
-    isActive: true,
+    // isActive: true,
+  },
+  {
+    title: "Billboards",
+    url: `/${storeId}/billboards`,
+    icon: GalleryHorizontalEnd,
   },
   {
     title: "Products",
