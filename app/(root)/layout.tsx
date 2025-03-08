@@ -1,4 +1,4 @@
-import { validateUserStore } from "@/lib/helper/store-helper";
+import { validateUserStore } from "@/data/helper/store-helper";
 import { redirect } from "next/navigation";
 
 const SetupLayout = async ({ children }: { children: React.ReactNode }) => {
@@ -8,7 +8,7 @@ const SetupLayout = async ({ children }: { children: React.ReactNode }) => {
     redirect(`/${store.id}`);
   }
 
-  return <>{children}</>;
+  return <>{ children }</>;
 };
 
 export default SetupLayout;

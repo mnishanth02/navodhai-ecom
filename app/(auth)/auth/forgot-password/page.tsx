@@ -2,7 +2,7 @@ import { ForgotPasswordForm } from "@/components/auth/forgot-password-form";
 import { ResetPasswordForm } from "@/components/auth/reset-password-form";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { findVerificationTokenByToken } from "@/lib/data-access/auth-queries";
+import { findVerificationTokenByToken } from "@/data/data-access/auth-queries";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
@@ -17,11 +17,11 @@ export default async function Page({ searchParams }: PageProps) {
       <div className="relative container flex min-h-[80vh] flex-col items-center justify-center">
         <Link
           href="/auth/sign-in/email"
-          className={buttonVariants({
+          className={ buttonVariants({
             variant: "ghost",
             size: "sm",
             className: "absolute top-4 left-4 md:top-8 md:left-8",
-          })}
+          }) }
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to login
@@ -42,7 +42,7 @@ export default async function Page({ searchParams }: PageProps) {
           </Card>
 
           <p className="text-muted-foreground px-8 text-center text-sm">
-            Remember your password?{" "}
+            Remember your password?{ " " }
             <Link href="/auth/sign-in/email" className="hover:text-brand underline underline-offset-4">
               Sign in
             </Link>
@@ -69,11 +69,11 @@ export default async function Page({ searchParams }: PageProps) {
     <div className="relative container flex min-h-[80vh] flex-col items-center justify-center">
       <Link
         href="/auth/sign-in/email"
-        className={buttonVariants({
+        className={ buttonVariants({
           variant: "ghost",
           size: "sm",
           className: "absolute top-4 left-4 md:top-8 md:left-8",
-        })}
+        }) }
       >
         <ArrowLeft className="mr-2 h-4 w-4" />
         Back to login
@@ -87,7 +87,7 @@ export default async function Page({ searchParams }: PageProps) {
 
         <Card>
           <CardContent className="pt-6">
-            <ResetPasswordForm email={verificationToken.identifier} token={token} />
+            <ResetPasswordForm email={ verificationToken.identifier } token={ token } />
           </CardContent>
         </Card>
       </div>
@@ -100,11 +100,11 @@ const TokenIsInvalidState = () => {
     <div className="relative container flex min-h-[80vh] flex-col items-center justify-center">
       <Link
         href="/auth/sign-in/email"
-        className={buttonVariants({
+        className={ buttonVariants({
           variant: "ghost",
           size: "sm",
           className: "absolute top-4 left-4 md:top-8 md:left-8",
-        })}
+        }) }
       >
         <ArrowLeft className="mr-2 h-4 w-4" />
         Back to login
@@ -120,7 +120,7 @@ const TokenIsInvalidState = () => {
           <CardContent className="pt-6">
             <div className="text-destructive bg-destructive/10 rounded-md p-4 text-sm">
               <p className="mb-4">Please request a new password reset link to continue.</p>
-              <Link href="/auth/forgot-password" className={buttonVariants({ className: "w-full" })}>
+              <Link href="/auth/forgot-password" className={ buttonVariants({ className: "w-full" }) }>
                 Request New Link
               </Link>
             </div>
@@ -128,7 +128,7 @@ const TokenIsInvalidState = () => {
         </Card>
 
         <p className="text-muted-foreground px-8 text-center text-sm">
-          Remember your password?{" "}
+          Remember your password?{ " " }
           <Link href="/auth/sign-in/email" className="hover:text-brand underline underline-offset-4">
             Sign in
           </Link>

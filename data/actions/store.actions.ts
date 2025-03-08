@@ -9,7 +9,7 @@ import {
     getStoreByIdQuery,
     getStoreByUserIdQuery,
     getAllStoreByUserIdQuery
-} from "@/lib/data-access/store-quries";
+} from "@/data/data-access/store-quries";
 import { StoreSchema } from "@/lib/validator/store-validator";
 import { ActionError } from "@/lib/error";
 

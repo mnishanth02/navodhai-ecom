@@ -9,7 +9,7 @@ import { NextAuthConfig } from "next-auth";
 import Google from "next-auth/providers/google";
 import { z } from "zod";
 import { DEFAULT_SIGNIN_REDIRECT } from "./lib/routes";
-import { findUserByEmail, oauthVerifyEmailAction } from "./lib/data-access/auth-queries";
+import { findUserByEmail, oauthVerifyEmailAction } from "./data/data-access/auth-queries";
 import Credentials from "next-auth/providers/credentials";
 import { SigninSchema } from "./lib/validator/auth-validtor";
 import { OAuthAccountAlreadyLinkedError } from "./lib/error";

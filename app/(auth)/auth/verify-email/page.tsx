@@ -6,7 +6,7 @@ import {
   deleteVerificationTokenByIdentifier,
   findVerificationTokenByToken,
   verifyCredentialsEmailAction,
-} from "@/lib/data-access/auth-queries";
+} from "@/data/data-access/auth-queries";
 import { CheckCircle, XCircle } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -22,8 +22,8 @@ export default async function VerifyEmailPage({ searchParams }: PageProps) {
 
   return (
     <main className="container py-8">
-      <Suspense fallback={<Loader />}>
-        <VerificationContent token={token} />
+      <Suspense fallback={ <Loader /> }>
+        <VerificationContent token={ token } />
       </Suspense>
     </main>
   );
@@ -69,7 +69,7 @@ const VerificationCard = ({ children }: { children: React.ReactNode }) => (
     <CardHeader>
       <CardTitle className="text-2xl font-bold">Email Verification</CardTitle>
     </CardHeader>
-    <CardContent>{children}</CardContent>
+    <CardContent>{ children }</CardContent>
   </Card>
 );
 
@@ -77,11 +77,11 @@ const TokenIsInvalidState = ({ message }: { message?: string }) => (
   <VerificationCard>
     <Alert variant="destructive" className="mb-4">
       <XCircle className="h-4 w-4" />
-      <AlertDescription>{message || "The verification link is invalid or has expired."}</AlertDescription>
+      <AlertDescription>{ message || "The verification link is invalid or has expired." }</AlertDescription>
     </Alert>
     <div className="text-center">
       <p className="text-muted-foreground mb-4">Please try signing up again with a new verification link.</p>
-      <Link className={buttonVariants()} href="/auth/sign-up">
+      <Link className={ buttonVariants() } href="/auth/sign-up">
         Sign Up Again
       </Link>
     </div>
@@ -96,7 +96,7 @@ const VerificationSuccess = () => (
     </Alert>
     <div className="text-center">
       <p className="text-muted-foreground mb-4">You can now sign in to your account.</p>
-      <Link className={buttonVariants()} href="/auth/sign-in/email">
+      <Link className={ buttonVariants() } href="/auth/sign-in/email">
         Sign In
       </Link>
     </div>

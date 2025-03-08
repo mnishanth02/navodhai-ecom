@@ -2,7 +2,7 @@
 
 import { Button } from "../ui/button";
 import { Form } from "../ui/form";
-import { createStore } from "@/actions/store.actions";
+import { createStore } from "@/data/actions/store.actions";
 import { InputWithLabel } from "@/components/common/input-with-label";
 import { StoreSchema, StoreSchemaType } from "@/lib/validator/store-validator";
 import { useStoreModal } from "@/hooks/store/use-store-modal";

@@ -1,10 +1,10 @@
 import "server-only";
 
-import { VERIFICATION_TOKEN_EXP_MIN } from "../config/constants";
+import { VERIFICATION_TOKEN_EXP_MIN } from "../../lib/config/constants";
 import { lower } from "../helper/db-helper";
 import { ApiResponse } from "@/types/api";
-import { sendForgotPasswordEmail, sendVerificationEmail } from "../resend";
-import { ForgotPasswordSchema, ResetPasswordSchema, SigninSchema, SignupSchema } from "../validator/auth-validtor";
+import { sendForgotPasswordEmail, sendVerificationEmail } from "../../lib/resend";
+import { ForgotPasswordSchema, ResetPasswordSchema, SigninSchema, SignupSchema } from "../../lib/validator/auth-validtor";
 import { signIn } from "@/auth";
 import db from "@/drizzle/db";
 import { users, verificationTokens } from "@/drizzle/schema";

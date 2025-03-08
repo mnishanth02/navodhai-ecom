@@ -1,7 +1,7 @@
 "use client";
 
 import AppDialog from "../common/app-dialog";
-import { forgotPassword } from "@/actions/auth.actions";
+import { forgotPassword } from "@/data/actions/auth.actions";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -51,35 +51,35 @@ export const ForgotPasswordForm = () => {
   };
 
   const formContent = (
-    <Form {...form}>
+    <Form { ...form }>
       <form className="space-y-4">
-        {serverError && <div className="text-destructive bg-destructive/10 rounded-md p-3 text-sm">{serverError}</div>}
+        { serverError && <div className="text-destructive bg-destructive/10 rounded-md p-3 text-sm">{ serverError }</div> }
 
         <div className="space-y-4">
           <FormField
-            control={form.control}
+            control={ form.control }
             name="email"
-            render={({ field }) => (
+            render={ ({ field }) => (
               <FormItem>
                 <FormLabel>Email</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="Enter your email" type="email" autoComplete="email" className="h-11" />
+                  <Input { ...field } placeholder="Enter your email" type="email" autoComplete="email" className="h-11" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
-            )}
+            ) }
           />
         </div>
 
-        <Button type="button" onClick={form.handleSubmit(onSubmit)} className="h-11 w-full" disabled={isSubmitting}>
-          {isSubmitting ? (
+        <Button type="button" onClick={ form.handleSubmit(onSubmit) } className="h-11 w-full" disabled={ isSubmitting }>
+          { isSubmitting ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               Sending reset link...
             </>
           ) : (
             "Send Reset Link"
-          )}
+          ) }
         </Button>
       </form>
     </Form>
@@ -87,13 +87,13 @@ export const ForgotPasswordForm = () => {
 
   return (
     <AppDialog
-      trigger={<span className="flex-1 text-end text-sm hover:cursor-pointer hover:underline">Forgot Password</span>}
+      trigger={ <span className="flex-1 text-end text-sm hover:cursor-pointer hover:underline">Forgot Password</span> }
       title="Enter Your Email"
       message="We will send you an email with a link to reset your password."
-      open={isDialogOpen}
-      onOpenChange={setIsDialogOpen}
-      showButtons={false}
-      customContent={formContent}
+      open={ isDialogOpen }
+      onOpenChange={ setIsDialogOpen }
+      showButtons={ false }
+      customContent={ formContent }
     />
   );
 };
