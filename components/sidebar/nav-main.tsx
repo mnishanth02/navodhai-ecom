@@ -32,14 +32,44 @@ export function NavMain({
 }) {
   const pathname = usePathname();
 
+  // Helper function to determine if a route is active
+  const isRouteActive = (url: string): boolean => {
+    // Exact match
+    if (pathname === url) return true;
+
+    // Special case for Overview (store root)
+    if (url.split('/').filter(Boolean).length === 1) {
+      // Only match exactly for the store root to avoid highlighting Overview when on other pages
+      return pathname === url;
+    }
+
+    // For other routes, check if pathname starts with the URL
+    // But ensure we're matching complete segments to avoid partial matches
+    // e.g., /store1/billboards should not match /store1/bill
+    const urlSegments = url.split('/').filter(Boolean);
+    const pathnameSegments = pathname.split('/').filter(Boolean);
+
+    // Check if all URL segments are present in the pathname segments in the same order
+    if (urlSegments.length > pathnameSegments.length) return false;
+
+    for (let i = 0; i < urlSegments.length; i++) {
+      if (urlSegments[i] !== pathnameSegments[i]) return false;
+    }
+
+    return true;
+  };
 
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Admin</SidebarGroupLabel>
       <SidebarMenu>
         { items.map((item) => {
-          const isActive = pathname === item.url || pathname.startsWith(item.url + "/");
+          const isActive = isRouteActive(item.url);
           const hasSubItems = item.items && item.items.length > 0;
+
+          // Check if any subitems are active
+          const isAnySubItemActive = hasSubItems &&
+            item.items!.some(subItem => isRouteActive(subItem.url));
 
           // For items without subitems, render a direct link
           if (!hasSubItems) {
@@ -56,11 +86,11 @@ export function NavMain({
 
           // For items with subitems, render a collapsible menu
           return (
-            <Collapsible key={ item.title } asChild defaultOpen={ isActive } className="group/collapsible">
+            <Collapsible key={ item.title } asChild defaultOpen={ isActive || isAnySubItemActive } className="group/collapsible">
               <SidebarMenuItem>
                 <CollapsibleTrigger asChild>
                   <SidebarMenuButton tooltip={ item.title }>
-                    { item.icon && <item.icon className={ cn(isActive ? "text-primary" : "text-muted-foreground") } /> }
+                    { item.icon && <item.icon className={ cn((isActive || isAnySubItemActive) ? "text-primary" : "text-muted-foreground") } /> }
                     <span>{ item.title }</span>
                     <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                   </SidebarMenuButton>
@@ -68,7 +98,7 @@ export function NavMain({
                 <CollapsibleContent>
                   <SidebarMenuSub>
                     { item.items?.map((subItem) => {
-                      const isSubItemActive = pathname === subItem.url;
+                      const isSubItemActive = isRouteActive(subItem.url);
                       return (
                         <SidebarMenuSubItem key={ subItem.title }>
                           <SidebarMenuSubButton

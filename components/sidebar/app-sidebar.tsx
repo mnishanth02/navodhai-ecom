@@ -14,7 +14,6 @@ const getDashboardNavItems = (storeId: string) => [
     title: "Overview",
     url: `/${storeId}`,
     icon: LayoutDashboard,
-    // isActive: true,
   },
   {
     title: "Billboards",
