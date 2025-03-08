@@ -54,15 +54,23 @@ export const storeRelations = relations(stores, ({ one }) => ({
 
 //  selectQueries
 export const storesSelectSchema = createSelectSchema(stores);
+export const billboardSelectSchema = createSelectSchema(billboard);
 
 //  insertQueries
 export const storesInsertSchema = createInsertSchema(stores);
+export const billboardInsertSchema = createInsertSchema(billboard);
 
 //  updateQueries
 export const storesUpdateSchema = createUpdateSchema(stores);
+export const billboardUpdateSchema = createUpdateSchema(billboard);
 
 
-//  Types
+//  Store Types
 export type StoreType = typeof stores.$inferSelect;
 export type NewStoreType = typeof storesInsertSchema;
 export type UpdateStoreType = typeof storesUpdateSchema;
+
+//  Billboards Types
+export type BillboardType = typeof billboard.$inferSelect;
+export type NewBillboardType = typeof billboardInsertSchema;
+export type UpdateBillboardType = typeof billboardUpdateSchema;

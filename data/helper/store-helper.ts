@@ -2,7 +2,7 @@ import "server-only"
 
 import { cache } from 'react'
 import { auth } from "@/auth"
-import { getAllStoreByUserIdQuery, getStoreByIdQuery, getStoreByUserIdQuery } from "@/data/data-access/store-quries"
+import { getAllStoreByUserIdQuery, getStoreByIdQuery, getStoreByUserIdQuery } from "@/data/data-access/store.queries"
 import { redirect } from "next/navigation"
 import { User } from "next-auth"
 

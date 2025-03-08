@@ -26,7 +26,7 @@ const StoreLayout = async ({ children, params }: StoreLayoutProps) => {
       <AppSidebar user={ user } stores={ allStores } currentStoreId={ storeId } />
       <SidebarInset>
         <Header storeName={ store.name } />
-        <div className="container-md flex-1">{ children }</div>
+        <div className="flex-1">{ children }</div>
         <Footer />
       </SidebarInset>
     </SidebarProvider>

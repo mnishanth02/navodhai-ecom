@@ -6,7 +6,7 @@ import {
   deleteVerificationTokenByIdentifier,
   findVerificationTokenByToken,
   verifyCredentialsEmailAction,
-} from "@/data/data-access/auth-queries";
+} from "@/data/data-access/auth.queries";
 import { CheckCircle, XCircle } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";

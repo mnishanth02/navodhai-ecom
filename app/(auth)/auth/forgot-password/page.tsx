@@ -2,7 +2,7 @@ import { ForgotPasswordForm } from "@/components/auth/forgot-password-form";
 import { ResetPasswordForm } from "@/components/auth/reset-password-form";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { findVerificationTokenByToken } from "@/data/data-access/auth-queries";
+import { findVerificationTokenByToken } from "@/data/data-access/auth.queries";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 

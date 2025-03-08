@@ -7,9 +7,7 @@ import {
     updateStoreQuery,
     deleteStoreQuery,
     getStoreByIdQuery,
-    getStoreByUserIdQuery,
-    getAllStoreByUserIdQuery
-} from "@/data/data-access/store-quries";
+} from "@/data/data-access/store.queries";
 import { StoreSchema } from "@/lib/validator/store-validator";
 import { ActionError } from "@/lib/error";
 
@@ -103,66 +101,67 @@ export const deleteStore = authActionClient
         };
     });
 
-// Get store by ID action
-export const getStoreById = authActionClient
-    .metadata({
-        actionName: "getStoreById",
-        requiresAuth: true
-    })
-    .schema(z.object({
-        storeId: z.string().min(1, "Store ID is required")
-    }))
-    .action(async ({ parsedInput, ctx }) => {
-        const { storeId } = parsedInput;
-        const { userId } = ctx;
 
-        const result = await getStoreByIdQuery(storeId, userId);
+// // Get store by ID action
+// export const getStoreById = authActionClient
+//     .metadata({
+//         actionName: "getStoreById",
+//         requiresAuth: true
+//     })
+//     .schema(z.object({
+//         storeId: z.string().min(1, "Store ID is required")
+//     }))
+//     .action(async ({ parsedInput, ctx }) => {
+//         const { storeId } = parsedInput;
+//         const { userId } = ctx;
 
-        if (!result.success) {
-            throw new ActionError(result.error?.message || "Failed to get store");
-        }
+//         const result = await getStoreByIdQuery(storeId, userId);
 
-        return {
-            store: result.data
-        };
-    });
+//         if (!result.success) {
+//             throw new ActionError(result.error?.message || "Failed to get store");
+//         }
 
-// Get store by user ID action
-export const getStoreByUserId = authActionClient
-    .metadata({
-        actionName: "getStoreByUserId",
-        requiresAuth: true
-    })
-    .action(async ({ ctx }) => {
-        const { userId } = ctx;
+//         return {
+//             store: result.data
+//         };
+//     });
 
-        const result = await getStoreByUserIdQuery(userId);
+// // Get store by user ID action
+// export const getStoreByUserId = authActionClient
+//     .metadata({
+//         actionName: "getStoreByUserId",
+//         requiresAuth: true
+//     })
+//     .action(async ({ ctx }) => {
+//         const { userId } = ctx;
 
-        if (!result.success) {
-            throw new ActionError(result.error?.message || "Failed to get store");
-        }
+//         const result = await getStoreByUserIdQuery(userId);
 
-        return {
-            store: result.data
-        };
-    });
+//         if (!result.success) {
+//             throw new ActionError(result.error?.message || "Failed to get store");
+//         }
 
-// Get all stores by user ID action
-export const getAllStoresByUserId = authActionClient
-    .metadata({
-        actionName: "getAllStoresByUserId",
-        requiresAuth: true
-    })
-    .action(async ({ ctx }) => {
-        const { userId } = ctx;
+//         return {
+//             store: result.data
+//         };
+//     });
 
-        const result = await getAllStoreByUserIdQuery(userId);
+// // Get all stores by user ID action
+// export const getAllStoresByUserId = authActionClient
+//     .metadata({
+//         actionName: "getAllStoresByUserId",
+//         requiresAuth: true
+//     })
+//     .action(async ({ ctx }) => {
+//         const { userId } = ctx;
 
-        if (!result.success) {
-            throw new ActionError(result.error?.message || "Failed to get stores");
-        }
+//         const result = await getAllStoreByUserIdQuery(userId);
 
-        return {
-            stores: result.data
-        };
-    });
+//         if (!result.success) {
+//             throw new ActionError(result.error?.message || "Failed to get stores");
+//         }
+
+//         return {
+//             stores: result.data
+//         };
+//     });

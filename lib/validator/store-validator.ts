@@ -6,4 +6,12 @@ export const StoreSchema = z.object({
 });
 
 
+export const BillboardSchema = z.object({
+    label: z.string().min(1),
+    imageUrl: z.string().min(1)
+});
+
+
+
 export type StoreSchemaType = z.infer<typeof StoreSchema>;
+export type BillboardSchemaType = z.infer<typeof BillboardSchema>;

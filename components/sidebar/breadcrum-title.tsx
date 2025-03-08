@@ -1,53 +1,94 @@
 'use client'
 
 import { usePathname } from "next/navigation";
-import { BreadcrumbItem, BreadcrumbPage } from "@ui/breadcrumb";
+import { BreadcrumbItem, BreadcrumbLink, BreadcrumbPage } from "@ui/breadcrumb";
 import { BreadcrumbSeparator } from "@ui/breadcrumb";
+import { useMemo } from "react";
+import * as React from "react";
+
+interface BreadcrumbSegment {
+    title: string;
+    url: string;
+    isLast: boolean;
+}
+
+// This map will help us translate URL segments to display titles
+// We can easily add new routes here without changing the core logic
+const ROUTE_TITLES: Record<string, string> = {
+    // Main routes
+    "billboards": "Billboards",
+    "products": "Products",
+    "orders": "Orders",
+    "customers": "Customers",
+    "settings": "Settings",
+    "analytics": "Analytics",
+
+    // Sub-routes
+    "categories": "Categories",
+    "inventory": "Inventory",
+    "abandoned": "Abandoned Carts",
+    "groups": "Customer Groups",
+    "advanced": "Advanced Settings",
+    "payments": "Payments",
+    "shipping": "Shipping",
+    "taxes": "Taxes",
+    "new": "New",
+    "edit": "Edit"
+};
 
 export const BreadCrumTitle = () => {
     const pathname = usePathname();
 
-    const getPageTitle = () => {
-        if (!pathname) return "";
+    // Generate breadcrumb segments
+    const breadcrumbSegments = useMemo<BreadcrumbSegment[]>(() => {
+        if (!pathname) return [];
 
         // Split the pathname by '/'
         const segments = pathname.split('/').filter(Boolean);
 
         // If we only have the storeId, we're on the Overview page
-        if (segments.length === 1) return "Overview";
-
-        // Otherwise, get the last segment and capitalize it
-        const lastSegment = segments[segments.length - 1];
-
-        // Handle special cases for nested routes
-        if (segments.length > 2) {
-            // For routes like /{storeId}/products/categories
-            if (segments[1] === "products" && lastSegment === "categories") return "Categories";
-            if (segments[1] === "products" && lastSegment === "inventory") return "Inventory";
-            if (segments[1] === "orders" && lastSegment === "abandoned") return "Abandoned Carts";
-            if (segments[1] === "customers" && lastSegment === "groups") return "Customer Groups";
-            if (segments[1] === "settings" && lastSegment === "advanced") return "Advanced Settings";
-            if (segments[1] === "settings" && lastSegment === "payments") return "Payments";
-            if (segments[1] === "settings" && lastSegment === "shipping") return "Shipping";
-            if (segments[1] === "settings" && lastSegment === "taxes") return "Taxes";
+        if (segments.length === 1) {
+            return [{ title: "Overview", url: `/${segments[0]}`, isLast: true }];
         }
 
-        // Default: capitalize the last segment
-        return lastSegment.charAt(0).toUpperCase() + lastSegment.slice(1);
-    };
+        // Create an array to hold our breadcrumb segments
+        const breadcrumbs: BreadcrumbSegment[] = [];
+        const storeId = segments[0];
 
-    const pageTitle = getPageTitle();
+        // Process each segment after the storeId
+        for (let i = 1; i < segments.length; i++) {
+            const segment = segments[i];
+            const isLast = i === segments.length - 1;
+
+            // Build the URL up to this segment
+            let url = `/${storeId}`;
+            for (let j = 1; j <= i; j++) {
+                url += `/${segments[j]}`;
+            }
+
+            // Get the title from our map or capitalize the segment
+            let title = ROUTE_TITLES[segment] || segment.charAt(0).toUpperCase() + segment.slice(1);
+
+            breadcrumbs.push({ title, url, isLast });
+        }
+
+        return breadcrumbs;
+    }, [pathname]);
 
     return (
         <>
-            { pageTitle && (
-                <>
+            { breadcrumbSegments.map((segment, index) => (
+                <React.Fragment key={ segment.url }>
                     <BreadcrumbSeparator className="hidden md:block" />
                     <BreadcrumbItem>
-                        <BreadcrumbPage>{ pageTitle }</BreadcrumbPage>
+                        { segment.isLast ? (
+                            <BreadcrumbPage>{ segment.title }</BreadcrumbPage>
+                        ) : (
+                            <BreadcrumbLink href={ segment.url }>{ segment.title }</BreadcrumbLink>
+                        ) }
                     </BreadcrumbItem>
-                </>
-            ) }
+                </React.Fragment>
+            )) }
         </>
-    )
+    );
 }

@@ -8,7 +8,7 @@ import {
   signinQuery,
   signupQuery,
   verifyCredentialsEmailAction,
-} from "@/data/data-access/auth-queries";
+} from "@/data/data-access/auth.queries";
 import { ForgotPasswordSchema, SigninSchema, SignupSchema } from "@/lib/validator/auth-validtor";
 import { ActionError } from "@/lib/error";
 

@@ -14,7 +14,13 @@ const StoreDashboardPage = async ({ params }: DashboardPageProps) => {
     redirect("/");
   }
 
-  return <div>StoreDashboardPage - { store.name }</div>;
+  return (
+    <div>
+      <div className="flex-1 space-y-4 p-8 pt-6">
+        Store Name - { store.name }
+      </div>
+    </div>
+  );
 };
 
 export default StoreDashboardPage;

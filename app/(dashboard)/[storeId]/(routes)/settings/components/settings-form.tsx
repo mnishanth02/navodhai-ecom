@@ -91,7 +91,7 @@ const SettingsForm = ({ initialData }: SettingsFormProps) => {
           <Trash className="h-4 w-4" />
         </Button>
       </div>
-      <Separator className="mb-6" />
+      <Separator className="" />
       { serverError && <div className="text-destructive bg-destructive/10 rounded-md p-3 text-sm">{ serverError }</div> }
       <Form { ...form }>
         <form onSubmit={ form.handleSubmit(onSubmit) } className="space-y-8">
