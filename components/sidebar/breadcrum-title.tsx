@@ -47,22 +47,22 @@ export const BreadCrumTitle = () => {
         const segments = pathname.split('/').filter(Boolean);
 
         // If we only have the storeId, we're on the Overview page
-        if (segments.length === 1) {
-            return [{ title: "Overview", url: `/${segments[0]}`, isLast: true }];
+        if (segments.length === 2) {
+            return [{ title: "Overview", url: `/admin/${segments[1]}`, isLast: true }];
         }
 
         // Create an array to hold our breadcrumb segments
         const breadcrumbs: BreadcrumbSegment[] = [];
-        const storeId = segments[0];
+        const storeId = segments[1];
 
         // Process each segment after the storeId
-        for (let i = 1; i < segments.length; i++) {
+        for (let i = 2; i < segments.length; i++) {
             const segment = segments[i];
             const isLast = i === segments.length - 1;
 
             // Build the URL up to this segment
-            let url = `/${storeId}`;
-            for (let j = 1; j <= i; j++) {
+            let url = `/admin/${storeId}`;
+            for (let j = 2; j <= i; j++) {
                 url += `/${segments[j]}`;
             }
 

@@ -30,23 +30,23 @@ const StoreModal = () => {
       setIsSubmitting(true);
       setServerError(null);
     },
-    onSuccess: (data) => {
-      toast.success(data.data?.message || "Store created successfully");
+    onSuccess: ({ data }) => {
+      toast.success(data?.message || "Store created successfully");
       form.reset();
       onClose();
 
       // Navigate to the new store
-      if (data.data?.store?.id) {
-        window.location.assign(`/${data.data.store.id}`);
+      if (data?.store?.id) {
+        window.location.assign(`/admin/${data.store.id}`);
       } else {
         // Fallback to refresh the page if we can't get the store ID
         window.location.reload();
       }
     },
-    onError: (error) => {
-      if (error.error?.serverError) {
-        setServerError(error.error.serverError);
-        toast.error(error.error.serverError);
+    onError: ({ error }) => {
+      if (error?.serverError) {
+        setServerError(error.serverError);
+        toast.error(error.serverError);
       } else {
         toast.error("Something went wrong");
       }

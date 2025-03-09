@@ -12,93 +12,93 @@ import * as React from "react";
 const getDashboardNavItems = (storeId: string) => [
   {
     title: "Overview",
-    url: `/${storeId}`,
+    url: `/admin/${storeId}`,
     icon: LayoutDashboard,
   },
   {
     title: "Billboards",
-    url: `/${storeId}/billboards`,
+    url: `/admin/${storeId}/billboards`,
     icon: GalleryHorizontalEnd,
   },
   {
     title: "Products",
-    url: `/${storeId}/products`,
+    url: `/admin/${storeId}/products`,
     icon: Package,
     items: [
       {
         title: "All Products",
-        url: `/${storeId}/products`,
+        url: `/admin/${storeId}/products`,
       },
       {
         title: "Categories",
-        url: `/${storeId}/products/categories`,
+        url: `/admin/${storeId}/products/categories`,
       },
       {
         title: "Inventory",
-        url: `/${storeId}/products/inventory`,
+        url: `/admin/${storeId}/products/inventory`,
       },
     ],
   },
   {
     title: "Orders",
-    url: `/${storeId}/orders`,
+    url: `/admin/${storeId}/orders`,
     icon: ShoppingBag,
     items: [
       {
         title: "All Orders",
-        url: `/${storeId}/orders`,
+        url: `/admin/${storeId}/orders`,
       },
       {
         title: "Abandoned Carts",
-        url: `/${storeId}/orders/abandoned`,
+        url: `/admin/${storeId}/orders/abandoned`,
       },
     ],
   },
   {
     title: "Customers",
-    url: `/${storeId}/customers`,
+    url: `/admin/${storeId}/customers`,
     icon: Users,
     items: [
       {
         title: "All Customers",
-        url: `/${storeId}/customers`,
+        url: `/admin/${storeId}/customers`,
       },
       {
         title: "Customer Groups",
-        url: `/${storeId}/customers/groups`,
+        url: `/admin/${storeId}/customers/groups`,
       },
     ],
   },
   {
     title: "Analytics",
-    url: `/${storeId}/analytics`,
+    url: `/admin/${storeId}/analytics`,
     icon: BarChart,
   },
   {
     title: "Settings",
-    url: `/${storeId}/settings`,
+    url: `/admin/${storeId}/settings`,
     icon: Settings2,
   },
   {
     title: "Advanced Settings",
-    url: `/${storeId}/settings/advanced`,
+    url: `/admin/${storeId}/settings/advanced`,
     icon: Sliders,
     items: [
       {
         title: "General",
-        url: `/${storeId}/settings`,
+        url: `/admin/${storeId}/settings`,
       },
       {
         title: "Payments",
-        url: `/${storeId}/settings/payments`,
+        url: `/admin/${storeId}/settings/payments`,
       },
       {
         title: "Shipping",
-        url: `/${storeId}/settings/shipping`,
+        url: `/admin/${storeId}/settings/shipping`,
       },
       {
         title: "Taxes",
-        url: `/${storeId}/settings/taxes`,
+        url: `/admin/${storeId}/settings/taxes`,
       },
     ],
   },

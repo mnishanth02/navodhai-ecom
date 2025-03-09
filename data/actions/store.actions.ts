@@ -7,6 +7,7 @@ import {
     updateStoreQuery,
     deleteStoreQuery,
     getStoreByIdQuery,
+    getAllStoreByUserIdQuery,
 } from "@/data/data-access/store.queries";
 import { StoreSchema } from "@/lib/validator/store-validator";
 import { ActionError } from "@/lib/error";
@@ -100,7 +101,6 @@ export const deleteStore = authActionClient
             message: "Store deleted successfully"
         };
     });
-
 
 // // Get store by ID action
 // export const getStoreById = authActionClient

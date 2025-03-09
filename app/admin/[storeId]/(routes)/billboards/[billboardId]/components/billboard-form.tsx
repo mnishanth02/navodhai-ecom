@@ -82,7 +82,7 @@ const BillboardForm = ({ initialData }: BillboardFormProps) => {
         },
         onSuccess: (data) => {
             toast.success(data.data?.message || "Billboard deleted successfully");
-            router.push(`/${params.storeId}/billboards`);
+            router.push(`/admin/${params.storeId}/billboards`);
         },
         onError: (error) => {
             if (error.error?.serverError) {

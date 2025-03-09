@@ -24,7 +24,7 @@ export function Header({ storeName }: HeaderProps) {
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem className="hidden md:block">
-              <BreadcrumbLink href="/">{ storeName }</BreadcrumbLink>
+              <BreadcrumbLink href="/admin">{ storeName }</BreadcrumbLink>
             </BreadcrumbItem>
             <BreadCrumTitle />
           </BreadcrumbList>

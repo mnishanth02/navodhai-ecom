@@ -11,7 +11,7 @@ const StoreDashboardPage = async ({ params }: DashboardPageProps) => {
   const store = await validateSpecificStore(storeId);
 
   if (!store) {
-    redirect("/");
+    redirect("/admin");
   }
 
   return (
@@ -21,6 +21,7 @@ const StoreDashboardPage = async ({ params }: DashboardPageProps) => {
       </div>
     </div>
   );
+
 };
 
 export default StoreDashboardPage;

@@ -55,7 +55,7 @@ const SettingsForm = ({ initialData }: SettingsFormProps) => {
     },
     onSuccess: (data) => {
       toast.success(data.data?.message || "Store deleted successfully");
-      router.push("/");
+      router.push("/admin");
     },
     onError: (error) => {
       if (error.error?.serverError) {

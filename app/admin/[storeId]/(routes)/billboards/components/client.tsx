@@ -18,7 +18,7 @@ const BillboardClient = () => {
                 title="Billboards (0)"
                 description="Manage billboards for your store"
             />
-            <Button size={ isMobile ? "icon" : "default" } onClick={ () => router.push(`/${params.storeId}/billboards/new`) }>
+            <Button size={ isMobile ? "icon" : "default" } onClick={ () => router.push(`/admin/${params.storeId}/billboards/new`) }>
                 { isMobile ? (<Plus className="h-4 w-4" />) : (<Plus className="mr-2 h-4 w-4" />) }
                 { !isMobile && "Add New" }
             </Button>

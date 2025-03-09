@@ -1,18 +1,7 @@
-"use client";
 
-import { useStoreModal } from "@/hooks/store/use-store-modal";
-import { useEffect } from "react";
 
 const SetupPage = () => {
-  const { isOpen, onOpen } = useStoreModal();
-
-  useEffect(() => {
-    if (!isOpen) {
-      onOpen();
-    }
-  }, [isOpen, onOpen]);
-
-  return null;
+  return <div className="container mx-auto">Hello from Root page</div>;
 };
 
 export default SetupPage;

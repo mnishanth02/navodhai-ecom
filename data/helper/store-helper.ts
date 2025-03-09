@@ -58,10 +58,21 @@ export const validateSpecificStore = cache(async (storeId: string) => {
     const store = await getStoreByIdQuery(storeId, userId)
 
     if (!store.success) {
-        redirect("/")
+        console.log("[validateSpecificStore] redirecting to admin")
+        redirect("/admin")
     }
 
     return store.data
+})
+
+/**
+ * Get the user and store for a specific store ID
+ * Cached per storeId for efficient reuse
+ */
+export const getStoreAndUser = cache(async (storeId: string) => {
+    const user = await checkAuth()
+    const store = await validateSpecificStore(storeId)
+    return { user, store }
 })
 
 /**

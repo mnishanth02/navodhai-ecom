@@ -37,7 +37,7 @@ export function StoreSwitcher({
   );
 
   const handleStoreSelect = (store: (typeof stores)[0]) => {
-    router.push(`/${store.id}`);
+    router.push(`/admin/${store.id}`);
   };
 
   return (

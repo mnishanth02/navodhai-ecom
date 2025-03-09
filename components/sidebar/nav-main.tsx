@@ -38,7 +38,7 @@ export function NavMain({
     if (pathname === url) return true;
 
     // Special case for Overview (store root)
-    if (url.split('/').filter(Boolean).length === 1) {
+    if (url.split('/').filter(Boolean).length === 2) {
       // Only match exactly for the store root to avoid highlighting Overview when on other pages
       return pathname === url;
     }
@@ -52,7 +52,7 @@ export function NavMain({
     // Check if all URL segments are present in the pathname segments in the same order
     if (urlSegments.length > pathnameSegments.length) return false;
 
-    for (let i = 0; i < urlSegments.length; i++) {
+    for (let i = 1; i < urlSegments.length; i++) {
       if (urlSegments[i] !== pathnameSegments[i]) return false;
     }
 

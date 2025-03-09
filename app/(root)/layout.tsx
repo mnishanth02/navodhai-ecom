@@ -1,14 +1,13 @@
-import { validateUserStore } from "@/data/helper/store-helper";
-import { redirect } from "next/navigation";
+import { Header } from "@/components/header";
 
-const SetupLayout = async ({ children }: { children: React.ReactNode }) => {
-  const { store } = await validateUserStore();
-
-  if (store) {
-    redirect(`/${store.id}`);
-  }
-
-  return <>{ children }</>;
+const RootLayout = async ({ children }: { children: React.ReactNode }) => {
+  return (
+    <div className="flex min-h-screen flex-col">
+      <Header />
+      { children }
+      {/* <Footer /> */ }
+    </div>
+  );
 };
 
-export default SetupLayout;
+export default RootLayout;
