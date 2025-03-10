@@ -10,12 +10,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Trash } from "lucide-react";
 import { useAction } from "next-safe-action/hooks";
 import { useParams, useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { BillboardSchema, BillboardSchemaType } from "@/lib/validator/store-validator";
 import { BillboardType } from "@/drizzle/schema/store";
 import { updateBillboard, deleteBillboard, createBillboard } from "@/data/actions/billboard.actions";
+import { FileUpload } from "@/components/common/file-upload";
+import { R2UploadExample } from "@/components/examples/r2-upload-example";
 interface BillboardFormProps {
     initialData: BillboardType | null | undefined
 }
@@ -25,12 +27,13 @@ const BillboardForm = ({ initialData }: BillboardFormProps) => {
     const [serverError, setServerError] = useState<string | null>(null);
     const router = useRouter();
     const params = useParams();
-
+    const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(initialData?.imageUrl || null);
 
     const title = initialData ? "Edit billboard" : "Create billboard"
     const description = initialData ? "Edit billboard" : "Add a new billboard"
     const toastMessage = initialData ? "Billboard updated." : "Billboard created."
     const action = initialData ? "Save changes" : "Create"
+
 
     const form = useForm<BillboardSchemaType>({
         resolver: zodResolver(BillboardSchema),
@@ -39,6 +42,13 @@ const BillboardForm = ({ initialData }: BillboardFormProps) => {
             imageUrl: "",
         },
     });
+    
+    // Update form value when image is uploaded
+    useEffect(() => {
+        if (uploadedImageUrl) {
+            form.setValue("imageUrl", uploadedImageUrl);
+        }
+    }, [uploadedImageUrl, form]);
 
     const { execute: executeUpdate, isPending: isUpdating } = useAction(updateBillboard, {
         onExecute: () => {
@@ -135,17 +145,28 @@ const BillboardForm = ({ initialData }: BillboardFormProps) => {
             <Form { ...form }>
                 <form onSubmit={ form.handleSubmit(onSubmit) } className="space-y-8">
                     <div className="grid grid-cols-3 gap-8">
+                        <div className="col-span-3 space-y-2">
+                            <label className="text-sm font-medium">Billboard Image</label>
+                            <FileUpload
+                                folder="billboards"
+                                disabled={ isUpdating || isDeleting }
+                                initialFileUrl={ initialData?.imageUrl || undefined }
+                                onUploadComplete={(fileUrl) => {
+                                    setUploadedImageUrl(fileUrl);
+                                }}
+                                onUploadError={(error) => {
+                                    toast.error(`Upload failed: ${error.message}`);
+                                }}
+                            />
+                            {form.formState.errors.imageUrl && (
+                                <p className="text-sm text-destructive">{form.formState.errors.imageUrl.message}</p>
+                            )}
+                        </div>
                         <InputWithLabel
                             fieldTitle="Label"
                             disabled={ isUpdating || isDeleting }
                             nameInSchema="label"
                             placeholder="Billboard Label"
-                        />
-                        <InputWithLabel
-                            fieldTitle="Image URL"
-                            disabled={ isUpdating || isDeleting }
-                            nameInSchema="imageUrl"
-                            placeholder="Billboard Image URL"
                         />
                     </div>
                     <Button type="submit" disabled={ isUpdating || isDeleting }>
@@ -160,6 +181,9 @@ const BillboardForm = ({ initialData }: BillboardFormProps) => {
                     </Button>
                 </form>
             </Form>
+
+            <Separator className="" />
+            <R2UploadExample />
 
         </>
     );

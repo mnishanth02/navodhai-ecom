@@ -2,7 +2,8 @@
 import { createSafeActionClient, DEFAULT_SERVER_ERROR_MESSAGE } from "next-safe-action";
 import { auth } from "@/auth";
 import { z } from "zod";
-import { ActionError } from "./error";
+import { ActionError } from "../error";
+import { env } from "@/data/env/server-env";
 
 // Base action client without authentication
 export const actionClient = createSafeActionClient({
@@ -17,7 +18,7 @@ export const actionClient = createSafeActionClient({
 
         if (error instanceof Error) {
             // Only return actual error messages in development
-            if (process.env.NODE_ENV === "development") {
+            if (env.NODE_ENV === "development") {
                 return error.message;
             }
         }

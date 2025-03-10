@@ -1,6 +1,6 @@
 import "server-only";
 
-import { VERIFICATION_TOKEN_EXP_MIN } from "./config/constants";
+import { VERIFICATION_TOKEN_EXP_MIN } from "../config/constants";
 import ForgotPasswordEmail from "@/components/emails/forgot-password-email";
 import SignupEmail from "@/components/emails/signup-email";
 import VerifyEmail from "@/components/emails/verify-email";

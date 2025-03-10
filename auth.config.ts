@@ -13,7 +13,7 @@ import { findUserByEmail, oauthVerifyEmailAction } from "./data/data-access/auth
 import Credentials from "next-auth/providers/credentials";
 import { SigninSchema } from "./lib/validator/auth-validtor";
 import { OAuthAccountAlreadyLinkedError } from "./lib/error";
-import { verifyPassword } from "./lib/hash";
+import { verifyPassword } from "./lib/utils/hash";
 export default {
   providers: [
     Google({

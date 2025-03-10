@@ -1,17 +1,17 @@
 import "server-only";
 
-import { VERIFICATION_TOKEN_EXP_MIN } from "../../lib/config/constants";
-import { lower } from "../helper/db-helper";
+import { VERIFICATION_TOKEN_EXP_MIN } from "@/lib/config/constants";
+import { lower } from "@/data/helper/db-helper";
 import { ApiResponse } from "@/types/api";
-import { sendForgotPasswordEmail, sendVerificationEmail } from "../../lib/resend";
-import { ForgotPasswordSchema, ResetPasswordSchema, SigninSchema, SignupSchema } from "../../lib/validator/auth-validtor";
+import { sendForgotPasswordEmail, sendVerificationEmail } from "@/lib/utils/resend";
+import { ForgotPasswordSchema, ResetPasswordSchema, SigninSchema, SignupSchema } from "@/lib/validator/auth-validtor";
 import { signIn } from "@/auth";
 import db from "@/drizzle/db";
 import { users, verificationTokens } from "@/drizzle/schema";
 import { and, eq, isNull } from "drizzle-orm";
 import { AuthError } from "next-auth";
 import { z } from "zod";
-import { hashPassword } from "@/lib/hash";
+import { hashPassword } from "@/lib/utils/hash";
 
 // ******************************************************
 // ************ oauthVerifyEmailAction ******************

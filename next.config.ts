@@ -1,11 +1,24 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+reactStrictMode: true,
   eslint: {
-    // Warning: This allows production builds to successfully complete even if
-    // your project has ESLint errors.
     ignoreDuringBuilds: true,
+  },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'pub-4d2173af25e142eca43ad363e8e558e9.r2.dev',
+        port: '',
+        pathname: '/examples/**',
+      }
+    ],
+  },
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '3mb',
+    },
   },
 };
 

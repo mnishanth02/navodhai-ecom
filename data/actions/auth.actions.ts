@@ -1,6 +1,6 @@
 "use server";
 
-import { actionClient } from "@/lib/safe-action";
+import { actionClient } from "@/lib/utils/safe-action";
 import { z } from "zod";
 import {
   forgotPasswordAction as forgotPasswordQuery,

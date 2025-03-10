@@ -1,7 +1,7 @@
 "use server";
 
 import { z } from "zod";
-import { authActionClient } from "@/lib/safe-action";
+import { authActionClient } from "@/lib/utils/safe-action";
 import {
     createStoreQuery,
     updateStoreQuery,
