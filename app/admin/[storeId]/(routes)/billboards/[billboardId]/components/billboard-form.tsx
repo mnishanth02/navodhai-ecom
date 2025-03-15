@@ -2,7 +2,6 @@
 
 import { FileUpload } from "@/components/common/file-upload";
 import { InputWithLabel } from "@/components/common/input-with-label";
-import { R2UploadExample } from "@/components/examples/r2-upload-example";
 import { AlertModal } from "@/components/modals/alert-modal";
 import PageHeading from "@/components/store/page-heading";
 import { Button } from "@/components/ui/button";
@@ -113,6 +112,9 @@ const BillboardForm = ({ initialData }: BillboardFormProps) => {
   });
 
   const onSubmit = (data: BillboardSchemaType) => {
+    console.log("Billboard data", data);
+    return;
+
     if (initialData) {
       executeUpdate({
         label: data.label,
@@ -199,9 +201,6 @@ const BillboardForm = ({ initialData }: BillboardFormProps) => {
           </Button>
         </form>
       </Form>
-
-      <Separator className="" />
-      <R2UploadExample />
     </>
   );
 };
