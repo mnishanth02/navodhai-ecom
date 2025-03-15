@@ -13,8 +13,8 @@ const ThemeToggle = () => {
       onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
       className="relative rounded-xl"
     >
-      <Moon className="absolute h-[1.2rem] w-[1.2rem] scale-0 rotate-0 transition-all dark:scale-100 dark:-rotate-90" />
-      <Sun className="absolute h-[1.2rem] w-[1.2rem] scale-100 rotate-90 transition-all dark:scale-0 dark:-rotate-0" />
+      <Moon className="dark:-rotate-90 absolute h-[1.2rem] w-[1.2rem] rotate-0 scale-0 transition-all dark:scale-100" />
+      <Sun className="dark:-rotate-0 absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-100 transition-all dark:scale-0" />
     </Button>
   );
 };

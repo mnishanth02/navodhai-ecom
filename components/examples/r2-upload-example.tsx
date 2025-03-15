@@ -1,11 +1,18 @@
 "use client";
 
-import { useState } from "react";
 import { FileUpload } from "@/components/common/file-upload";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useState } from "react";
 import { toast } from "sonner";
 
 export function R2UploadExample() {
@@ -14,29 +21,27 @@ export function R2UploadExample() {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
+
     if (!fileUrl) {
       toast.error("Please upload a file");
       return;
     }
-    
+
     if (!name.trim()) {
       toast.error("Please enter a name");
       return;
     }
-    
+
     // Here you would typically submit the form data to your backend
     toast.success("Form submitted successfully!");
     console.log({ name, fileUrl });
   };
 
   return (
-    <Card className="w-full max-w-md mx-auto">
+    <Card className="mx-auto w-full max-w-md">
       <CardHeader>
         <CardTitle>Upload Example</CardTitle>
-        <CardDescription>
-          Upload a file to Cloudflare R2 storage
-        </CardDescription>
+        <CardDescription>Upload a file to Cloudflare R2 storage</CardDescription>
       </CardHeader>
       <form onSubmit={handleSubmit}>
         <CardContent className="space-y-4">
@@ -49,7 +54,7 @@ export function R2UploadExample() {
               onChange={(e) => setName(e.target.value)}
             />
           </div>
-          
+
           <div className="space-y-2">
             <Label>File</Label>
             <FileUpload
@@ -63,9 +68,9 @@ export function R2UploadExample() {
               }}
             />
           </div>
-          
+
           {fileUrl && (
-            <div className="text-sm text-muted-foreground break-all">
+            <div className="break-all text-muted-foreground text-sm">
               <p>File URL: {fileUrl}</p>
             </div>
           )}

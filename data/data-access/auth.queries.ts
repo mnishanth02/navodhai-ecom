@@ -1,17 +1,22 @@
 import "server-only";
 
-import { VERIFICATION_TOKEN_EXP_MIN } from "@/lib/config/constants";
-import { lower } from "@/data/helper/db-helper";
-import { ApiResponse } from "@/types/api";
-import { sendForgotPasswordEmail, sendVerificationEmail } from "@/lib/utils/resend";
-import { ForgotPasswordSchema, ResetPasswordSchema, SigninSchema, SignupSchema } from "@/lib/validator/auth-validtor";
 import { signIn } from "@/auth";
+import { lower } from "@/data/helper/db-helper";
 import db from "@/drizzle/db";
 import { users, verificationTokens } from "@/drizzle/schema";
+import { VERIFICATION_TOKEN_EXP_MIN } from "@/lib/config/constants";
+import { hashPassword } from "@/lib/utils/hash";
+import { sendForgotPasswordEmail, sendVerificationEmail } from "@/lib/utils/resend";
+import {
+  ForgotPasswordSchema,
+  ResetPasswordSchema,
+  SigninSchema,
+  SignupSchema,
+} from "@/lib/validator/auth-validtor";
+import type { ApiResponse } from "@/types/api";
 import { and, eq, isNull } from "drizzle-orm";
 import { AuthError } from "next-auth";
 import { z } from "zod";
-import { hashPassword } from "@/lib/utils/hash";
 
 // ******************************************************
 // ************ oauthVerifyEmailAction ******************
@@ -24,15 +29,24 @@ export async function oauthVerifyEmailAction(email: string): Promise<ApiResponse
     const existingUser = await db
       .select({ id: users.id })
       .from(users)
-      .where(and(eq(users.email, validatedData.email), isNull(users.hashedPassword), isNull(users.emailVerified)))
+      .where(
+        and(
+          eq(users.email, validatedData.email),
+          isNull(users.hashedPassword),
+          isNull(users.emailVerified),
+        ),
+      )
       .then((res) => res[0] ?? null);
 
     if (existingUser?.id) {
-      await db.update(users).set({ emailVerified: new Date() }).where(eq(users.id, existingUser.id));
+      await db
+        .update(users)
+        .set({ emailVerified: new Date() })
+        .where(eq(users.id, existingUser.id));
     }
 
     return {
-      success: true
+      success: true,
     };
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -40,8 +54,8 @@ export async function oauthVerifyEmailAction(email: string): Promise<ApiResponse
         success: false,
         error: {
           code: 400,
-          message: `Validation error: ${error.errors.map(e => e.message).join(', ')}`,
-        }
+          message: `Validation error: ${error.errors.map((e) => e.message).join(", ")}`,
+        },
       };
     }
 
@@ -50,7 +64,7 @@ export async function oauthVerifyEmailAction(email: string): Promise<ApiResponse
       error: {
         code: 500,
         message: error instanceof Error ? error.message : "An unknown error occurred",
-      }
+      },
     };
   }
 }
@@ -58,7 +72,9 @@ export async function oauthVerifyEmailAction(email: string): Promise<ApiResponse
 // ******************************************************
 // ******************* signupQuery **********************
 // ******************************************************
-export async function signupQuery(input: unknown): Promise<ApiResponse<{ userId: string; message: string }>> {
+export async function signupQuery(
+  input: unknown,
+): Promise<ApiResponse<{ userId: string; message: string }>> {
   try {
     // Validate input with Zod
     const validatedInput = SignupSchema.parse(input);
@@ -74,8 +90,9 @@ export async function signupQuery(input: unknown): Promise<ApiResponse<{ userId:
         success: false,
         error: {
           code: 400,
-          message: "Password must contain at least one uppercase letter, one lowercase letter, and one number"
-        }
+          message:
+            "Password must contain at least one uppercase letter, one lowercase letter, and one number",
+        },
       };
     }
 
@@ -86,8 +103,8 @@ export async function signupQuery(input: unknown): Promise<ApiResponse<{ userId:
         success: false,
         error: {
           code: 500,
-          message: "Failed to check existing user"
-        }
+          message: "Failed to check existing user",
+        },
       };
     }
 
@@ -99,8 +116,9 @@ export async function signupQuery(input: unknown): Promise<ApiResponse<{ userId:
           success: false,
           error: {
             code: 400,
-            message: "This email is associated with a social login account. Please sign in with your social account."
-          }
+            message:
+              "This email is associated with a social login account. Please sign in with your social account.",
+          },
         };
       }
 
@@ -112,8 +130,8 @@ export async function signupQuery(input: unknown): Promise<ApiResponse<{ userId:
             success: false,
             error: {
               code: 500,
-              message: "Failed to create verification token"
-            }
+              message: "Failed to create verification token",
+            },
           };
         }
         await sendVerificationEmail(existingUser.email, tokenResponse.data.token);
@@ -121,8 +139,9 @@ export async function signupQuery(input: unknown): Promise<ApiResponse<{ userId:
           success: false,
           error: {
             code: 409,
-            message: "Account exists but email not verified. A new verification email has been sent."
-          }
+            message:
+              "Account exists but email not verified. A new verification email has been sent.",
+          },
         };
       }
 
@@ -131,8 +150,8 @@ export async function signupQuery(input: unknown): Promise<ApiResponse<{ userId:
         success: false,
         error: {
           code: 409,
-          message: "An account with this email already exists. Please sign in instead."
-        }
+          message: "An account with this email already exists. Please sign in instead.",
+        },
       };
     }
 
@@ -163,8 +182,8 @@ export async function signupQuery(input: unknown): Promise<ApiResponse<{ userId:
         success: false,
         error: {
           code: 500,
-          message: "Failed to create user record"
-        }
+          message: "Failed to create user record",
+        },
       };
     }
 
@@ -174,8 +193,8 @@ export async function signupQuery(input: unknown): Promise<ApiResponse<{ userId:
         success: false,
         error: {
           code: 500,
-          message: "Failed to create verification token"
-        }
+          message: "Failed to create verification token",
+        },
       };
     }
     await sendVerificationEmail(newUser.email, tokenResponse.data.token);
@@ -184,8 +203,8 @@ export async function signupQuery(input: unknown): Promise<ApiResponse<{ userId:
       success: true,
       data: {
         userId: newUser.id,
-        message: "Account created successfully. Please check your email for verification."
-      }
+        message: "Account created successfully. Please check your email for verification.",
+      },
     };
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -193,8 +212,8 @@ export async function signupQuery(input: unknown): Promise<ApiResponse<{ userId:
         success: false,
         error: {
           code: 400,
-          message: `Validation error: ${error.errors.map(e => e.message).join(', ')}`,
-        }
+          message: `Validation error: ${error.errors.map((e) => e.message).join(", ")}`,
+        },
       };
     }
 
@@ -203,7 +222,7 @@ export async function signupQuery(input: unknown): Promise<ApiResponse<{ userId:
       error: {
         code: 500,
         message: error instanceof Error ? error.message : "An unknown error occurred",
-      }
+      },
     };
   }
 }
@@ -220,7 +239,7 @@ export async function signinQuery(input: unknown): Promise<ApiResponse<{ message
       await signIn("credentials", { ...validatedInput, redirect: false });
       return {
         success: true,
-        data: { message: "Successfully signed in" }
+        data: { message: "Successfully signed in" },
       };
     } catch (err) {
       if (err instanceof AuthError) {
@@ -231,32 +250,32 @@ export async function signinQuery(input: unknown): Promise<ApiResponse<{ message
               success: false,
               error: {
                 code: 401,
-                message: "Invalid credentials"
-              }
+                message: "Invalid credentials",
+              },
             };
           case "AccessDenied":
             return {
               success: false,
               error: {
                 code: 403,
-                message: "Please verify your email, sign up again to resend verification email"
-              }
+                message: "Please verify your email, sign up again to resend verification email",
+              },
             };
           case "OAuthAccountAlreadyLinked" as AuthError["type"]:
             return {
               success: false,
               error: {
                 code: 409,
-                message: "Login with your Google or Github account"
-              }
+                message: "Login with your Google or Github account",
+              },
             };
           default:
             return {
               success: false,
               error: {
                 code: 500,
-                message: "Oops. Something went wrong"
-              }
+                message: "Oops. Something went wrong",
+              },
             };
         }
       }
@@ -268,8 +287,8 @@ export async function signinQuery(input: unknown): Promise<ApiResponse<{ message
         success: false,
         error: {
           code: 400,
-          message: `Validation error: ${error.errors.map(e => e.message).join(', ')}`,
-        }
+          message: `Validation error: ${error.errors.map((e) => e.message).join(", ")}`,
+        },
       };
     }
 
@@ -278,7 +297,7 @@ export async function signinQuery(input: unknown): Promise<ApiResponse<{ message
       error: {
         code: 500,
         message: error instanceof Error ? error.message : "An unknown error occurred",
-      }
+      },
     };
   }
 }
@@ -287,7 +306,7 @@ export async function signinQuery(input: unknown): Promise<ApiResponse<{ message
 // ************* findVerificationTokenByToken ***********
 // ******************************************************
 export async function findVerificationTokenByToken(
-  token: unknown
+  token: unknown,
 ): Promise<ApiResponse<typeof verificationTokens.$inferSelect | null>> {
   try {
     const schema = z.object({ token: z.string().min(1, "Token is required") });
@@ -301,7 +320,7 @@ export async function findVerificationTokenByToken(
 
     return {
       success: true,
-      data: verificationToken
+      data: verificationToken,
     };
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -309,8 +328,8 @@ export async function findVerificationTokenByToken(
         success: false,
         error: {
           code: 400,
-          message: `Validation error: ${error.errors.map(e => e.message).join(', ')}`,
-        }
+          message: `Validation error: ${error.errors.map((e) => e.message).join(", ")}`,
+        },
       };
     }
 
@@ -319,7 +338,7 @@ export async function findVerificationTokenByToken(
       error: {
         code: 500,
         message: error instanceof Error ? error.message : "An unknown error occurred",
-      }
+      },
     };
   }
 }
@@ -327,7 +346,9 @@ export async function findVerificationTokenByToken(
 // ******************************************************
 // ******** deleteVerificationTokenByIdentifier *********
 // ******************************************************
-export async function deleteVerificationTokenByIdentifier(identifier: unknown): Promise<ApiResponse<void>> {
+export async function deleteVerificationTokenByIdentifier(
+  identifier: unknown,
+): Promise<ApiResponse<void>> {
   try {
     const schema = z.object({
       identifier: z.string().email("Invalid email format"),
@@ -339,7 +360,7 @@ export async function deleteVerificationTokenByIdentifier(identifier: unknown): 
       .where(eq(lower(verificationTokens.identifier), validatedData.identifier.toLowerCase()));
 
     return {
-      success: true
+      success: true,
     };
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -347,8 +368,8 @@ export async function deleteVerificationTokenByIdentifier(identifier: unknown): 
         success: false,
         error: {
           code: 400,
-          message: `Validation error: ${error.errors.map(e => e.message).join(', ')}`,
-        }
+          message: `Validation error: ${error.errors.map((e) => e.message).join(", ")}`,
+        },
       };
     }
 
@@ -357,7 +378,7 @@ export async function deleteVerificationTokenByIdentifier(identifier: unknown): 
       error: {
         code: 500,
         message: error instanceof Error ? error.message : "An unknown error occurred",
-      }
+      },
     };
   }
 }
@@ -365,7 +386,9 @@ export async function deleteVerificationTokenByIdentifier(identifier: unknown): 
 // ******************************************************
 // *********** verifyCredentialsEmailAction ************
 // ******************************************************
-export async function verifyCredentialsEmailAction(token: unknown): Promise<ApiResponse<{ success: boolean }>> {
+export async function verifyCredentialsEmailAction(
+  token: unknown,
+): Promise<ApiResponse<{ success: boolean }>> {
   try {
     const schema = z.object({ token: z.string().min(1, "Token is required") });
     const validatedData = schema.parse({ token });
@@ -377,8 +400,8 @@ export async function verifyCredentialsEmailAction(token: unknown): Promise<ApiR
         success: false,
         error: {
           code: 404,
-          message: "Invalid verification token"
-        }
+          message: "Invalid verification token",
+        },
       };
     }
 
@@ -393,8 +416,8 @@ export async function verifyCredentialsEmailAction(token: unknown): Promise<ApiR
         success: false,
         error: {
           code: 410,
-          message: "Verification token has expired"
-        }
+          message: "Verification token has expired",
+        },
       };
     }
 
@@ -405,8 +428,8 @@ export async function verifyCredentialsEmailAction(token: unknown): Promise<ApiR
         success: false,
         error: {
           code: 404,
-          message: "User not found"
-        }
+          message: "User not found",
+        },
       };
     }
 
@@ -414,7 +437,10 @@ export async function verifyCredentialsEmailAction(token: unknown): Promise<ApiR
 
     // Verify email if conditions are met
     if (!existingUser.emailVerified && existingUser.email === verificationToken.identifier) {
-      await db.update(users).set({ emailVerified: new Date() }).where(eq(users.id, existingUser.id));
+      await db
+        .update(users)
+        .set({ emailVerified: new Date() })
+        .where(eq(users.id, existingUser.id));
 
       await db
         .update(verificationTokens)
@@ -423,7 +449,7 @@ export async function verifyCredentialsEmailAction(token: unknown): Promise<ApiR
 
       return {
         success: true,
-        data: { success: true }
+        data: { success: true },
       };
     }
 
@@ -431,8 +457,8 @@ export async function verifyCredentialsEmailAction(token: unknown): Promise<ApiR
       success: false,
       error: {
         code: 400,
-        message: "Invalid verification attempt"
-      }
+        message: "Invalid verification attempt",
+      },
     };
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -440,8 +466,8 @@ export async function verifyCredentialsEmailAction(token: unknown): Promise<ApiR
         success: false,
         error: {
           code: 400,
-          message: `Validation error: ${error.errors.map(e => e.message).join(', ')}`,
-        }
+          message: `Validation error: ${error.errors.map((e) => e.message).join(", ")}`,
+        },
       };
     }
 
@@ -450,7 +476,7 @@ export async function verifyCredentialsEmailAction(token: unknown): Promise<ApiR
       error: {
         code: 500,
         message: error instanceof Error ? error.message : "An unknown error occurred",
-      }
+      },
     };
   }
 }
@@ -458,7 +484,9 @@ export async function verifyCredentialsEmailAction(token: unknown): Promise<ApiR
 // ******************************************************
 // **************** findUserByEmail ********************
 // ******************************************************
-export async function findUserByEmail(email: unknown): Promise<ApiResponse<typeof users.$inferSelect | null>> {
+export async function findUserByEmail(
+  email: unknown,
+): Promise<ApiResponse<typeof users.$inferSelect | null>> {
   try {
     const schema = z.object({ email: z.string().email("Invalid email format") });
     const validatedData = schema.parse({ email });
@@ -472,7 +500,7 @@ export async function findUserByEmail(email: unknown): Promise<ApiResponse<typeo
 
     return {
       success: true,
-      data: user
+      data: user,
     };
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -480,8 +508,8 @@ export async function findUserByEmail(email: unknown): Promise<ApiResponse<typeo
         success: false,
         error: {
           code: 400,
-          message: `Validation error: ${error.errors.map(e => e.message).join(', ')}`,
-        }
+          message: `Validation error: ${error.errors.map((e) => e.message).join(", ")}`,
+        },
       };
     }
 
@@ -490,7 +518,7 @@ export async function findUserByEmail(email: unknown): Promise<ApiResponse<typeo
       error: {
         code: 500,
         message: error instanceof Error ? error.message : "An unknown error occurred",
-      }
+      },
     };
   }
 }
@@ -498,7 +526,9 @@ export async function findUserByEmail(email: unknown): Promise<ApiResponse<typeo
 // ******************************************************
 // ********** createVerificationTokenAction ************
 // ******************************************************
-export async function createVerificationTokenAction(identifier: unknown): Promise<ApiResponse<{ token: string }>> {
+export async function createVerificationTokenAction(
+  identifier: unknown,
+): Promise<ApiResponse<{ token: string }>> {
   try {
     const schema = z.object({
       identifier: z.string().email("Invalid email format"),
@@ -516,7 +546,7 @@ export async function createVerificationTokenAction(identifier: unknown): Promis
 
     return {
       success: true,
-      data: { token }
+      data: { token },
     };
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -524,8 +554,8 @@ export async function createVerificationTokenAction(identifier: unknown): Promis
         success: false,
         error: {
           code: 400,
-          message: `Validation error: ${error.errors.map(e => e.message).join(', ')}`,
-        }
+          message: `Validation error: ${error.errors.map((e) => e.message).join(", ")}`,
+        },
       };
     }
 
@@ -534,7 +564,7 @@ export async function createVerificationTokenAction(identifier: unknown): Promis
       error: {
         code: 500,
         message: error instanceof Error ? error.message : "An unknown error occurred",
-      }
+      },
     };
   }
 }
@@ -543,9 +573,7 @@ export async function createVerificationTokenAction(identifier: unknown): Promis
 // **************** forgotPasswordAction ****************
 // ******************************************************
 
-export async function forgotPasswordAction(
-  input: unknown
-): Promise<ApiResponse<{ msg: string }>> {
+export async function forgotPasswordAction(input: unknown): Promise<ApiResponse<{ msg: string }>> {
   try {
     const validatedInput = ForgotPasswordSchema.parse(input);
     const email = validatedInput.email;
@@ -557,7 +585,7 @@ export async function forgotPasswordAction(
       if (!userResponse.success || !userResponse.data?.id) {
         return {
           success: true,
-          data: { msg: "Password reset email sent." }
+          data: { msg: "Password reset email sent." },
         };
       }
 
@@ -568,8 +596,8 @@ export async function forgotPasswordAction(
           success: false,
           error: {
             code: 400,
-            message: "This user was created with OAuth, please sign in with OAuth"
-          }
+            message: "This user was created with OAuth, please sign in with OAuth",
+          },
         };
       }
 
@@ -581,7 +609,7 @@ export async function forgotPasswordAction(
 
       return {
         success: true,
-        data: { msg: "Password reset email sent." }
+        data: { msg: "Password reset email sent." },
       };
     } catch (err) {
       console.error(err);
@@ -589,8 +617,8 @@ export async function forgotPasswordAction(
         success: false,
         error: {
           code: 500,
-          message: "Internal Server Error"
-        }
+          message: "Internal Server Error",
+        },
       };
     }
   } catch (error) {
@@ -599,8 +627,8 @@ export async function forgotPasswordAction(
         success: false,
         error: {
           code: 400,
-          message: `Validation error: ${error.errors.map(e => e.message).join(', ')}`,
-        }
+          message: `Validation error: ${error.errors.map((e) => e.message).join(", ")}`,
+        },
       };
     }
 
@@ -609,7 +637,7 @@ export async function forgotPasswordAction(
       error: {
         code: 500,
         message: error instanceof Error ? error.message : "An unknown error occurred",
-      }
+      },
     };
   }
 }
@@ -621,7 +649,7 @@ export async function forgotPasswordAction(
 export async function resetPasswordAction(
   email: (typeof users.$inferSelect)["email"],
   token: (typeof verificationTokens.$inferSelect)["token"],
-  values: unknown
+  values: unknown,
 ): Promise<ApiResponse<void>> {
   try {
     const validatedValues = ResetPasswordSchema.parse(values);
@@ -636,8 +664,8 @@ export async function resetPasswordAction(
         success: false,
         error: {
           code: 400,
-          message: "Token is invalid"
-        }
+          message: "Token is invalid",
+        },
       };
     }
 
@@ -649,8 +677,8 @@ export async function resetPasswordAction(
         success: false,
         error: {
           code: 410,
-          message: "Token is expired"
-        }
+          message: "Token is expired",
+        },
       };
     }
 
@@ -665,8 +693,8 @@ export async function resetPasswordAction(
         success: false,
         error: {
           code: 400,
-          message: "Oops, something went wrong"
-        }
+          message: "Oops, something went wrong",
+        },
       };
     }
 
@@ -682,7 +710,7 @@ export async function resetPasswordAction(
     await deleteVerificationTokenByIdentifier(email);
 
     return {
-      success: true
+      success: true,
     };
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -690,8 +718,8 @@ export async function resetPasswordAction(
         success: false,
         error: {
           code: 400,
-          message: `Validation error: ${error.errors.map(e => e.message).join(', ')}`,
-        }
+          message: `Validation error: ${error.errors.map((e) => e.message).join(", ")}`,
+        },
       };
     }
 
@@ -700,7 +728,7 @@ export async function resetPasswordAction(
       error: {
         code: 500,
         message: error instanceof Error ? error.message : "An unknown error occurred",
-      }
+      },
     };
   }
 }

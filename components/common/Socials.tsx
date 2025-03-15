@@ -3,7 +3,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { cn } from "@/lib/utils";
 import { Facebook, Instagram, Youtube } from "lucide-react";
 import Link from "next/link";
-import { JSX } from "react";
+import type { JSX } from "react";
 
 interface SocialLink {
   path: string;
@@ -45,8 +45,18 @@ export function Socials({ containerStyle, iconStyle }: SocialsProps) {
         {socialLinks.map((social) => (
           <Tooltip key={social.path}>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" className={cn("h-8 w-8 rounded-full", iconStyle)} asChild>
-                <Link href={social.path} target="_blank" rel="noopener noreferrer" aria-label={social.label}>
+              <Button
+                variant="ghost"
+                size="icon"
+                className={cn("h-8 w-8 rounded-full", iconStyle)}
+                asChild
+              >
+                <Link
+                  href={social.path}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={social.label}
+                >
                   {social.icon}
                 </Link>
               </Button>

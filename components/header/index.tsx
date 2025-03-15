@@ -31,11 +31,13 @@ export function Header({ className }: HeaderProps) {
 
   return (
     <header
-      className={ cn(
+      className={cn(
         "sticky inset-x-0 top-0 z-30 w-full border-b transition-all duration-300",
-        isScrolled ? "border-border/40 bg-background/80 backdrop-blur-lg" : "border-transparent bg-background/0",
-        className
-      ) }
+        isScrolled
+          ? "border-border/40 bg-background/80 backdrop-blur-lg"
+          : "border-transparent bg-background/0",
+        className,
+      )}
     >
       <div className="container mx-auto">
         <div className="flex h-16 items-center justify-between">
@@ -43,14 +45,14 @@ export function Header({ className }: HeaderProps) {
             <Link href="/" className="flex items-center gap-2 transition-transform hover:scale-105">
               <Image
                 src="/logo.png"
-                alt={ siteConfig.name }
-                quality={ 100 }
-                width={ 32 }
-                height={ 32 }
+                alt={siteConfig.name}
+                quality={100}
+                width={32}
+                height={32}
                 priority
                 className="rounded-lg transition-opacity duration-300"
               />
-              <span className="hidden font-medium sm:inline-block">{ siteConfig.name }</span>
+              <span className="hidden font-medium sm:inline-block">{siteConfig.name}</span>
             </Link>
           </div>
 

@@ -1,16 +1,16 @@
 import "server-only";
 
-import { VERIFICATION_TOKEN_EXP_MIN } from "../config/constants";
 import ForgotPasswordEmail from "@/components/emails/forgot-password-email";
 import SignupEmail from "@/components/emails/signup-email";
 import VerifyEmail from "@/components/emails/verify-email";
 import { env as clientEnv } from "@/data/env/client-env";
 import { env as serverEnv } from "@/data/env/server-env";
 import { Resend } from "resend";
+import { VERIFICATION_TOKEN_EXP_MIN } from "../config/constants";
 
 export const resend = new Resend(serverEnv.RESEND_API_KEY);
 
-export const sendVerificationEmail = async (email: string, token: string) => {
+export const sendVerificationEmail = async (_email: string, token: string) => {
   await resend.emails.send({
     from: "Navodhai Store <onboarding@resend.dev>",
     to: "delivered@resend.dev", // TODO - need to update with proper email in production
@@ -24,7 +24,7 @@ export const sendVerificationEmail = async (email: string, token: string) => {
   });
 };
 
-export const sendForgotPasswordEmail = async (email: string, token: string) => {
+export const sendForgotPasswordEmail = async (_email: string, token: string) => {
   await resend.emails.send({
     from: "Navodhai Store <onboarding@resend.dev>",
     to: "delivered@resend.dev", // TODO - need to update with proper email in production
@@ -38,7 +38,7 @@ export const sendForgotPasswordEmail = async (email: string, token: string) => {
   });
 };
 
-export const sendSignupUserEmail = async (email: string, token: string) => {
+export const sendSignupUserEmail = async (_email: string, token: string) => {
   await resend.emails.send({
     from: "signup@navodhai.store",
     to: "delivered@resend.dev", // TODO - need to update with proper email in production

@@ -1,54 +1,54 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Loader2, Upload, X, FileIcon, Check, AlertCircle } from "lucide-react";
-import Image from "next/image";
 import { useR2Upload } from "@/hooks/general/use-r2-upload";
 import { FILE_UPLOAD_MAXSIZE } from "@/lib/config/constants";
+import { cn } from "@/lib/utils";
+import { AlertCircle, Check, FileIcon, Loader2, Upload, X } from "lucide-react";
+import Image from "next/image";
+import { useCallback, useRef, useState } from "react";
 
 interface FileUploadProps {
   /**
    * Callback function when a file is successfully uploaded
    */
   onUploadComplete?: (fileUrl: string) => void;
-  
+
   /**
    * Callback function when upload fails
    */
   onUploadError?: (error: Error) => void;
-  
+
   /**
    * Folder path within the R2 bucket
    * @default "uploads"
    */
   folder?: string;
-  
+
   /**
    * Accepted file types
    * @default "image/*"
    */
   accept?: string;
-  
+
   /**
    * Maximum file size in bytes
    * @default 3145728 (3MB)
    */
   maxSize?: number;
-  
+
   /**
    * Whether the upload is disabled
    * @default false
    */
   disabled?: boolean;
-  
+
   /**
    * Initial file URL if already uploaded
    */
   initialFileUrl?: string;
-  
+
   /**
    * CSS class name for the container
    */
@@ -70,13 +70,8 @@ export function FileUpload({
   const [error, setError] = useState<string | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(initialFileUrl || null);
   const [fileName, setFileName] = useState<string | null>(null);
-  
-  const {
-    uploadFile,
-    resetUpload,
-    isUploading,
-    uploadedFileUrl,
-  } = useR2Upload({
+
+  const { uploadFile, resetUpload, isUploading, uploadedFileUrl } = useR2Upload({
     folder,
     onUploadComplete: (fileUrl) => {
       setPreviewUrl(fileUrl);
@@ -92,30 +87,32 @@ export function FileUpload({
     async (event: React.ChangeEvent<HTMLInputElement>) => {
       const file = event.target.files?.[0];
       if (!file) return;
-      
+
       // Validate file size
       if (file.size > maxSize) {
-        setError(`File size exceeds the maximum allowed size (${Math.round(maxSize / 1024 / 1024)}MB)`);
+        setError(
+          `File size exceeds the maximum allowed size (${Math.round(maxSize / 1024 / 1024)}MB)`,
+        );
         return;
       }
-      
+
       // Clear previous errors
       setError(null);
-      
+
       // Set filename for display
       setFileName(file.name);
-      
+
       // Create a temporary preview URL
       const tempPreviewUrl = URL.createObjectURL(file);
       setPreviewUrl(tempPreviewUrl);
-      
+
       // Upload the file
       await uploadFile(file);
-      
+
       // Clean up the temporary URL
       URL.revokeObjectURL(tempPreviewUrl);
     },
-    [maxSize, uploadFile]
+    [maxSize, uploadFile],
   );
 
   const handleRemove = useCallback(() => {
@@ -143,13 +140,16 @@ export function FileUpload({
     e.stopPropagation();
   }, []);
 
-  const handleDragEnter = useCallback((e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (!disabled && !isUploading) {
-      setIsDragging(true);
-    }
-  }, [disabled, isUploading]);
+  const handleDragEnter = useCallback(
+    (e: React.DragEvent<HTMLDivElement>) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (!disabled && !isUploading) {
+        setIsDragging(true);
+      }
+    },
+    [disabled, isUploading],
+  );
 
   const handleDragLeave = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -162,44 +162,46 @@ export function FileUpload({
       e.preventDefault();
       e.stopPropagation();
       setIsDragging(false);
-      
+
       if (disabled || isUploading) return;
-      
+
       const file = e.dataTransfer.files?.[0];
       if (!file) return;
-      
+
       // Check if file type is accepted
       if (accept && !file.type.match(accept.replace(/\*/g, ".*"))) {
         setError(`File type not accepted. Please upload ${accept.replace("*", "")} files.`);
         return;
       }
-      
+
       // Validate file size
       if (file.size > maxSize) {
-        setError(`File size exceeds the maximum allowed size (${Math.round(maxSize / 1024 / 1024)}MB)`);
+        setError(
+          `File size exceeds the maximum allowed size (${Math.round(maxSize / 1024 / 1024)}MB)`,
+        );
         return;
       }
-      
+
       // Clear previous errors
       setError(null);
-      
+
       // Set filename for display
       setFileName(file.name);
-      
+
       // Create a temporary preview URL
       const tempPreviewUrl = URL.createObjectURL(file);
       setPreviewUrl(tempPreviewUrl);
-      
+
       // Upload the file
       uploadFile(file).catch(() => {
         // Clean up the temporary URL on error
         URL.revokeObjectURL(tempPreviewUrl);
       });
     },
-    [accept, disabled, isUploading, maxSize, uploadFile]
+    [accept, disabled, isUploading, maxSize, uploadFile],
   );
 
-  const isImage = previewUrl && (previewUrl.match(/\.(jpeg|jpg|gif|png|webp)$/) !== null);
+  const isImage = previewUrl && previewUrl.match(/\.(jpeg|jpg|gif|png|webp)$/) !== null;
 
   return (
     <div className={cn("w-full", className)}>
@@ -211,7 +213,7 @@ export function FileUpload({
         onChange={handleFileChange}
         disabled={disabled || isUploading}
       />
-      
+
       {/* Upload area */}
       {!previewUrl ? (
         <div
@@ -221,24 +223,22 @@ export function FileUpload({
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
           className={cn(
-            "border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center gap-4 cursor-pointer transition-colors",
+            "flex cursor-pointer flex-col items-center justify-center gap-4 rounded-lg border-2 border-dashed p-6 transition-colors",
             isDragging
               ? "border-primary bg-primary/5"
               : "border-muted-foreground/25 hover:border-primary/50",
-            disabled && "opacity-50 cursor-not-allowed",
-            className
+            disabled && "cursor-not-allowed opacity-50",
+            className,
           )}
         >
           <div className="rounded-full bg-primary/10 p-3">
             <Upload className="h-6 w-6 text-primary" />
           </div>
-          <div className="text-center space-y-1">
-            <p className="text-sm font-medium">
+          <div className="space-y-1 text-center">
+            <p className="font-medium text-sm">
               {isDragging ? "Drop your file here" : "Drag & drop your file here"}
             </p>
-            <p className="text-xs text-muted-foreground">
-              or click to browse
-            </p>
+            <p className="text-muted-foreground text-xs">or click to browse</p>
           </div>
           {error && (
             <div className="flex items-center gap-2 text-destructive text-sm">
@@ -248,9 +248,9 @@ export function FileUpload({
           )}
         </div>
       ) : (
-        <div className="relative border rounded-lg overflow-hidden">
+        <div className="relative overflow-hidden rounded-lg border">
           {/* Preview */}
-          <div className="aspect-video relative bg-muted flex items-center justify-center">
+          <div className="relative flex aspect-video items-center justify-center bg-muted">
             {isImage ? (
               <Image
                 src={previewUrl}
@@ -263,33 +263,31 @@ export function FileUpload({
             ) : (
               <div className="flex flex-col items-center justify-center gap-2 p-4">
                 <FileIcon className="h-10 w-10 text-primary" />
-                <span className="text-sm font-medium text-center break-all max-w-full px-2">
+                <span className="max-w-full break-all px-2 text-center font-medium text-sm">
                   {fileName || "File"}
                 </span>
               </div>
             )}
           </div>
-          
+
           {/* Upload progress */}
           {isUploading && (
-            <div className="absolute inset-0 bg-background/80 flex flex-col items-center justify-center gap-4 p-4">
-              <Loader2 className="h-8 w-8 text-primary animate-spin" />
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-background/80 p-4">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
               <div className="w-full max-w-xs space-y-2">
                 <Progress value={50} className="h-2 w-full animate-pulse" />
-                <p className="text-xs text-center text-muted-foreground">
-                  Uploading...
-                </p>
+                <p className="text-center text-muted-foreground text-xs">Uploading...</p>
               </div>
             </div>
           )}
-          
+
           {/* Success indicator */}
           {uploadedFileUrl && !isUploading && (
-            <div className="absolute top-2 right-2 bg-primary text-primary-foreground rounded-full p-1">
+            <div className="absolute top-2 right-2 rounded-full bg-primary p-1 text-primary-foreground">
               <Check className="h-4 w-4" />
             </div>
           )}
-          
+
           {/* Remove button */}
           {!isUploading && (
             <Button

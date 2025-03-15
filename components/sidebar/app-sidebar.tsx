@@ -1,13 +1,29 @@
 "use client";
 
-import { StoreSwitcher } from "./store-switcher";
 import { NavMain } from "@/components/sidebar/nav-main";
 import { NavUser } from "@/components/sidebar/nav-user";
-import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from "@/components/ui/sidebar";
-import { StoreType } from "@/drizzle/schema/store";
-import { BarChart, GalleryHorizontalEnd, LayoutDashboard, Package, Settings2, ShoppingBag, Sliders, Store, Users } from "lucide-react";
-import { User } from "next-auth";
-import * as React from "react";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+  SidebarRail,
+} from "@/components/ui/sidebar";
+import type { StoreType } from "@/drizzle/schema/store";
+import {
+  BarChart,
+  GalleryHorizontalEnd,
+  LayoutDashboard,
+  Package,
+  Settings2,
+  ShoppingBag,
+  Sliders,
+  Store,
+  Users,
+} from "lucide-react";
+import type { User } from "next-auth";
+import type * as React from "react";
+import { StoreSwitcher } from "./store-switcher";
 
 const getDashboardNavItems = (storeId: string) => [
   {
@@ -123,15 +139,15 @@ export function AppSidebar({ user, stores, currentStoreId, ...props }: AppSideba
   const navItems = getDashboardNavItems(currentStoreId);
 
   return (
-    <Sidebar collapsible="icon" { ...props }>
+    <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <StoreSwitcher stores={ formattedStores } activeStoreId={ currentStoreId } />
+        <StoreSwitcher stores={formattedStores} activeStoreId={currentStoreId} />
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={ navItems } />
+        <NavMain items={navItems} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={ user } />
+        <NavUser user={user} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

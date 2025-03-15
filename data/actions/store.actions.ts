@@ -1,106 +1,112 @@
 "use server";
 
-import { z } from "zod";
-import { authActionClient } from "@/lib/utils/safe-action";
 import {
-    createStoreQuery,
-    updateStoreQuery,
-    deleteStoreQuery,
-    getStoreByIdQuery,
-    getAllStoreByUserIdQuery,
+  createStoreQuery,
+  deleteStoreQuery,
+  getStoreByIdQuery,
+  updateStoreQuery,
 } from "@/data/data-access/store.queries";
-import { StoreSchema } from "@/lib/validator/store-validator";
 import { ActionError } from "@/lib/error";
+import { authActionClient } from "@/lib/utils/safe-action";
+import { StoreSchema } from "@/lib/validator/store-validator";
+import { z } from "zod";
 
 // Create store action
 export const createStore = authActionClient
-    .metadata({
-        actionName: "createStore",
-        requiresAuth: true
-    })
-    .schema(StoreSchema)
-    .action(async ({ parsedInput, ctx }) => {
-        const { name } = parsedInput;
-        const { userId } = ctx;
+  .metadata({
+    actionName: "createStore",
+    requiresAuth: true,
+  })
+  .schema(StoreSchema)
+  .action(async ({ parsedInput, ctx }) => {
+    const { name } = parsedInput;
+    const { userId } = ctx;
 
-        if (!userId) {
-            throw new ActionError("User ID is required");
-        }
+    if (!userId) {
+      throw new ActionError("User ID is required");
+    }
 
-        const result = await createStoreQuery(name, userId);
+    const result = await createStoreQuery(name, userId);
 
-        if (!result.success) {
-            throw new ActionError(result.error?.message || "Failed to create store");
-        }
+    if (!result.success) {
+      throw new ActionError(result.error?.message || "Failed to create store");
+    }
 
-        return {
-            store: result.data,
-            message: "Store created successfully"
-        };
-    });
+    return {
+      store: result.data,
+      message: "Store created successfully",
+    };
+  });
 
 // Update store action
 export const updateStore = authActionClient
-    .metadata({
-        actionName: "updateStore",
-        requiresAuth: true
-    })
-    .schema(z.object({
-        storeId: z.string().min(1, "Store ID is required"),
-        name: z.string().min(1, "Store name is required").max(255, "Store name cannot exceed 255 characters")
-    }))
-    .action(async ({ parsedInput, ctx }) => {
-        const { storeId, name } = parsedInput;
-        const { userId } = ctx;
+  .metadata({
+    actionName: "updateStore",
+    requiresAuth: true,
+  })
+  .schema(
+    z.object({
+      storeId: z.string().min(1, "Store ID is required"),
+      name: z
+        .string()
+        .min(1, "Store name is required")
+        .max(255, "Store name cannot exceed 255 characters"),
+    }),
+  )
+  .action(async ({ parsedInput, ctx }) => {
+    const { storeId, name } = parsedInput;
+    const { userId } = ctx;
 
-        // Verify store ownership (optional additional security check)
-        const storeCheck = await getStoreByIdQuery(storeId, userId);
-        if (!storeCheck.success) {
-            throw new ActionError("You don't have permission to update this store");
-        }
+    // Verify store ownership (optional additional security check)
+    const storeCheck = await getStoreByIdQuery(storeId, userId);
+    if (!storeCheck.success) {
+      throw new ActionError("You don't have permission to update this store");
+    }
 
-        const result = await updateStoreQuery(storeId, name);
+    const result = await updateStoreQuery(storeId, name);
 
-        if (!result.success) {
-            throw new ActionError(result.error?.message || "Failed to update store");
-        }
+    if (!result.success) {
+      throw new ActionError(result.error?.message || "Failed to update store");
+    }
 
-        return {
-            store: result.data,
-            message: "Store updated successfully"
-        };
-    });
+    return {
+      store: result.data,
+      message: "Store updated successfully",
+    };
+  });
 
 // Delete store action
 export const deleteStore = authActionClient
-    .metadata({
-        actionName: "deleteStore",
-        requiresAuth: true
-    })
-    .schema(z.object({
-        storeId: z.string().min(1, "Store ID is required")
-    }))
-    .action(async ({ parsedInput, ctx }) => {
-        const { storeId } = parsedInput;
-        const { userId } = ctx;
+  .metadata({
+    actionName: "deleteStore",
+    requiresAuth: true,
+  })
+  .schema(
+    z.object({
+      storeId: z.string().min(1, "Store ID is required"),
+    }),
+  )
+  .action(async ({ parsedInput, ctx }) => {
+    const { storeId } = parsedInput;
+    const { userId } = ctx;
 
-        // Verify store ownership (optional additional security check)
-        const storeCheck = await getStoreByIdQuery(storeId, userId);
-        if (!storeCheck.success) {
-            throw new ActionError("You don't have permission to delete this store");
-        }
+    // Verify store ownership (optional additional security check)
+    const storeCheck = await getStoreByIdQuery(storeId, userId);
+    if (!storeCheck.success) {
+      throw new ActionError("You don't have permission to delete this store");
+    }
 
-        const result = await deleteStoreQuery(storeId);
+    const result = await deleteStoreQuery(storeId);
 
-        if (!result.success) {
-            throw new ActionError(result.error?.message || "Failed to delete store");
-        }
+    if (!result.success) {
+      throw new ActionError(result.error?.message || "Failed to delete store");
+    }
 
-        return {
-            store: result.data,
-            message: "Store deleted successfully"
-        };
-    });
+    return {
+      store: result.data,
+      message: "Store deleted successfully",
+    };
+  });
 
 // // Get store by ID action
 // export const getStoreById = authActionClient

@@ -1,6 +1,6 @@
-import "server-only"
-import { S3Client } from "@aws-sdk/client-s3";
+import "server-only";
 import { env } from "@/data/env/server-env";
+import { S3Client } from "@aws-sdk/client-s3";
 
 // Initialize the S3 client for Cloudflare R2
 export const r2Client = new S3Client({
@@ -20,6 +20,6 @@ export const R2_BUCKET_NAME = env.CLOUDFLARE_R2_BUCKET_NAME;
  * @returns A public URL for the object
  */
 export function getPublicR2Url(key: string): string {
-  const cleanKey = key.startsWith('/') ? key.slice(1) : key;
+  const cleanKey = key.startsWith("/") ? key.slice(1) : key;
   return `${env.CLOUDFLARE_R2_PUBLIC_URL}/${cleanKey}`;
 }

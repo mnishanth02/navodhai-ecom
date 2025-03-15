@@ -1,6 +1,5 @@
 "use client";
 
-import SignInButton from "../auth/signin-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,7 +17,8 @@ import { DEFAULT_SIGNIN_REDIRECT } from "@/lib/routes";
 import { LogOut, Settings, User } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { JSX } from "react";
+import type { JSX } from "react";
+import SignInButton from "../auth/signin-button";
 
 interface NavItem {
   title: string;
@@ -75,9 +75,12 @@ export function UserNav() {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className="h-8 w-8">
-            <AvatarImage src={ session.user.image || "" } alt={ session.user.name || siteConfig.name } />
+            <AvatarImage
+              src={session.user.image || ""}
+              alt={session.user.name || siteConfig.name}
+            />
             <AvatarFallback className="bg-primary/10">
-              { session.user.name?.charAt(0).toUpperCase() || "Z" }
+              {session.user.name?.charAt(0).toUpperCase() || "Z"}
             </AvatarFallback>
           </Avatar>
         </Button>
@@ -85,27 +88,36 @@ export function UserNav() {
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm leading-none font-medium">{ session.user.name }</p>
-            <p className="text-muted-foreground text-xs leading-none">{ session.user.email }</p>
+            <p className="font-medium text-sm leading-none">{session.user.name}</p>
+            <p className="text-muted-foreground text-xs leading-none">{session.user.email}</p>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          { navItems.map((item) => (
-            <DropdownMenuItem key={ item.href } onClick={ () => router.push(item.href) } className="cursor-pointer">
-              { item.icon }
-              <span>{ item.title }</span>
-              { item.shortcut && (
-                <span className="text-muted-foreground ml-auto text-xs tracking-widest">{ item.shortcut }</span>
-              ) }
+          {navItems.map((item) => (
+            <DropdownMenuItem
+              key={item.href}
+              onClick={() => router.push(item.href)}
+              className="cursor-pointer"
+            >
+              {item.icon}
+              <span>{item.title}</span>
+              {item.shortcut && (
+                <span className="ml-auto text-muted-foreground text-xs tracking-widest">
+                  {item.shortcut}
+                </span>
+              )}
             </DropdownMenuItem>
-          )) }
+          ))}
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={ handleSignOut } className="text-destructive focus:text-destructive cursor-pointer">
+        <DropdownMenuItem
+          onClick={handleSignOut}
+          className="cursor-pointer text-destructive focus:text-destructive"
+        >
           <LogOut className="mr-2 h-4 w-4" />
           <span>Log out</span>
-          <span className="text-muted-foreground ml-auto text-xs tracking-widest">⇧⌘Q</span>
+          <span className="ml-auto text-muted-foreground text-xs tracking-widest">⇧⌘Q</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

@@ -1,7 +1,5 @@
 "use server";
 
-import { actionClient } from "@/lib/utils/safe-action";
-import { z } from "zod";
 import {
   forgotPasswordAction as forgotPasswordQuery,
   resetPasswordAction as resetPasswordQuery,
@@ -9,14 +7,16 @@ import {
   signupQuery,
   verifyCredentialsEmailAction,
 } from "@/data/data-access/auth.queries";
-import { ForgotPasswordSchema, SigninSchema, SignupSchema } from "@/lib/validator/auth-validtor";
 import { ActionError } from "@/lib/error";
+import { actionClient } from "@/lib/utils/safe-action";
+import { ForgotPasswordSchema, SigninSchema, SignupSchema } from "@/lib/validator/auth-validtor";
+import { z } from "zod";
 
 // Signup action
 export const signup = actionClient
   .metadata({
     actionName: "signup",
-    requiresAuth: false
+    requiresAuth: false,
   })
   .schema(SignupSchema)
   .action(async ({ parsedInput }) => {
@@ -28,7 +28,7 @@ export const signup = actionClient
 
     return {
       userId: result.data?.userId,
-      message: result.data?.message || "Account created successfully"
+      message: result.data?.message || "Account created successfully",
     };
   });
 
@@ -36,7 +36,7 @@ export const signup = actionClient
 export const signin = actionClient
   .metadata({
     actionName: "signin",
-    requiresAuth: false
+    requiresAuth: false,
   })
   .schema(SigninSchema)
   .action(async ({ parsedInput }) => {
@@ -47,7 +47,7 @@ export const signin = actionClient
     }
 
     return {
-      message: result.data?.message || "Successfully signed in"
+      message: result.data?.message || "Successfully signed in",
     };
   });
 
@@ -55,7 +55,7 @@ export const signin = actionClient
 export const forgotPassword = actionClient
   .metadata({
     actionName: "forgotPassword",
-    requiresAuth: false
+    requiresAuth: false,
   })
   .schema(ForgotPasswordSchema)
   .action(async ({ parsedInput }) => {
@@ -66,7 +66,7 @@ export const forgotPassword = actionClient
     }
 
     return {
-      message: result.data?.msg || "Password reset email sent successfully"
+      message: result.data?.msg || "Password reset email sent successfully",
     };
   });
 
@@ -74,13 +74,15 @@ export const forgotPassword = actionClient
 export const resetPassword = actionClient
   .metadata({
     actionName: "resetPassword",
-    requiresAuth: false
+    requiresAuth: false,
   })
-  .schema(z.object({
-    email: z.string().email("Invalid email format"),
-    token: z.string().min(1, "Token is required"),
-    password: z.string().min(8, "Password must be at least 8 characters"),
-  }))
+  .schema(
+    z.object({
+      email: z.string().email("Invalid email format"),
+      token: z.string().min(1, "Token is required"),
+      password: z.string().min(8, "Password must be at least 8 characters"),
+    }),
+  )
   .action(async ({ parsedInput }) => {
     const { email, token, password } = parsedInput;
 
@@ -91,7 +93,7 @@ export const resetPassword = actionClient
     }
 
     return {
-      message: "Password reset successfully"
+      message: "Password reset successfully",
     };
   });
 
@@ -99,11 +101,13 @@ export const resetPassword = actionClient
 export const verifyEmail = actionClient
   .metadata({
     actionName: "verifyEmail",
-    requiresAuth: false
+    requiresAuth: false,
   })
-  .schema(z.object({
-    token: z.string().min(1, "Token is required")
-  }))
+  .schema(
+    z.object({
+      token: z.string().min(1, "Token is required"),
+    }),
+  )
   .action(async ({ parsedInput }) => {
     const { token } = parsedInput;
 
@@ -114,6 +118,6 @@ export const verifyEmail = actionClient
     }
 
     return {
-      message: "Email verified successfully"
+      message: "Email verified successfully",
     };
   });

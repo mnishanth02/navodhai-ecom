@@ -1,10 +1,10 @@
 export default function Loader() {
   return (
-    <div className="text-muted-foreground flex grid h-screen w-screen animate-pulse items-center justify-center p-4">
+    <div className="flex grid h-screen w-screen animate-pulse items-center justify-center p-4 text-muted-foreground">
       <div role="status">
         <svg
           aria-hidden="true"
-          className="fill-muted text-muted-foreground h-8 w-8 animate-spin"
+          className="h-8 w-8 animate-spin fill-muted text-muted-foreground"
           viewBox="0 0 100 101"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"

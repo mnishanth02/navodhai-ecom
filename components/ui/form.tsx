@@ -2,14 +2,14 @@
 
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import * as LabelPrimitive from "@radix-ui/react-label";
+import type * as LabelPrimitive from "@radix-ui/react-label";
 import { Slot } from "@radix-ui/react-slot";
 import * as React from "react";
 import {
   Controller,
-  ControllerProps,
-  FieldPath,
-  FieldValues,
+  type ControllerProps,
+  type FieldPath,
+  type FieldValues,
   FormProvider,
   useFormContext,
   useFormState,
@@ -82,7 +82,13 @@ function FormLabel({ className, ...props }: React.ComponentProps<typeof LabelPri
   const { error, formItemId } = useFormField();
 
   return (
-    <Label data-slot="form-label" data-error={!!error} className={cn(className)} htmlFor={formItemId} {...props} />
+    <Label
+      data-slot="form-label"
+      data-error={!!error}
+      className={cn(className)}
+      htmlFor={formItemId}
+      {...props}
+    />
   );
 }
 
@@ -133,4 +139,13 @@ function FormMessage({ className, ...props }: React.ComponentProps<"p">) {
   );
 }
 
-export { useFormField, Form, FormItem, FormLabel, FormControl, FormDescription, FormMessage, FormField };
+export {
+  useFormField,
+  Form,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormDescription,
+  FormMessage,
+  FormField,
+};

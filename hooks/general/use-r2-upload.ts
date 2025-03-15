@@ -1,7 +1,7 @@
-import { useCallback, useState } from "react";
-import { toast } from "sonner";
 import { uploadFileToR2 } from "@/data/actions/upload.actions";
 import { ActionError } from "@/lib/error";
+import { useCallback, useState } from "react";
+import { toast } from "sonner";
 
 interface UseR2UploadOptions {
   /**
@@ -9,12 +9,12 @@ interface UseR2UploadOptions {
    * @default "uploads"
    */
   folder?: string;
-  
+
   /**
    * Callback function called when upload completes successfully
    */
   onUploadComplete?: (fileUrl: string) => void;
-  
+
   /**
    * Callback function called when upload fails
    */
@@ -35,19 +35,19 @@ export function useR2Upload({
   const uploadFile = useCallback(
     async (file: File): Promise<string | null> => {
       if (!file) return null;
-      
+
       try {
         setIsUploading(true);
-        
+
         const result = await uploadFileToR2({
           file,
           folder,
         });
-        
+
         if (!result?.data) {
           throw new ActionError("Upload failed");
         }
-        
+
         setUploadedFileUrl(result.data.fileUrl);
         onUploadComplete?.(result.data.fileUrl);
         return result.data.fileUrl;
@@ -61,7 +61,7 @@ export function useR2Upload({
         setIsUploading(false);
       }
     },
-    [folder, onUploadComplete, onUploadError]
+    [folder, onUploadComplete, onUploadError],
   );
 
   /**

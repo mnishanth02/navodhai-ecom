@@ -22,9 +22,14 @@ export function MobileNav({ className }: MobileNavProps) {
   const [open, setOpen] = useState(false);
 
   return (
-    <Sheet open={ open } onOpenChange={ setOpen }>
+    <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className={ cn("h-9 w-9 rounded-full", className) } aria-label="Toggle menu">
+        <Button
+          variant="ghost"
+          size="icon"
+          className={cn("h-9 w-9 rounded-full", className)}
+          aria-label="Toggle menu"
+        >
           <Menu className="h-5 w-5" />
         </Button>
       </SheetTrigger>
@@ -34,18 +39,18 @@ export function MobileNav({ className }: MobileNavProps) {
             <Link
               href="/"
               className="flex items-center gap-2 transition-colors hover:text-primary"
-              onClick={ () => setOpen(false) }
+              onClick={() => setOpen(false)}
             >
               <Image
                 src="/logo.png"
-                alt={ siteConfig.name }
-                quality={ 100 }
-                width={ 32 }
-                height={ 32 }
+                alt={siteConfig.name}
+                quality={100}
+                width={32}
+                height={32}
                 priority
                 className="rounded-lg transition-opacity duration-300"
               />
-              <span className="font-semibold">{ siteConfig.name }</span>
+              <span className="font-semibold">{siteConfig.name}</span>
             </Link>
           </SheetTitle>
         </SheetHeader>
@@ -55,9 +60,8 @@ export function MobileNav({ className }: MobileNavProps) {
             containerStyles="flex flex-col flex-center space-y-3"
             linkStyles="text-muted-foreground hover:text-foreground transition-colors"
             underlineStyles="absolute left-0 top-full h-[2px] w-full origin-left scale-x-0 bg-foreground transition-transform duration-200 group-hover:scale-x-100"
-            onLinkClick={ () => setOpen(false) }
+            onLinkClick={() => setOpen(false)}
           />
-
         </div>
       </SheetContent>
     </Sheet>

@@ -1,6 +1,6 @@
-import { users } from "@/drizzle/schema";
+import type { users } from "@/drizzle/schema";
 import type { AdapterUser as DefaultAdapterUser } from "@auth/core/adapters";
-import { type DefaultSession } from "next-auth";
+import type { DefaultSession } from "next-auth";
 import type { User as DefaultUser } from "next-auth";
 
 declare module "next-auth" {

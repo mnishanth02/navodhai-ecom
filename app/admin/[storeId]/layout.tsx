@@ -16,7 +16,7 @@ const StoreLayout = async ({ children, params }: StoreLayoutProps) => {
   const { storeId } = await params;
 
   // Validate storeId format to prevent unnecessary DB calls
-  if (!storeId || typeof storeId !== 'string' || storeId.length < 10) {
+  if (!storeId || typeof storeId !== "string" || storeId.length < 10) {
     redirect("/admin");
   }
 
@@ -33,14 +33,14 @@ const StoreLayout = async ({ children, params }: StoreLayoutProps) => {
 
   return (
     <SidebarProvider>
-      <Suspense fallback={ <Loader /> }>
-        <AppSidebar user={ user } stores={ allStores } currentStoreId={ storeId } />
+      <Suspense fallback={<Loader />}>
+        <AppSidebar user={user} stores={allStores} currentStoreId={storeId} />
       </Suspense>
       <SidebarInset>
-        <Suspense fallback={ <Loader /> }>
-          <Header storeName={ store.name } />
+        <Suspense fallback={<Loader />}>
+          <Header storeName={store.name} />
         </Suspense>
-        <div className="flex-1">{ children }</div>
+        <div className="flex-1">{children}</div>
         <Footer />
       </SidebarInset>
     </SidebarProvider>

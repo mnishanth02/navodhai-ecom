@@ -4,7 +4,7 @@ interface UseImageUploadProps {
   onUpload?: (url: string) => void;
 }
 
-function useImageUpload({ onUpload }: UseImageUploadProps = {}) {
+function _useImageUpload({ onUpload }: UseImageUploadProps = {}) {
   const previewRef = useRef<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);

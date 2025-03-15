@@ -22,8 +22,8 @@ export default async function VerifyEmailPage({ searchParams }: PageProps) {
 
   return (
     <main className="container py-8">
-      <Suspense fallback={ <Loader /> }>
-        <VerificationContent token={ token } />
+      <Suspense fallback={<Loader />}>
+        <VerificationContent token={token} />
       </Suspense>
     </main>
   );
@@ -67,9 +67,9 @@ async function VerificationContent({ token }: { token: string }) {
 const VerificationCard = ({ children }: { children: React.ReactNode }) => (
   <Card className="mx-auto mt-8 max-w-md">
     <CardHeader>
-      <CardTitle className="text-2xl font-bold">Email Verification</CardTitle>
+      <CardTitle className="font-bold text-2xl">Email Verification</CardTitle>
     </CardHeader>
-    <CardContent>{ children }</CardContent>
+    <CardContent>{children}</CardContent>
   </Card>
 );
 
@@ -77,11 +77,15 @@ const TokenIsInvalidState = ({ message }: { message?: string }) => (
   <VerificationCard>
     <Alert variant="destructive" className="mb-4">
       <XCircle className="h-4 w-4" />
-      <AlertDescription>{ message || "The verification link is invalid or has expired." }</AlertDescription>
+      <AlertDescription>
+        {message || "The verification link is invalid or has expired."}
+      </AlertDescription>
     </Alert>
     <div className="text-center">
-      <p className="text-muted-foreground mb-4">Please try signing up again with a new verification link.</p>
-      <Link className={ buttonVariants() } href="/auth/sign-up">
+      <p className="mb-4 text-muted-foreground">
+        Please try signing up again with a new verification link.
+      </p>
+      <Link className={buttonVariants()} href="/auth/sign-up">
         Sign Up Again
       </Link>
     </div>
@@ -92,11 +96,13 @@ const VerificationSuccess = () => (
   <VerificationCard>
     <Alert className="mb-4 border-green-200 bg-green-50">
       <CheckCircle className="h-4 w-4 text-green-600" />
-      <AlertDescription className="text-green-600">Your email has been successfully verified!</AlertDescription>
+      <AlertDescription className="text-green-600">
+        Your email has been successfully verified!
+      </AlertDescription>
     </Alert>
     <div className="text-center">
-      <p className="text-muted-foreground mb-4">You can now sign in to your account.</p>
-      <Link className={ buttonVariants() } href="/auth/sign-in/email">
+      <p className="mb-4 text-muted-foreground">You can now sign in to your account.</p>
+      <Link className={buttonVariants()} href="/auth/sign-in/email">
         Sign In
       </Link>
     </div>

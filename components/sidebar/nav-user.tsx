@@ -10,10 +10,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar";
+import {
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  useSidebar,
+} from "@/components/ui/sidebar";
 import { DEFAULT_SIGNIN_REDIRECT } from "@/lib/routes";
 import { BadgeCheck, Bell, ChevronsUpDown, CreditCard, LogOut, Sparkles } from "lucide-react";
-import { User } from "next-auth";
+import type { User } from "next-auth";
 import { signOut } from "next-auth/react";
 
 export function NavUser({ user }: { user: User }) {

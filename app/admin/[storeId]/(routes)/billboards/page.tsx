@@ -1,13 +1,13 @@
-import BillboardClient from './components/client'
+import BillboardClient from "./components/client";
 
 const BilboardPage = async () => {
-    return (
-        <div className="flex-col">
-            <div className="flex-1 space-y-4 p-8 pt-6">
-                <BillboardClient />
-            </div>
-        </div>
-    )
-}
+  return (
+    <div className="flex-col">
+      <div className="flex-1 space-y-4 p-8 pt-6">
+        <BillboardClient />
+      </div>
+    </div>
+  );
+};
 
-export default BilboardPage
+export default BilboardPage;
