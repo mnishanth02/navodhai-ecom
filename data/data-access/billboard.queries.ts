@@ -3,21 +3,16 @@ import { billboard } from "@/drizzle/schema";
 import type { BillboardType } from "@/drizzle/schema/store";
 import type { ApiResponse } from "@/types/api";
 import { eq } from "drizzle-orm";
-import { z } from "zod";
 
 // ******************************************************
 // *******************  getBillboardById ****************
 // ******************************************************
 
 export async function getBillboardByIdQuery(billId: string): Promise<ApiResponse<BillboardType>> {
-  const schema = z.object({ billId: z.string().min(1) });
-  const validatedData = schema.parse({ billId });
-
   try {
     const billboardData = await db.query.billboard.findFirst({
-      where: eq(billboard.id, validatedData.billId),
+      where: eq(billboard.id, billId),
     });
-    console.log(billboardData);
 
     if (billboardData) {
       return {
@@ -34,16 +29,6 @@ export async function getBillboardByIdQuery(billId: string): Promise<ApiResponse
       },
     };
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      return {
-        success: false,
-        error: {
-          code: 400,
-          message: `Validation error: ${error.errors.map((e) => e.message).join(", ")}`,
-        },
-      };
-    }
-
     return {
       success: false,
       error: {
@@ -60,22 +45,18 @@ export async function getBillboardByIdQuery(billId: string): Promise<ApiResponse
 
 export async function createBillboardQuery(
   label: string,
-  imageUrl: string,
+  primaryImageUrl: string,
   storeId: string,
+  imageUrls: string[],
 ): Promise<ApiResponse<BillboardType>> {
-  const schema = z.object({
-    label: z.string().min(1),
-    imageUrl: z.string().min(1),
-    storeId: z.string().min(1),
-  });
-  const validatedData = schema.parse({ label, imageUrl, storeId });
   try {
     const billboardData = await db
       .insert(billboard)
       .values({
-        label: validatedData.label,
-        imageUrl: validatedData.imageUrl,
-        storeId: validatedData.storeId,
+        label: label,
+        primaryImageUrl: primaryImageUrl,
+        storeId: storeId,
+        imageUrls: imageUrls,
       })
       .returning()
       .then((res) => res[0] ?? null);
@@ -96,16 +77,6 @@ export async function createBillboardQuery(
       },
     };
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      return {
-        success: false,
-        error: {
-          code: 400,
-          message: `Validation error: ${error.errors.map((e) => e.message).join(", ")}`,
-        },
-      };
-    }
-
     return {
       success: false,
       error: {
@@ -123,20 +94,18 @@ export async function createBillboardQuery(
 export async function updateBillboardQuery(
   billboardId: string,
   label: string,
-  imageUrl: string,
+  primaryImageUrl: string,
+  imageUrls: string[],
 ): Promise<ApiResponse<BillboardType>> {
-  const schema = z.object({
-    billboardId: z.string().min(1),
-    label: z.string().min(1),
-    imageUrl: z.string().min(1),
-  });
-  const validatedData = schema.parse({ billboardId, label, imageUrl });
-
   try {
     const billboardData = await db
       .update(billboard)
-      .set({ label: validatedData.label, imageUrl: validatedData.imageUrl })
-      .where(eq(billboard.id, validatedData.billboardId))
+      .set({
+        label: label,
+        primaryImageUrl: primaryImageUrl,
+        imageUrls: imageUrls,
+      })
+      .where(eq(billboard.id, billboardId))
       .returning()
       .then((res) => res[0] ?? null);
 
@@ -156,16 +125,6 @@ export async function updateBillboardQuery(
       },
     };
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      return {
-        success: false,
-        error: {
-          code: 400,
-          message: `Validation error: ${error.errors.map((e) => e.message).join(", ")}`,
-        },
-      };
-    }
-
     return {
       success: false,
       error: {
@@ -183,13 +142,10 @@ export async function updateBillboardQuery(
 export async function deleteBillboardQuery(
   billboardId: string,
 ): Promise<ApiResponse<BillboardType>> {
-  const schema = z.object({ billboardId: z.string().min(1) });
-  const validatedData = schema.parse({ billboardId });
-
   try {
     const billboardData = await db
       .delete(billboard)
-      .where(eq(billboard.id, validatedData.billboardId))
+      .where(eq(billboard.id, billboardId))
       .returning()
       .then((res) => res[0] ?? null);
 
@@ -209,16 +165,6 @@ export async function deleteBillboardQuery(
       },
     };
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      return {
-        success: false,
-        error: {
-          code: 400,
-          message: `Validation error: ${error.errors.map((e) => e.message).join(", ")}`,
-        },
-      };
-    }
-
     return {
       success: false,
       error: {

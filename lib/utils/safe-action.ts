@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { env } from "@/data/env/server-env";
+import { validateSpecificStore } from "@/data/helper/store-helper";
 import { DEFAULT_SERVER_ERROR_MESSAGE, createSafeActionClient } from "next-safe-action";
 import { z } from "zod";
 import { ActionError } from "../error";
@@ -52,3 +53,30 @@ export const authActionClient = actionClient
       },
     });
   });
+
+// Action client with authentication and store validation
+export const storeActionClient = authActionClient.use(async ({ ctx, next, clientInput }) => {
+  // Type-safe check for storeId in input
+  const inputObj = clientInput as { storeId?: string };
+  const storeId = inputObj.storeId;
+
+  if (!storeId) {
+    throw new ActionError("Store ID is required for this action");
+  }
+
+  // Validate store access
+  const store = await validateSpecificStore(storeId);
+
+  if (!store?.id) {
+    throw new ActionError("Store not found");
+  }
+
+  // Pass the validated store to the next middleware/action
+  return next({
+    ctx: {
+      ...ctx,
+      store,
+      storeId,
+    },
+  });
+});

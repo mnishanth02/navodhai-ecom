@@ -1,4 +1,4 @@
-import { uploadFileToR2 } from "@/data/actions/upload.actions";
+import { deleteFileFromR2, uploadFileToR2 } from "@/data/actions/upload.actions";
 import { ActionError } from "@/lib/error";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
@@ -19,14 +19,28 @@ interface UseR2UploadOptions {
    * Callback function called when upload fails
    */
   onUploadError?: (error: Error) => void;
+
+  /**
+   * Callback function called when delete completes successfully
+   */
+  onDeleteComplete?: (fileUrl: string) => void;
+
+  /**
+   * Callback function called when delete fails
+   */
+  onDeleteError?: (error: Error) => void;
 }
 
 export function useR2Upload({
   folder = "uploads",
   onUploadComplete,
   onUploadError,
+  onDeleteComplete,
+  onDeleteError,
 }: UseR2UploadOptions = {}) {
   const [isUploading, setIsUploading] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deletingFileUrl, setDeletingFileUrl] = useState<string | null>(null);
   const [uploadedFileUrl, setUploadedFileUrl] = useState<string | null>(null);
 
   /**
@@ -65,6 +79,41 @@ export function useR2Upload({
   );
 
   /**
+   * Delete a file from R2
+   */
+  const deleteFile = useCallback(
+    async (fileUrl: string): Promise<boolean> => {
+      if (!fileUrl) return false;
+
+      try {
+        setIsDeleting(true);
+        setDeletingFileUrl(fileUrl);
+
+        const result = await deleteFileFromR2({
+          fileUrl,
+        });
+
+        if (!result?.data?.success) {
+          throw new ActionError("Delete failed");
+        }
+
+        onDeleteComplete?.(fileUrl);
+        return true;
+      } catch (error) {
+        console.error("Error deleting file:", error);
+        const err = error instanceof Error ? error : new Error("Failed to delete file");
+        onDeleteError?.(err);
+        toast.error(err.message);
+        return false;
+      } finally {
+        setIsDeleting(false);
+        setDeletingFileUrl(null);
+      }
+    },
+    [onDeleteComplete, onDeleteError],
+  );
+
+  /**
    * Reset the upload state
    */
   const resetUpload = useCallback(() => {
@@ -73,8 +122,11 @@ export function useR2Upload({
 
   return {
     uploadFile,
+    deleteFile,
     resetUpload,
     isUploading,
+    isDeleting,
+    deletingFileUrl,
     uploadedFileUrl,
   };
 }

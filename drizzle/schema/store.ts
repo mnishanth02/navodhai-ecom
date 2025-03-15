@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm";
-import { index, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { index, json, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema, createUpdateSchema } from "drizzle-zod";
 import { createSelectSchema } from "drizzle-zod";
 import { users } from "./auth";
@@ -31,7 +31,8 @@ export const billboard = pgTable(
       .notNull()
       .references(() => stores.id, { onDelete: "cascade" }),
     label: text("label").notNull(),
-    imageUrl: text("image_url").notNull(),
+    imageUrls: json("image_urls").$type<string[]>(),
+    primaryImageUrl: text("primary_image_url"),
     createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { mode: "date" }).defaultNow().notNull(),
   },

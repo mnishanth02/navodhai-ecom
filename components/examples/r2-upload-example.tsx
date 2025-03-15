@@ -60,7 +60,7 @@ export function R2UploadExample() {
             <FileUpload
               folder="examples"
               onUploadComplete={(url) => {
-                setFileUrl(url);
+                setFileUrl(Array.isArray(url) ? url[0] : url);
                 toast.success("File uploaded successfully!");
               }}
               onUploadError={(error) => {

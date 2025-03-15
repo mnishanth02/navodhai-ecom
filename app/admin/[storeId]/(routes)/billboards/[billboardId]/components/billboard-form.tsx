@@ -26,40 +26,54 @@ interface BillboardFormProps {
 }
 
 const BillboardForm = ({ initialData }: BillboardFormProps) => {
-  const [open, setOpen] = useState(false);
-  const [serverError, setServerError] = useState<string | null>(null);
   const router = useRouter();
   const params = useParams();
-  const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(
-    initialData?.imageUrl || null,
+
+  const [open, setOpen] = useState(false);
+  const [serverError, setServerError] = useState<string | null>(null);
+  const [uploadedImageUrls, setUploadedImageUrls] = useState<string[]>(
+    initialData?.imageUrls || [],
+  );
+  const [primaryImageUrl, setPrimaryImageUrl] = useState<string>(
+    initialData?.primaryImageUrl || "",
   );
 
-  const title = initialData ? "Edit billboard" : "Create billboard";
-  const description = initialData ? "Edit billboard" : "Add a new billboard";
+  const pageTitle = initialData ? "Edit billboard" : "Create billboard";
+  const pageDescription = initialData ? "Edit billboard" : "Add a new billboard";
   // const toastMessage = initialData ? "Billboard updated." : "Billboard created.";
   // const action = initialData ? "Save changes" : "Create";
 
   const form = useForm<BillboardSchemaType>({
     resolver: zodResolver(BillboardSchema),
-    defaultValues: initialData || {
-      label: "",
-      imageUrl: "",
-    },
+    defaultValues: initialData
+      ? {
+          label: initialData.label,
+          imageUrls: initialData.imageUrls || [],
+          primaryImageUrl: initialData.primaryImageUrl || "",
+        }
+      : {
+          label: "",
+          imageUrls: [],
+          primaryImageUrl: "",
+        },
   });
 
-  // Update form value when image is uploaded
+  // Update form value when images are uploaded
   useEffect(() => {
-    if (uploadedImageUrl) {
-      form.setValue("imageUrl", uploadedImageUrl);
+    if (uploadedImageUrls.length > 0) {
+      form.setValue("imageUrls", uploadedImageUrls);
+    } else {
+      form.setValue("imageUrls", []);
     }
-  }, [uploadedImageUrl, form]);
+  }, [uploadedImageUrls, form]);
 
   const { execute: executeUpdate, isPending: isUpdating } = useAction(updateBillboard, {
     onExecute: () => {
       setServerError(null);
     },
     onSuccess: (data) => {
-      toast.success(data.data?.message || "Store updated successfully");
+      toast.success(data.data?.message || "Billboard updated successfully");
+      router.push(`/admin/${params.storeId}/billboards`);
       router.refresh();
     },
     onError: (error) => {
@@ -111,22 +125,23 @@ const BillboardForm = ({ initialData }: BillboardFormProps) => {
     },
   });
 
-  const onSubmit = (data: BillboardSchemaType) => {
-    console.log("Billboard data", data);
-    return;
+  const onSubmit = async (data: BillboardSchemaType) => {
+    setServerError(null);
+
+    const submitData = {
+      label: data.label,
+      imageUrls: uploadedImageUrls,
+      primaryImageUrl: primaryImageUrl,
+      storeId: params.storeId as string,
+    };
 
     if (initialData) {
-      executeUpdate({
-        label: data.label,
-        imageUrl: data.imageUrl,
-        billboardId: initialData?.id ?? "",
+      await executeUpdate({
+        ...submitData,
+        billboardId: initialData.id,
       });
     } else {
-      executeCreate({
-        label: data.label,
-        imageUrl: data.imageUrl,
-        storeId: params.storeId as string,
-      });
+      await executeCreate(submitData);
     }
   };
 
@@ -143,7 +158,7 @@ const BillboardForm = ({ initialData }: BillboardFormProps) => {
         loading={isDeleting}
       />
       <div className="flex-between">
-        <PageHeading title={title} description={description} />
+        <PageHeading title={pageTitle} description={pageDescription} />
 
         {initialData && (
           <Button
@@ -166,20 +181,41 @@ const BillboardForm = ({ initialData }: BillboardFormProps) => {
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <div className="grid grid-cols-3 gap-8">
             <div className="col-span-3 space-y-2">
-              <label className="font-medium text-sm">Billboard Image</label>
+              <label className="font-medium text-sm">Billboard Images</label>
               <FileUpload
                 folder="billboards"
                 disabled={isUpdating || isDeleting}
-                initialFileUrl={initialData?.imageUrl || undefined}
-                onUploadComplete={(fileUrl) => {
-                  setUploadedImageUrl(fileUrl);
+                initialFileUrls={uploadedImageUrls}
+                primaryImageUrl={primaryImageUrl}
+                multiple={true}
+                onUploadComplete={(fileUrls, newPrimaryUrl) => {
+                  // Use requestAnimationFrame to ensure state updates are batched
+                  requestAnimationFrame(() => {
+                    setUploadedImageUrls(fileUrls);
+                    if (newPrimaryUrl || (!primaryImageUrl && fileUrls.length > 0)) {
+                      const primaryUrl = newPrimaryUrl || fileUrls[0];
+                      setPrimaryImageUrl(primaryUrl);
+                      form.setValue("primaryImageUrl", primaryUrl);
+                    }
+                  });
                 }}
                 onUploadError={(error) => {
                   toast.error(`Upload failed: ${error.message}`);
                 }}
               />
-              {form.formState.errors.imageUrl && (
-                <p className="text-destructive text-sm">{form.formState.errors.imageUrl.message}</p>
+              {uploadedImageUrls.length > 0 && (
+                <div className="mt-2">
+                  <p className="text-muted-foreground text-sm">
+                    {uploadedImageUrls.length} {uploadedImageUrls.length === 1 ? "image" : "images"}{" "}
+                    uploaded
+                  </p>
+                </div>
+              )}
+              {(form.formState.errors.imageUrls || form.formState.errors.primaryImageUrl) && (
+                <p className="text-destructive text-sm">
+                  {form.formState.errors.imageUrls?.message ||
+                    form.formState.errors.primaryImageUrl?.message}
+                </p>
               )}
             </div>
             <InputWithLabel

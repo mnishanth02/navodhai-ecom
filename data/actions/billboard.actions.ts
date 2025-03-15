@@ -1,7 +1,7 @@
 "use server";
 
 import { ActionError } from "@/lib/error";
-import { authActionClient } from "@/lib/utils/safe-action";
+import { actionClient, storeActionClient } from "@/lib/utils/safe-action";
 import { BillboardSchema } from "@/lib/validator/store-validator";
 import { z } from "zod";
 import {
@@ -12,21 +12,21 @@ import {
 } from "../data-access/billboard.queries";
 
 // Create billboard action
-export const createBillboard = authActionClient
+export const createBillboard = storeActionClient
   .metadata({
     actionName: "createBillboard",
     requiresAuth: true,
   })
-  .schema(BillboardSchema.extend({ storeId: z.string().min(1) }))
+  .schema(
+    BillboardSchema.extend({
+      storeId: z.string().min(1),
+    }),
+  )
   .action(async ({ parsedInput, ctx }) => {
-    const { label, imageUrl, storeId } = parsedInput;
-    const { userId } = ctx;
+    const { label, imageUrls, primaryImageUrl } = parsedInput;
+    const { store } = ctx;
 
-    if (!userId) {
-      throw new ActionError("User ID is required");
-    }
-
-    const result = await createBillboardQuery(label, imageUrl, storeId);
+    const result = await createBillboardQuery(label, primaryImageUrl, store.id, imageUrls);
 
     if (!result.success) {
       throw new ActionError(result.error?.message || "Failed to create billboard");
@@ -39,30 +39,31 @@ export const createBillboard = authActionClient
   });
 
 // Update billboard action
-export const updateBillboard = authActionClient
+export const updateBillboard = storeActionClient
   .metadata({
     actionName: "updateBillboard",
     requiresAuth: true,
   })
   .schema(
-    z.object({
+    BillboardSchema.extend({
       billboardId: z.string().min(1, "Billboard ID is required"),
-      label: z
-        .string()
-        .min(1, "Billboard label is required")
-        .max(255, "Billboard label cannot exceed 255 characters"),
-      imageUrl: z.string().min(1, "Billboard image URL is required"),
+      storeId: z.string().min(1),
     }),
   )
-  .action(async ({ parsedInput }) => {
-    const { billboardId, label, imageUrl } = parsedInput;
-    // Verify store ownership (optional additional security check)
+  .action(async ({ parsedInput, ctx }) => {
+    const { billboardId, label, imageUrls, primaryImageUrl } = parsedInput;
+    const { store } = ctx;
+
+    // Verify billboard exists in this store
     const billboardCheck = await getBillboardByIdQuery(billboardId);
-    if (!billboardCheck.success) {
-      throw new ActionError("You don't have permission to update this billboard");
+    if (
+      !billboardCheck.success ||
+      (billboardCheck.data && billboardCheck.data.storeId !== store.id)
+    ) {
+      throw new ActionError("Billboard not found in this store");
     }
 
-    const result = await updateBillboardQuery(billboardId, label, imageUrl);
+    const result = await updateBillboardQuery(billboardId, label, primaryImageUrl, imageUrls);
 
     if (!result.success) {
       throw new ActionError(result.error?.message || "Failed to update billboard");
@@ -75,7 +76,7 @@ export const updateBillboard = authActionClient
   });
 
 // Delete billboard action
-export const deleteBillboard = authActionClient
+export const deleteBillboard = actionClient
   .metadata({
     actionName: "deleteBillboard",
     requiresAuth: true,
@@ -88,16 +89,12 @@ export const deleteBillboard = authActionClient
   .action(async ({ parsedInput }) => {
     const { billboardId } = parsedInput;
 
-    // Verify store ownership (optional additional security check)
-    const billboardCheck = await getBillboardByIdQuery(billboardId);
-    if (!billboardCheck.success) {
-      throw new ActionError("You don't have permission to delete this billboard");
-    }
-
     const result = await deleteBillboardQuery(billboardId);
 
     if (!result.success) {
-      throw new ActionError(result.error?.message || "Failed to delete billboard");
+      throw new ActionError(
+        result.error?.message || "Make sure you removed all categories using this billboard",
+      );
     }
 
     return {
