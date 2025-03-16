@@ -57,6 +57,13 @@
       "when": 1742132923956,
       "tag": "0007_omniscient_ma_gnuci",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1742143972909,
+      "tag": "0008_short_tinkerer",
+      "breakpoints": true
     }
   ]
 }

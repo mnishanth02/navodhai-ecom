@@ -62,6 +62,24 @@ export const categories = pgTable(
   ],
 );
 
+// Size Table
+export const sizes = pgTable(
+  "Size",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    storeId: text("store_id")
+      .notNull()
+      .references(() => stores.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    value: text("value").notNull(),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt").defaultNow().notNull(),
+  },
+  (table) => [index("size_storeId_idx").on(table.storeId), index("name_idx").on(table.name)],
+);
+
 // ----------------------- RELATIONS -----------------------
 
 export const categoriesRelations = relations(categories, ({ one }) => ({
@@ -76,6 +94,14 @@ export const categoriesRelations = relations(categories, ({ one }) => ({
   // products: many(products),
 }));
 
+export const sizesRelations = relations(sizes, ({ one }) => ({
+  store: one(stores, {
+    fields: [sizes.storeId],
+    references: [stores.id],
+  }),
+  // products: many(products),
+}));
+
 export const storeRelations = relations(stores, ({ one, many }) => ({
   user: one(users, {
     fields: [stores.userId],
@@ -83,7 +109,7 @@ export const storeRelations = relations(stores, ({ one, many }) => ({
   }),
   billboards: many(billboard),
   categories: many(categories),
-  // sizes: many(sizes),
+  sizes: many(sizes),
   // colors: many(colors),
   // products: many(products),
   // orders: many(orders),
@@ -93,11 +119,13 @@ export const storeRelations = relations(stores, ({ one, many }) => ({
 export const storesSelectSchema = createSelectSchema(stores);
 export const billboardSelectSchema = createSelectSchema(billboard);
 export const categoriesSelectSchema = createSelectSchema(categories);
+export const sizesSelectSchema = createSelectSchema(sizes);
 
 //  insertQueries
 export const storesInsertSchema = createInsertSchema(stores);
 export const billboardInsertSchema = createInsertSchema(billboard);
 export const categoriesInsertSchema = createInsertSchema(categories);
+export const sizesInsertSchema = createInsertSchema(sizes);
 
 //
 
@@ -114,3 +142,7 @@ export type NewBillboardType = typeof billboardInsertSchema;
 // Category Types
 export type CategoryType = typeof categories.$inferSelect;
 export type NewCategoryType = typeof categoriesInsertSchema;
+
+// Size Types
+export type SizeType = typeof sizes.$inferSelect;
+export type NewSizeType = typeof sizesInsertSchema;

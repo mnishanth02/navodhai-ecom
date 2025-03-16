@@ -7,7 +7,9 @@ export {
   stores,
   billboard,
   categories,
+  sizes,
   // Relations
   storeRelations,
   categoriesRelations,
+  sizesRelations,
 } from "./schema/store";

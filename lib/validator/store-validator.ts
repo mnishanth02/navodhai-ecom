@@ -14,7 +14,12 @@ export const CategorySchema = z.object({
   name: z.string().min(1),
   billboardId: z.string().min(1),
 });
+export const SizeSchema = z.object({
+  name: z.string().min(1),
+  value: z.string().min(1),
+});
 
 export type StoreSchemaType = z.infer<typeof StoreSchema>;
 export type BillboardSchemaType = z.infer<typeof BillboardSchema>;
 export type CategorySchemaType = z.infer<typeof CategorySchema>;
+export type SizeSchemaType = z.infer<typeof SizeSchema>;
