@@ -50,16 +50,13 @@ export const updateBillboard = storeActionClient
       storeId: z.string().min(1),
     }),
   )
-  .action(async ({ parsedInput, ctx }) => {
+  .action(async ({ parsedInput }) => {
     const { billboardId, label, imageUrls, primaryImageUrl } = parsedInput;
-    const { store } = ctx;
 
     // Verify billboard exists in this store
     const billboardCheck = await getBillboardByIdQuery(billboardId);
-    if (
-      !billboardCheck.success ||
-      (billboardCheck.data && billboardCheck.data.storeId !== store.id)
-    ) {
+
+    if (!billboardCheck.success) {
       throw new ActionError("Billboard not found in this store");
     }
 

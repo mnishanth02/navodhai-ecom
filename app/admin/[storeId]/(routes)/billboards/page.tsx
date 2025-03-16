@@ -1,5 +1,5 @@
 import Loader from "@/components/common/loader";
-import { getAllBillBoardByActiveStoreQuery } from "@/data/data-access/billboard.queries";
+import { getAllBillBoardByStoreIdQuery } from "@/data/data-access/billboard.queries";
 import { format } from "date-fns";
 import { Suspense } from "react";
 import BillboardClient from "./components/client";
@@ -11,7 +11,7 @@ interface BillboardPageProps {
 
 const BilboardPage = async ({ params }: BillboardPageProps) => {
   const { storeId } = await params;
-  const billboards = await getAllBillBoardByActiveStoreQuery(storeId);
+  const billboards = await getAllBillBoardByStoreIdQuery(storeId);
 
   const formattedBillboards: BillboardColumn[] = billboards.success
     ? (billboards.data ?? []).map((item) => ({

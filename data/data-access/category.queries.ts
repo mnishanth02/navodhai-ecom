@@ -1,24 +1,33 @@
 import "server-only";
 import db from "@/drizzle/db";
-import { billboard } from "@/drizzle/schema";
-import type { BillboardType } from "@/drizzle/schema/store";
+import { categories } from "@/drizzle/schema";
+import type { BillboardType, CategoryType } from "@/drizzle/schema/store";
 import type { ApiResponse } from "@/types/api";
-import { desc, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 
 // ******************************************************
-// *******************  getBillboardById ****************
+// *******************  getCategorydById ****************
 // ******************************************************
 
-export async function getBillboardByIdQuery(billId: string): Promise<ApiResponse<BillboardType>> {
+type CategoryWithBillboard = CategoryType & {
+  billboard: BillboardType;
+};
+
+export async function getCategoryByIdQuery(
+  categoryId: string,
+): Promise<ApiResponse<CategoryWithBillboard>> {
   try {
-    const billboardData = await db.query.billboard.findFirst({
-      where: eq(billboard.id, billId),
+    const categoryData = await db.query.categories.findFirst({
+      where: eq(categories.id, categoryId),
+      with: {
+        billboard: true,
+      },
     });
 
-    if (billboardData) {
+    if (categoryData) {
       return {
         success: true,
-        data: billboardData,
+        data: categoryData,
       };
     }
 
@@ -26,7 +35,7 @@ export async function getBillboardByIdQuery(billId: string): Promise<ApiResponse
       success: false,
       error: {
         code: 404,
-        message: "Billboard not found",
+        message: "Category not found",
       },
     };
   } catch (error) {
@@ -41,22 +50,24 @@ export async function getBillboardByIdQuery(billId: string): Promise<ApiResponse
 }
 
 // ******************************************************
-// ************* getAllBillBoardByStoreIdQuery ***********
+// ************* getAllCategoryByStoreIdQuery ***********
 // ******************************************************
 
-export async function getAllBillBoardByStoreIdQuery(
+export async function getAllCategoryByStoreIdQuery(
   storeId: string,
-): Promise<ApiResponse<BillboardType[]>> {
+): Promise<ApiResponse<CategoryWithBillboard[]>> {
   try {
-    const billboards = await db.query.billboard.findMany({
-      where: eq(billboard.storeId, storeId),
-      orderBy: [desc(billboard.createdAt)],
+    const category = await db.query.categories.findMany({
+      where: eq(categories.storeId, storeId),
+      with: {
+        billboard: true,
+      },
     });
 
-    if (billboards) {
+    if (category) {
       return {
         success: true,
-        data: billboards,
+        data: category,
       };
     }
 
@@ -64,7 +75,7 @@ export async function getAllBillBoardByStoreIdQuery(
       success: false,
       error: {
         code: 404,
-        message: "No billboards found for this store",
+        message: "Category not found",
       },
     };
   } catch (error) {
@@ -79,32 +90,29 @@ export async function getAllBillBoardByStoreIdQuery(
 }
 
 // ******************************************************
-// *******************  createBillboardQuery  ****************
+// *******************  createCategoryQuery  ****************
 // ******************************************************
 
-export async function createBillboardQuery(
-  label: string,
-  primaryImageUrl: string,
+export async function createCategoryQuery(
+  name: string,
+  billboardId: string,
   storeId: string,
-  imageUrls: string[],
-): Promise<ApiResponse<BillboardType>> {
+): Promise<ApiResponse<CategoryType>> {
   try {
-    const billboardData = await db
-      .insert(billboard)
+    const category = await db
+      .insert(categories)
       .values({
-        label: label,
-        primaryImageUrl: primaryImageUrl,
-        storeId: storeId,
-        imageUrls: imageUrls,
+        name,
+        billboardId,
+        storeId,
       })
       .returning()
       .then((res) => res[0] ?? null);
 
-    if (billboardData) {
+    if (category) {
       return {
         success: true,
-        data: billboardData,
-        message: "Billboard created successfully",
+        data: category,
       };
     }
 
@@ -112,7 +120,7 @@ export async function createBillboardQuery(
       success: false,
       error: {
         code: 404,
-        message: "Billboard creation failed",
+        message: "Category not found",
       },
     };
   } catch (error) {
@@ -127,32 +135,25 @@ export async function createBillboardQuery(
 }
 
 // ******************************************************
-// ***************** updateBillboardQuery  **************
+// ***************** updatecategoryQuery  **************
 // ******************************************************
 
-export async function updateBillboardQuery(
-  billboardId: string,
-  label: string,
-  primaryImageUrl: string,
-  imageUrls: string[],
-): Promise<ApiResponse<BillboardType>> {
+export async function updateCategoryQuery(
+  id: string,
+  data: Partial<CategoryType>,
+): Promise<ApiResponse<CategoryType>> {
   try {
-    const billboardData = await db
-      .update(billboard)
-      .set({
-        label: label,
-        primaryImageUrl: primaryImageUrl,
-        imageUrls: imageUrls,
-      })
-      .where(eq(billboard.id, billboardId))
+    const category = await db
+      .update(categories)
+      .set(data)
+      .where(eq(categories.id, id))
       .returning()
       .then((res) => res[0] ?? null);
 
-    if (billboardData) {
+    if (category) {
       return {
         success: true,
-        data: billboardData,
-        message: "Billboard updated successfully",
+        data: category,
       };
     }
 
@@ -160,7 +161,7 @@ export async function updateBillboardQuery(
       success: false,
       error: {
         code: 404,
-        message: "Billboard update failed",
+        message: "Category not found",
       },
     };
   } catch (error) {
@@ -175,24 +176,21 @@ export async function updateBillboardQuery(
 }
 
 // ******************************************************
-// *******************  deleteBillboardQuery  ***********
+// *******************  deleteCategoryQuery  ***********
 // ******************************************************
 
-export async function deleteBillboardQuery(
-  billboardId: string,
-): Promise<ApiResponse<BillboardType>> {
+export async function deleteCategoryQuery(id: string): Promise<ApiResponse<CategoryType>> {
   try {
-    const billboardData = await db
-      .delete(billboard)
-      .where(eq(billboard.id, billboardId))
+    const category = await db
+      .delete(categories)
+      .where(eq(categories.id, id))
       .returning()
       .then((res) => res[0] ?? null);
 
-    if (billboardData) {
+    if (category) {
       return {
         success: true,
-        data: billboardData,
-        message: "Billboard deleted successfully",
+        data: category,
       };
     }
 
@@ -200,7 +198,7 @@ export async function deleteBillboardQuery(
       success: false,
       error: {
         code: 404,
-        message: "Billboard deletion failed",
+        message: "Category not found",
       },
     };
   } catch (error) {

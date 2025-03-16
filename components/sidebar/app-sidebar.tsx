@@ -12,9 +12,9 @@ import {
 import type { StoreType } from "@/drizzle/schema/store";
 import {
   BarChart,
+  ChartNoAxesGantt,
   GalleryHorizontalEnd,
   LayoutDashboard,
-  Package,
   Settings2,
   ShoppingBag,
   Sliders,
@@ -37,24 +37,29 @@ const getDashboardNavItems = (storeId: string) => [
     icon: GalleryHorizontalEnd,
   },
   {
-    title: "Products",
-    url: `/admin/${storeId}/products`,
-    icon: Package,
-    items: [
-      {
-        title: "All Products",
-        url: `/admin/${storeId}/products`,
-      },
-      {
-        title: "Categories",
-        url: `/admin/${storeId}/products/categories`,
-      },
-      {
-        title: "Inventory",
-        url: `/admin/${storeId}/products/inventory`,
-      },
-    ],
+    title: "Categories",
+    url: `/admin/${storeId}/categories`,
+    icon: ChartNoAxesGantt,
   },
+  // {
+  //   title: "Products",
+  //   url: `/admin/${storeId}/products`,
+  //   icon: Package,
+  //   items: [
+  //     {
+  //       title: "All Products",
+  //       url: `/admin/${storeId}/products`,
+  //     },
+  //     {
+  //       title: "Categories",
+  //       url: `/admin/${storeId}/products/categories`,
+  //     },
+  //     {
+  //       title: "Inventory",
+  //       url: `/admin/${storeId}/products/inventory`,
+  //     },
+  //   ],
+  // },
   {
     title: "Orders",
     url: `/admin/${storeId}/orders`,
