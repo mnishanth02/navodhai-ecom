@@ -2,7 +2,7 @@ import db from "@/drizzle/db";
 import { billboard } from "@/drizzle/schema";
 import type { BillboardType } from "@/drizzle/schema/store";
 import type { ApiResponse } from "@/types/api";
-import { eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 
 // ******************************************************
 // *******************  getBillboardById ****************
@@ -26,6 +26,44 @@ export async function getBillboardByIdQuery(billId: string): Promise<ApiResponse
       error: {
         code: 404,
         message: "Billboard not found",
+      },
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: {
+        code: 500,
+        message: error instanceof Error ? error.message : "An unknown error occurred",
+      },
+    };
+  }
+}
+
+// ******************************************************
+// ************* getAllBillBoardByActiveStore ***********
+// ******************************************************
+
+export async function getAllBillBoardByActiveStoreQuery(
+  storeId: string,
+): Promise<ApiResponse<BillboardType[]>> {
+  try {
+    const billboards = await db.query.billboard.findMany({
+      where: eq(billboard.storeId, storeId),
+      orderBy: [desc(billboard.createdAt)],
+    });
+
+    if (billboards) {
+      return {
+        success: true,
+        data: billboards,
+      };
+    }
+
+    return {
+      success: false,
+      error: {
+        code: 404,
+        message: "No billboards found for this store",
       },
     };
   } catch (error) {

@@ -2,6 +2,7 @@
 
 import { BreadcrumbItem, BreadcrumbLink, BreadcrumbPage } from "@ui/breadcrumb";
 import { BreadcrumbSeparator } from "@ui/breadcrumb";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useMemo } from "react";
 import * as React from "react";
@@ -84,7 +85,9 @@ export const BreadCrumTitle = () => {
             {segment.isLast ? (
               <BreadcrumbPage>{segment.title}</BreadcrumbPage>
             ) : (
-              <BreadcrumbLink href={segment.url}>{segment.title}</BreadcrumbLink>
+              <BreadcrumbLink asChild>
+                <Link href={segment.url}>{segment.title}</Link>
+              </BreadcrumbLink>
             )}
           </BreadcrumbItem>
         </React.Fragment>
