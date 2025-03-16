@@ -13,7 +13,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { deleteBillboard } from "@/data/actions/billboard.actions";
+import { deleteCategory } from "@/data/actions/category.actions";
 import { Copy, Edit, MoreHorizontal, Trash } from "lucide-react";
 import { useAction } from "next-safe-action/hooks";
 import { toast } from "sonner";
@@ -28,16 +28,16 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
 
   const [open, setOpen] = useState(false);
 
-  const { execute: executeDelete, isPending: isDeleting } = useAction(deleteBillboard, {
+  const { execute: executeDelete, isPending: isDeleting } = useAction(deleteCategory, {
     onSuccess: (data) => {
-      toast.success(data.data?.message || "Billboard deleted successfully");
+      toast.success(data.data?.message || "Category deleted successfully");
       router.push(`/admin/${params.storeId}/categories`);
     },
     onError: (error) => {
       if (error.error?.serverError) {
         toast.error(error.error.serverError);
       } else {
-        toast.error("Make sure you removed all categories using this billboard first.");
+        toast.error("Make sure you removed all products using this category first.");
       }
     },
     onSettled: () => {
@@ -47,12 +47,13 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
 
   const onCopy = (id: string) => {
     navigator.clipboard.writeText(id);
-    toast.success("Billboard ID copied to the clipboard.");
+    toast.success("Category ID copied to the clipboard.");
   };
 
   const onDelete = async () => {
     executeDelete({
-      billboardId: data.id,
+      categoryId: data.id,
+      storeId: params.storeId as string,
     });
   };
 

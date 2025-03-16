@@ -89,6 +89,8 @@ export const deleteCategory = storeActionClient
   .action(async ({ parsedInput }) => {
     const { categoryId } = parsedInput;
 
+    console.log("Deleting category with ID:", categoryId);
+
     const result = await deleteCategoryQuery(categoryId);
 
     if (!result.success) {

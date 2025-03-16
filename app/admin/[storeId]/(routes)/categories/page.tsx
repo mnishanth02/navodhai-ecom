@@ -12,7 +12,6 @@ interface CategoryPageProps {
 const CategoryPage = async ({ params }: CategoryPageProps) => {
   const { storeId } = await params;
   const categories = await getAllCategoryByStoreIdQuery(storeId);
-  console.log("categories", categories);
 
   const formattedCategories: CategoryColumn[] = categories.success
     ? (categories.data ?? []).map((item) => ({
@@ -22,8 +21,6 @@ const CategoryPage = async ({ params }: CategoryPageProps) => {
         createdAt: format(item.createdAt, "MMMM do, yyyy"),
       }))
     : [];
-
-  console.log("formattedCategories", formattedCategories);
 
   return (
     <div className="flex-col">

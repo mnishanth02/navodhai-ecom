@@ -42,9 +42,9 @@ const CategoryForm = ({ initialData, billBoards }: Categoryrops) => {
   const [open, setOpen] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
 
-  const pageTitle = initialData ? "Edit billboard" : "Create billboard";
-  const pageDescription = initialData ? "Edit billboard" : "Add a new billboard";
-  const toastMessage = initialData ? "Billboard updated." : "Billboard created.";
+  const pageTitle = initialData ? "Edit Category" : "Create Category";
+  const pageDescription = initialData ? "Edit Category" : "Add a new Category";
+  const toastMessage = initialData ? "Category updated." : "Category created.";
   const action = initialData ? "Save changes" : "Create";
 
   const form = useForm<CategorySchemaType>({
@@ -102,7 +102,7 @@ const CategoryForm = ({ initialData, billBoards }: Categoryrops) => {
       setServerError(null);
     },
     onSuccess: (data) => {
-      toast.success(data.data?.message || "Billboard deleted successfully");
+      toast.success(data.data?.message || "ategory deleted successfully");
       router.push(`/admin/${params.storeId}/categories`);
     },
     onError: (error) => {
