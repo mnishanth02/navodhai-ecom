@@ -1,14 +1,15 @@
 "use client";
+import { ColorInputWithLabel } from "@/components/common/color-input-with-label";
 import { InputWithLabel } from "@/components/common/input-with-label";
 import { AlertModal } from "@/components/modals/alert-modal";
 import PageHeading from "@/components/store/page-heading";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Separator } from "@/components/ui/separator";
-import { createSize, deleteSize, updateSize } from "@/data/actions/size.actions";
+import { createColor, deleteColor, updateColor } from "@/data/actions/color.actions";
 
-import type { SizeType } from "@/drizzle/schema/store";
-import { SizeSchema, type SizeSchemaType } from "@/lib/validator/store-validator";
+import type { ColorType } from "@/drizzle/schema/store";
+import { ColorSchema, type ColorSchemaType } from "@/lib/validator/store-validator";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Trash } from "lucide-react";
 import { useAction } from "next-safe-action/hooks";
@@ -16,24 +17,25 @@ import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-interface SizeFormProps {
-  initialData: SizeType | null;
+
+interface ColorFormProps {
+  initialData: ColorType | null;
 }
 
-const SizeForm = ({ initialData }: SizeFormProps) => {
+const ColorForm = ({ initialData }: ColorFormProps) => {
   const router = useRouter();
   const params = useParams();
 
   const [open, setOpen] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
 
-  const pageTitle = initialData ? "Edit size" : "Create size";
-  const pageDescription = initialData ? "Edit size" : "Add a new size";
-  const toastMessage = initialData ? "size updated." : "size created.";
+  const pageTitle = initialData ? "Edit color" : "Create color";
+  const pageDescription = initialData ? "Edit color" : "Add a new color";
+  const toastMessage = initialData ? "color updated." : "color created.";
   const action = initialData ? "Save changes" : "Create";
 
-  const form = useForm<SizeSchemaType>({
-    resolver: zodResolver(SizeSchema),
+  const form = useForm<ColorSchemaType>({
+    resolver: zodResolver(ColorSchema),
     defaultValues: initialData
       ? {
           name: initialData.name,
@@ -45,7 +47,7 @@ const SizeForm = ({ initialData }: SizeFormProps) => {
         },
   });
 
-  const { execute: executeCreate } = useAction(createSize, {
+  const { execute: executeCreate } = useAction(createColor, {
     onExecute: () => {
       setServerError(null);
     },
@@ -64,13 +66,13 @@ const SizeForm = ({ initialData }: SizeFormProps) => {
     },
   });
 
-  const { execute: executeUpdate, isPending: isUpdating } = useAction(updateSize, {
+  const { execute: executeUpdate, isPending: isUpdating } = useAction(updateColor, {
     onExecute: () => {
       setServerError(null);
     },
     onSuccess: (data) => {
       toast.success(data.data?.message || toastMessage);
-      router.push(`/admin/${params.storeId}/sizes`);
+      router.push(`/admin/${params.storeId}/colors`);
       // router.refresh();
     },
     onError: (error) => {
@@ -83,13 +85,13 @@ const SizeForm = ({ initialData }: SizeFormProps) => {
     },
   });
 
-  const { execute: executeDelete, isPending: isDeleting } = useAction(deleteSize, {
+  const { execute: executeDelete, isPending: isDeleting } = useAction(deleteColor, {
     onExecute: () => {
       setServerError(null);
     },
     onSuccess: (data) => {
-      toast.success(data.data?.message || "Billboard deleted successfully");
-      router.push(`/admin/${params.storeId}/sizes`);
+      toast.success(data.data?.message || "Color deleted successfully");
+      router.push(`/admin/${params.storeId}/colors`);
     },
     onError: (error) => {
       if (error.error?.serverError) {
@@ -104,7 +106,7 @@ const SizeForm = ({ initialData }: SizeFormProps) => {
     },
   });
 
-  const onSubmit = async (data: SizeSchemaType) => {
+  const onSubmit = async (data: ColorSchemaType) => {
     setServerError(null);
 
     const submitData = {
@@ -116,7 +118,7 @@ const SizeForm = ({ initialData }: SizeFormProps) => {
     if (initialData) {
       await executeUpdate({
         ...submitData,
-        sizeId: initialData.id,
+        colorId: initialData.id,
       });
     } else {
       await executeCreate(submitData);
@@ -124,7 +126,7 @@ const SizeForm = ({ initialData }: SizeFormProps) => {
   };
 
   const onDelete = () => {
-    executeDelete({ sizeId: initialData?.id ?? "", storeId: params.storeId as string });
+    executeDelete({ colorId: initialData?.id ?? "", storeId: params.storeId as string });
   };
 
   return (
@@ -162,13 +164,13 @@ const SizeForm = ({ initialData }: SizeFormProps) => {
               fieldTitle="Name"
               disabled={isUpdating || isDeleting}
               nameInSchema="name"
-              placeholder="Size Name"
+              placeholder="Color Name"
             />
-            <InputWithLabel
+            <ColorInputWithLabel
               fieldTitle="Value"
               disabled={isUpdating || isDeleting}
               nameInSchema="value"
-              placeholder="Size Value"
+              placeholder="Color Value (e.g. #FF0000)"
             />
           </div>
           <Button type="submit" disabled={isUpdating || isDeleting}>
@@ -187,4 +189,4 @@ const SizeForm = ({ initialData }: SizeFormProps) => {
   );
 };
 
-export default SizeForm;
+export default ColorForm;

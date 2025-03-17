@@ -18,8 +18,15 @@ export const SizeSchema = z.object({
   name: z.string().min(1),
   value: z.string().min(1),
 });
+export const ColorSchema = z.object({
+  name: z.string().min(1),
+  value: z.string().min(4).regex(/^#/, {
+    message: "String must be a valid HEX code",
+  }),
+});
 
 export type StoreSchemaType = z.infer<typeof StoreSchema>;
 export type BillboardSchemaType = z.infer<typeof BillboardSchema>;
 export type CategorySchemaType = z.infer<typeof CategorySchema>;
 export type SizeSchemaType = z.infer<typeof SizeSchema>;
+export type ColorSchemaType = z.infer<typeof ColorSchema>;

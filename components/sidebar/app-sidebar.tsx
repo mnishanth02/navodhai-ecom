@@ -15,6 +15,7 @@ import {
   ChartNoAxesGantt,
   GalleryHorizontalEnd,
   LayoutDashboard,
+  Palette,
   Ruler,
   Settings2,
   ShoppingBag,
@@ -46,6 +47,11 @@ const getDashboardNavItems = (storeId: string) => [
     title: "Sizes",
     url: `/admin/${storeId}/sizes`,
     icon: Ruler,
+  },
+  {
+    title: "Colors",
+    url: `/admin/${storeId}/colors`,
+    icon: Palette,
   },
   // {
   //   title: "Products",

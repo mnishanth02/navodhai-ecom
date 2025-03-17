@@ -66,6 +66,7 @@ const CategoryForm = ({ initialData, billBoards }: Categoryrops) => {
     },
     onSuccess: (data) => {
       toast.success(data.data?.message || toastMessage);
+      form.reset();
       router.refresh();
     },
     onError: (error) => {

@@ -92,6 +92,7 @@ const BillboardForm = ({ initialData }: BillboardFormProps) => {
     },
     onSuccess: (data) => {
       toast.success(data.data?.message || toastMessage);
+      form.reset();
       router.refresh();
     },
     onError: (error) => {

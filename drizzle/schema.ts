@@ -8,8 +8,10 @@ export {
   billboard,
   categories,
   sizes,
+  colors,
   // Relations
   storeRelations,
   categoriesRelations,
   sizesRelations,
+  colorsRelations,
 } from "./schema/store";
