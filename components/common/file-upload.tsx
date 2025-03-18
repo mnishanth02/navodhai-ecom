@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { AlertCircle, CheckCircle, FileIcon, Loader2, Plus, Trash, Upload } from "lucide-react";
 import Image from "next/image";
 import { useCallback, useRef, useState } from "react";
+import { Input } from "../ui/input";
 
 interface FileUploadProps {
   /**
@@ -337,7 +338,7 @@ export function FileUpload({
 
   return (
     <div className={cn("w-full", className)}>
-      <input
+      <Input
         type="file"
         accept={accept}
         className="hidden"

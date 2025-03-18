@@ -142,6 +142,7 @@ export const products = pgTable(
       .references(() => categories.id),
     name: text("name").notNull(),
     price: decimal("price").notNull(),
+    primaryImageUrl: text("primary_image_url"),
     isFeatured: boolean("isFeatured").default(false).notNull(),
     isArchived: boolean("isArchived").default(false).notNull(),
     sizeId: uuid("sizeId")

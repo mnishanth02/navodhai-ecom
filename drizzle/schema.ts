@@ -9,9 +9,13 @@ export {
   categories,
   sizes,
   colors,
+  products,
+  images,
   // Relations
   storeRelations,
   categoriesRelations,
   sizesRelations,
   colorsRelations,
+  productsRelations,
+  imagesRelations,
 } from "./schema/store";

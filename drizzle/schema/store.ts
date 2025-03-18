@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm";
-import { index, json, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { boolean, decimal, index, json, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 import { createSelectSchema } from "drizzle-zod";
 import { users } from "./auth";
 
@@ -96,9 +96,89 @@ export const colors = pgTable(
   (table) => [index("color_storeId_idx").on(table.storeId), index("color_name_idx").on(table.name)],
 );
 
+// Product Table
+export const products = pgTable(
+  "product",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    storeId: text("store_id")
+      .notNull()
+      .references(() => stores.id, { onDelete: "cascade" }),
+    categoryId: text("category_id")
+      .notNull()
+      .references(() => categories.id),
+    sizeId: text("size_id")
+      .notNull()
+      .references(() => sizes.id),
+    colorId: text("color_id")
+      .notNull()
+      .references(() => colors.id),
+    name: text("name").notNull(),
+    price: decimal("price").notNull(),
+    primaryImageUrl: text("primary_image_url"),
+    isArchived: boolean("is_archived").default(false).notNull(),
+    isFeatured: boolean("is_featured").default(false).notNull(),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt").defaultNow().notNull(),
+  },
+  (table) => [
+    index("product_storeId_idx").on(table.storeId),
+    index("product_categoryId_idx").on(table.categoryId),
+    index("product_sizeId_idx").on(table.sizeId),
+    index("product_colorId_idx").on(table.colorId),
+  ],
+);
+
+// Image Table
+export const images = pgTable(
+  "image",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    productId: text("product_id")
+      .notNull()
+      .references(() => products.id, { onDelete: "cascade" }),
+    url: text("url").notNull(),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt").defaultNow().notNull(),
+  },
+  (table) => [index("image_productId_idx").on(table.productId)],
+);
+
 // ----------------------- RELATIONS -----------------------
 
-export const categoriesRelations = relations(categories, ({ one }) => ({
+export const imagesRelations = relations(images, ({ one }) => ({
+  product: one(products, {
+    fields: [images.productId],
+    references: [products.id],
+  }),
+}));
+
+export const productsRelations = relations(products, ({ one, many }) => ({
+  store: one(stores, {
+    fields: [products.storeId],
+    references: [stores.id],
+  }),
+  category: one(categories, {
+    fields: [products.categoryId],
+    references: [categories.id],
+  }),
+  size: one(sizes, {
+    fields: [products.sizeId],
+    references: [sizes.id],
+  }),
+  color: one(colors, {
+    fields: [products.colorId],
+    references: [colors.id],
+  }),
+  images: many(images),
+  // orderItems: many(orderItems),
+}));
+
+export const categoriesRelations = relations(categories, ({ one, many }) => ({
   store: one(stores, {
     fields: [categories.storeId],
     references: [stores.id],
@@ -107,23 +187,23 @@ export const categoriesRelations = relations(categories, ({ one }) => ({
     fields: [categories.billboardId],
     references: [billboard.id],
   }),
-  // products: many(products),
+  products: many(products),
 }));
 
-export const sizesRelations = relations(sizes, ({ one }) => ({
+export const sizesRelations = relations(sizes, ({ one, many }) => ({
   store: one(stores, {
     fields: [sizes.storeId],
     references: [stores.id],
   }),
-  // products: many(products),
+  products: many(products),
 }));
 
-export const colorsRelations = relations(colors, ({ one }) => ({
+export const colorsRelations = relations(colors, ({ one, many }) => ({
   store: one(stores, {
     fields: [colors.storeId],
     references: [stores.id],
   }),
-  // products: many(products),
+  products: many(products),
 }));
 
 export const storeRelations = relations(stores, ({ one, many }) => ({
@@ -135,7 +215,7 @@ export const storeRelations = relations(stores, ({ one, many }) => ({
   categories: many(categories),
   sizes: many(sizes),
   colors: many(colors),
-  // products: many(products),
+  products: many(products),
   // orders: many(orders),
 }));
 
@@ -145,10 +225,17 @@ export const billboardSelectSchema = createSelectSchema(billboard);
 export const categoriesSelectSchema = createSelectSchema(categories);
 export const sizesSelectSchema = createSelectSchema(sizes);
 export const colorsSelectSchema = createSelectSchema(colors);
+export const imagesSelectSchema = createSelectSchema(images);
+export const productsSelectSchema = createSelectSchema(products);
 
-//   Types
+//   Select Types
 export type StoreType = typeof stores.$inferSelect;
 export type BillboardType = typeof billboard.$inferSelect;
 export type CategoryType = typeof categories.$inferSelect;
 export type SizeType = typeof sizes.$inferSelect;
 export type ColorType = typeof colors.$inferSelect;
+export type ImageType = typeof images.$inferSelect;
+export type ProductType = typeof products.$inferSelect;
+
+//  Insert Types
+export type NewProductType = typeof products.$inferInsert;

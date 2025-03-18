@@ -18,6 +18,7 @@ import {
   Palette,
   Ruler,
   Settings2,
+  Shirt,
   ShoppingBag,
   Sliders,
   Store,
@@ -52,6 +53,11 @@ const getDashboardNavItems = (storeId: string) => [
     title: "Colors",
     url: `/admin/${storeId}/colors`,
     icon: Palette,
+  },
+  {
+    title: "Products",
+    url: `/admin/${storeId}/products`,
+    icon: Shirt,
   },
   // {
   //   title: "Products",
