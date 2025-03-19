@@ -11,6 +11,7 @@ export {
   colors,
   products,
   images,
+  orders,
   // Relations
   storeRelations,
   categoriesRelations,
@@ -18,4 +19,5 @@ export {
   colorsRelations,
   productsRelations,
   imagesRelations,
+  ordersRelations,
 } from "./schema/store";

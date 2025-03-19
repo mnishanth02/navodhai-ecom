@@ -148,7 +148,62 @@ export const images = pgTable(
   (table) => [index("image_productId_idx").on(table.productId)],
 );
 
+// Order Table
+export const orders = pgTable(
+  "order",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    storeId: text("store_id")
+      .notNull()
+      .references(() => stores.id, { onDelete: "cascade" }),
+    phone: text("phone").default("").notNull(),
+    isPaid: boolean("is_paid").default(false).notNull(),
+    address: text("address").default("").notNull(),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt").defaultNow().notNull(),
+  },
+  (table) => [index("order_storeId_idx").on(table.storeId)],
+);
+
+export const orderItems = pgTable(
+  "order_items",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    orderId: text("order_id")
+      .notNull()
+      .references(() => orders.id, { onDelete: "cascade" }),
+    productId: text("product_id")
+      .notNull()
+      .references(() => products.id, { onDelete: "cascade" }),
+  },
+  (table) => [
+    index("orderId_idx").on(table.orderId),
+    index("orderItem_productId_idx").on(table.productId),
+  ],
+);
 // ----------------------- RELATIONS -----------------------
+
+export const orderItemsRelations = relations(orderItems, ({ one }) => ({
+  order: one(orders, {
+    fields: [orderItems.orderId],
+    references: [orders.id],
+  }),
+  product: one(products, {
+    fields: [orderItems.productId],
+    references: [products.id],
+  }),
+}));
+export const ordersRelations = relations(orders, ({ one, many }) => ({
+  store: one(stores, {
+    fields: [orders.storeId],
+    references: [stores.id],
+  }),
+  orderItems: many(orderItems),
+}));
 
 export const imagesRelations = relations(images, ({ one }) => ({
   product: one(products, {
@@ -175,7 +230,7 @@ export const productsRelations = relations(products, ({ one, many }) => ({
     references: [colors.id],
   }),
   images: many(images),
-  // orderItems: many(orderItems),
+  orderItems: many(orderItems),
 }));
 
 export const categoriesRelations = relations(categories, ({ one, many }) => ({
@@ -216,7 +271,7 @@ export const storeRelations = relations(stores, ({ one, many }) => ({
   sizes: many(sizes),
   colors: many(colors),
   products: many(products),
-  // orders: many(orders),
+  orders: many(orders),
 }));
 
 //  selectQueries
@@ -227,6 +282,8 @@ export const sizesSelectSchema = createSelectSchema(sizes);
 export const colorsSelectSchema = createSelectSchema(colors);
 export const imagesSelectSchema = createSelectSchema(images);
 export const productsSelectSchema = createSelectSchema(products);
+export const ordersSelectSchema = createSelectSchema(orders);
+export const orderItemsSelectSchema = createSelectSchema(orderItems);
 
 //   Select Types
 export type StoreType = typeof stores.$inferSelect;
@@ -236,6 +293,8 @@ export type SizeType = typeof sizes.$inferSelect;
 export type ColorType = typeof colors.$inferSelect;
 export type ImageType = typeof images.$inferSelect;
 export type ProductType = typeof products.$inferSelect;
+export type OrderType = typeof orders.$inferSelect;
+export type OrderItemType = typeof orderItems.$inferSelect;
 
 //  Insert Types
 export type NewProductType = typeof products.$inferInsert;
