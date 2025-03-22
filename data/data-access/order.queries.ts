@@ -6,10 +6,10 @@ import type { ApiResponse } from "@/types/api";
 import { desc, eq } from "drizzle-orm";
 
 // ******************************************************
-// *******************  getBillboardById ****************
+// *******************  getOrderById ****************
 // ******************************************************
 
-export async function getBillboardByIdQuery(orderId: string): Promise<ApiResponse<OrderType>> {
+export async function getOrderByIdQuery(orderId: string): Promise<ApiResponse<OrderType>> {
   try {
     const orderData = await db.query.orders.findFirst({
       where: eq(orders.id, orderId),

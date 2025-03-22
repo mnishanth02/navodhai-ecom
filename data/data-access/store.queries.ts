@@ -13,12 +13,9 @@ export async function createStoreQuery(
 ): Promise<ApiResponse<typeof stores.$inferSelect>> {
   try {
     // Validate inputs with Zod
-    const schema = z.object({ name: z.string(), userId: z.string() });
-    const validatedData = schema.parse({ name, userId });
-
     const store = await db
       .insert(stores)
-      .values({ name: validatedData.name, userId: validatedData.userId })
+      .values({ name, userId })
       .returning()
       .then((res) => res[0] ?? null);
 
@@ -67,15 +64,8 @@ export async function getStoreByIdQuery(
 ): Promise<ApiResponse<typeof stores.$inferSelect>> {
   try {
     // Validate inputs with Zod
-    const schema = z.object({ storeId: z.string(), userId: z.string() });
-    const validatedData = schema.parse({ storeId, userId });
-
     const store = await db.query.stores.findFirst({
-      where: and(
-        eq(stores.id, validatedData.storeId),
-        eq(stores.userId, validatedData.userId),
-        isNull(stores.deletedAt),
-      ),
+      where: and(eq(stores.id, storeId), eq(stores.userId, userId), isNull(stores.deletedAt)),
     });
 
     if (store) {
@@ -120,12 +110,8 @@ export async function getStoreByUserIdQuery(
   userId: string,
 ): Promise<ApiResponse<typeof stores.$inferSelect>> {
   try {
-    // Validate inputs with Zod
-    const schema = z.object({ userId: z.string() });
-    const validatedData = schema.parse({ userId });
-
     const store = await db.query.stores.findFirst({
-      where: and(eq(stores.userId, validatedData.userId), isNull(stores.deletedAt)),
+      where: and(eq(stores.userId, userId), isNull(stores.deletedAt)),
     });
 
     if (store) {
@@ -171,11 +157,9 @@ export async function getAllStoreByUserIdQuery(
 ): Promise<ApiResponse<(typeof stores.$inferSelect)[]>> {
   try {
     // Validate inputs with Zod
-    const schema = z.object({ userId: z.string() });
-    const validatedData = schema.parse({ userId });
 
     const allStores = await db.query.stores.findMany({
-      where: and(eq(stores.userId, validatedData.userId), isNull(stores.deletedAt)),
+      where: and(eq(stores.userId, userId), isNull(stores.deletedAt)),
     });
 
     if (allStores && allStores.length > 0) {
@@ -222,13 +206,11 @@ export async function updateStoreQuery(
 ): Promise<ApiResponse<typeof stores.$inferSelect>> {
   try {
     // Validate inputs with Zod
-    const schema = z.object({ storeId: z.string(), name: z.string() });
-    const validatedData = schema.parse({ storeId, name });
 
     const store = await db
       .update(stores)
-      .set({ name: validatedData.name })
-      .where(and(eq(stores.id, validatedData.storeId), isNull(stores.deletedAt)))
+      .set({ name: name })
+      .where(and(eq(stores.id, storeId), isNull(stores.deletedAt)))
       .returning()
       .then((res) => res[0] ?? null);
 
@@ -276,13 +258,10 @@ export async function deleteStoreQuery(
 ): Promise<ApiResponse<typeof stores.$inferSelect>> {
   try {
     // Validate inputs with Zod
-    const schema = z.object({ storeId: z.string() });
-    const validatedData = schema.parse({ storeId });
-
     const store = await db
       .update(stores)
       .set({ deletedAt: new Date() })
-      .where(eq(stores.id, validatedData.storeId))
+      .where(eq(stores.id, storeId))
       .returning()
       .then((res) => res[0] ?? null);
 

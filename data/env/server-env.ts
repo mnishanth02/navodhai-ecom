@@ -16,6 +16,7 @@ export const env = createEnv({
     CLOUDFLARE_R2_SECRET_ACCESS_KEY: z.string().min(1),
     CLOUDFLARE_R2_BUCKET_NAME: z.string().min(1),
     CLOUDFLARE_R2_PUBLIC_URL: z.string().url().optional(),
+    APP_STORE_ID: z.string().min(1),
 
     // ARCJET_KEY: z.string().min(1),
     // TEST_IP_ADDRESS: z.string().min(1).optional(),

@@ -16,17 +16,17 @@ import { desc, eq } from "drizzle-orm";
 // *******************  getProductByIdQuery ****************
 // ******************************************************
 
-export type ProductWithImages = ProductType & {
-  images: ImageType[];
-};
 export async function getProductByIdQuery(
   productId: string,
-): Promise<ApiResponse<ProductWithImages>> {
+): Promise<ApiResponse<ProductWithDetails>> {
   try {
     const productData = await db.query.products.findFirst({
       where: eq(products.id, productId),
       with: {
         images: true,
+        category: true,
+        size: true,
+        color: true,
       },
     });
 
@@ -58,25 +58,67 @@ export async function getProductByIdQuery(
 // ******************************************************
 // ************* getAllProductsByStoreIdQuery ***********
 // ******************************************************
-type ProductWithDetails = ProductType & {
+export type ProductWithDetails = ProductType & {
   category: CategoryType;
   size: SizeType;
   color: ColorType;
+  images: ImageType[];
 };
+
+interface ProductFilterProps {
+  categoryId?: string;
+  colorId?: string;
+  sizeId?: string;
+  isFeatured?: boolean;
+  minPrice?: string;
+  maxPrice?: string;
+}
 
 export async function getAllProductsByStoreIdQuery(
   storeId: string,
+  searchParams?: ProductFilterProps,
 ): Promise<ApiResponse<ProductWithDetails[]>> {
   try {
-    const productsData = await db.query.products.findMany({
-      where: eq(products.storeId, storeId),
+    const query = db.query.products.findMany({
+      where: (products, { and, eq, gte, lte }) => {
+        const filters = [eq(products.storeId, storeId)];
+
+        if (searchParams?.categoryId) {
+          filters.push(eq(products.categoryId, searchParams.categoryId));
+        }
+
+        if (searchParams?.colorId) {
+          filters.push(eq(products.colorId, searchParams.colorId));
+        }
+
+        if (searchParams?.sizeId) {
+          filters.push(eq(products.sizeId, searchParams.sizeId));
+        }
+
+        if (searchParams?.isFeatured !== undefined) {
+          filters.push(eq(products.isFeatured, searchParams.isFeatured));
+        }
+
+        if (searchParams?.minPrice !== undefined) {
+          filters.push(gte(products.price, searchParams.minPrice));
+        }
+
+        if (searchParams?.maxPrice !== undefined) {
+          filters.push(lte(products.price, searchParams.maxPrice));
+        }
+
+        return and(...filters);
+      },
       orderBy: [desc(products.createdAt)],
       with: {
         category: true,
         size: true,
         color: true,
+        images: true,
       },
     });
+
+    const productsData = await query;
 
     if (productsData) {
       return {
@@ -164,19 +206,57 @@ export async function createProductQuery(
 export async function updateProductQuery(
   productId: string,
   data: NewProductType,
+  imagesData?: { url: string }[],
 ): Promise<ApiResponse<ProductType>> {
   try {
-    const productData = await db
+    // First, delete all existing images
+    await db.delete(images).where(eq(images.productId, productId));
+
+    // Update the product details
+    const updatedProduct = await db
       .update(products)
-      .set(data)
+      .set({
+        ...data,
+      })
       .where(eq(products.id, productId))
       .returning()
       .then((res) => res[0] ?? null);
 
-    if (productData) {
+    if (!updatedProduct) {
+      return {
+        success: false,
+        error: {
+          code: 404,
+          message: "Product update failed",
+        },
+      };
+    }
+
+    // Insert new images
+    if (imagesData && imagesData.length > 0) {
+      await db.insert(images).values(
+        imagesData.map((image) => ({
+          productId: productId,
+          url: image.url,
+        })),
+      );
+    }
+
+    // Fetch the updated product with its relations
+    const productWithDetails = await db.query.products.findFirst({
+      where: eq(products.id, productId),
+      with: {
+        images: true,
+        category: true,
+        size: true,
+        color: true,
+      },
+    });
+
+    if (productWithDetails) {
       return {
         success: true,
-        data: productData,
+        data: productWithDetails,
         message: "Product updated successfully",
       };
     }
@@ -185,7 +265,7 @@ export async function updateProductQuery(
       success: false,
       error: {
         code: 404,
-        message: "Product update failed",
+        message: "Failed to fetch updated product",
       },
     };
   } catch (error) {

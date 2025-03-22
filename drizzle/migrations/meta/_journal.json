@@ -99,6 +99,13 @@
       "when": 1742363623847,
       "tag": "0013_strange_annihilus",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1742655649307,
+      "tag": "0014_legal_bastion",
+      "breakpoints": true
     }
   ]
 }

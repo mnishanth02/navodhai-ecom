@@ -12,13 +12,15 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { siteConfig } from "@/lib/config/site";
 import { cn } from "@/lib/utils";
 
+import type { CategoryWithBillboard } from "@/data/data-access/category.queries";
 import { Nav } from "./Nav";
 
 interface MobileNavProps {
   className?: string;
+  categories: CategoryWithBillboard[];
 }
 
-export function MobileNav({ className }: MobileNavProps) {
+export function MobileNav({ className, categories }: MobileNavProps) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -57,6 +59,7 @@ export function MobileNav({ className }: MobileNavProps) {
         <Separator className="my-4" />
         <div className="flex h-full flex-col justify-between px-1">
           <Nav
+            data={categories}
             containerStyles="flex flex-col flex-center space-y-3"
             linkStyles="text-muted-foreground hover:text-foreground transition-colors"
             underlineStyles="absolute left-0 top-full h-[2px] w-full origin-left scale-x-0 bg-foreground transition-transform duration-200 group-hover:scale-x-100"

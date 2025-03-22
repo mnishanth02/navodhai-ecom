@@ -3,6 +3,7 @@
 import { Toaster } from "@ui/sonner";
 import { SessionProvider } from "next-auth/react";
 import NextTopLoader from "nextjs-toploader";
+import { NuqsAdapter } from "nuqs/adapters/next/app";
 import type { ReactNode } from "react";
 import { ModalProvider } from "./modal-provider";
 import { ThemeProvider } from "./theme-provider";
@@ -14,7 +15,7 @@ export function Providers({ children }: { children: ReactNode }) {
       {/* <TooltipProvider delayDuration={0}>{children}</TooltipProvider> */}
       <SessionProvider>
         <ModalProvider />
-        {children}
+        <NuqsAdapter>{children}</NuqsAdapter>
       </SessionProvider>
       <Toaster
         position="bottom-right"

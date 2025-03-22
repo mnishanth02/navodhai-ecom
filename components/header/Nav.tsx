@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { MotionSpan } from "@/components/common/MontionComp";
-import { navConfig } from "@/lib/config/navItems";
+import type { CategoryWithBillboard } from "@/data/data-access/category.queries";
 import { cn } from "@/lib/utils";
 
 interface NavProps {
@@ -12,31 +12,36 @@ interface NavProps {
   linkStyles?: string;
   underlineStyles?: string;
   onLinkClick?: () => void;
+  data: CategoryWithBillboard[];
 }
 
-export function Nav({ containerStyles, linkStyles, underlineStyles, onLinkClick }: NavProps) {
-  const path = usePathname();
+export function Nav({ containerStyles, linkStyles, underlineStyles, onLinkClick, data }: NavProps) {
+  const pathname = usePathname();
+
+  const routes = data.map((route) => ({
+    href: `/category/${route.id}`,
+    label: route.name,
+    active: pathname === `/category/${route.id}`,
+  }));
 
   return (
     <nav className={containerStyles}>
-      {navConfig.mainNav.map((link) => {
-        const isActive = path === link.href;
-
+      {routes.map((route) => {
         return (
           <Link
-            key={link.href}
-            href={link.href}
+            key={route.href}
+            href={route.href}
             className={cn(
               "group relative py-2 transition-colors",
               linkStyles,
-              isActive && "text-foreground",
+              route.active && "text-foreground",
             )}
             onClick={() => onLinkClick?.()}
-            aria-current={isActive ? "page" : undefined}
+            aria-current={route.active ? "page" : undefined}
           >
             <span className="relative text-lg">
-              {link.title.charAt(0).toUpperCase() + link.title.slice(1)}
-              {isActive && (
+              {route.label.charAt(0).toUpperCase() + route.label.slice(1)}
+              {route.active && (
                 <MotionSpan
                   initial={{ y: "-100%" }}
                   animate={{ y: 0 }}

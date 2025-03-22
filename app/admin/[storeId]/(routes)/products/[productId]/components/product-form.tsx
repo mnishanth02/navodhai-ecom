@@ -26,7 +26,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { createProduct, deleteProduct, updateProduct } from "@/data/actions/product.actions";
 
-import type { ProductWithImages } from "@/data/data-access/products.queries";
+import type { ProductWithDetails } from "@/data/data-access/products.queries";
 import type { CategoryType, ColorType, SizeType } from "@/drizzle/schema/store";
 import { ProductSchema, type ProductSchemaType } from "@/lib/validator/store-validator";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -36,8 +36,9 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+
 interface ProductFormProps {
-  initialData: ProductWithImages | null;
+  initialData: ProductWithDetails | null;
   categories: CategoryType[];
   sizes: SizeType[];
   colors: ColorType[];

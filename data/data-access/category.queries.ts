@@ -9,7 +9,7 @@ import { eq } from "drizzle-orm";
 // *******************  getCategorydById ****************
 // ******************************************************
 
-type CategoryWithBillboard = CategoryType & {
+export type CategoryWithBillboard = CategoryType & {
   billboard: BillboardType;
 };
 
