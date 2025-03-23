@@ -23,7 +23,7 @@ export function CartSheet() {
   );
 
   const onCheckout = () => {
-    router.push("/cart");
+    router.push("/checkout");
     sheetStore.onClose();
   };
 
