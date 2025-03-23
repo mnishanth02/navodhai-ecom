@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import type { ProductWithDetails } from "@/data/data-access/products.queries";
+import { useCart } from "@/hooks/store/use-cart";
 import usePreviewModal from "@/hooks/store/use-preview-modal";
 import { currencyFormatter } from "@/lib/utils";
 import { Expand, ShoppingCart } from "lucide-react";
@@ -18,6 +19,7 @@ interface ProductCardProps {
 const ProductCard: React.FC<ProductCardProps> = ({ data }) => {
   const router = useRouter();
   const previewModal = usePreviewModal();
+  const cart = useCart();
 
   const handleClick = () => {
     router.push(`/products/${data?.id}`);
@@ -30,7 +32,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ data }) => {
 
   const onAddToCart: MouseEventHandler<HTMLButtonElement> = (event) => {
     event.stopPropagation();
-    // cart.addItem(data);
+    cart.addItem(data, 1);
   };
 
   return (

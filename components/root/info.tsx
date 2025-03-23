@@ -21,7 +21,7 @@ const Info: React.FC<InfoProps> = ({ data }) => {
   const { copyToClipboard } = useCopyToClipboard();
 
   const onAddToCart = () => {
-    cart.addItem(data);
+    cart.addItem(data, quantity);
   };
 
   const onShare = async () => {

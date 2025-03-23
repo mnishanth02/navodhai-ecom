@@ -1,18 +1,19 @@
 "use client";
-import { ShoppingBag } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { Button } from "../ui/button";
 
-const NaveBarActions = () => {
+import { Button } from "@/components/ui/button";
+import { useCart } from "@/hooks/store/use-cart";
+import { useSheetStore } from "@/hooks/store/use-sheet";
+import { ShoppingBag } from "lucide-react";
+import { useEffect, useState } from "react";
+
+const NavBarActions = () => {
   const [isMounted, setIsMounted] = useState(false);
+  const cart = useCart();
+  const sheetStore = useSheetStore();
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
-
-  const router = useRouter();
-  // const cart = useCart();
 
   if (!isMounted) {
     return null;
@@ -23,15 +24,14 @@ const NaveBarActions = () => {
       <Button
         size={"sm"}
         variant="outline"
-        className="rounded-full border-2 "
-        onClick={() => router.push("/cart")}
+        className="rounded-full border-2"
+        onClick={sheetStore.onOpen}
       >
         <ShoppingBag size={20} />
-        {/* <span className="">{cart.items.length}</span> */}
-        <span className="">{"2"}</span>
+        <span className="ml-2">{cart.getTotalItems()}</span>
       </Button>
     </div>
   );
 };
 
-export default NaveBarActions;
+export default NavBarActions;
