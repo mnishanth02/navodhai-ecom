@@ -13,6 +13,7 @@ alwaysApply: false
   - Use descriptive variable names with auxiliary verbs (e.g., isLoading, hasError).
   - Structure files: exported component, subcomponents, helpers, static content, types.
   - dont import any components directly from "@radix-ui/*" always look for existing components under "components/ui/ "
+  - searchParams and params need to be awaited
   
   Naming Conventions
   - Use lowercase with dashes for directories (e.g., components/auth-wizard).

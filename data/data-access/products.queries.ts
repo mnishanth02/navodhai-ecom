@@ -67,8 +67,8 @@ export type ProductWithDetails = ProductType & {
 
 interface ProductFilterProps {
   categoryId?: string;
-  colorId?: string;
-  sizeId?: string;
+  colorIds?: string[];
+  sizeIds?: string[];
   isFeatured?: boolean;
   minPrice?: string;
   maxPrice?: string;
@@ -80,19 +80,19 @@ export async function getAllProductsByStoreIdQuery(
 ): Promise<ApiResponse<ProductWithDetails[]>> {
   try {
     const query = db.query.products.findMany({
-      where: (products, { and, eq, gte, lte }) => {
+      where: (products, { and, eq, gte, lte, inArray }) => {
         const filters = [eq(products.storeId, storeId)];
 
         if (searchParams?.categoryId) {
           filters.push(eq(products.categoryId, searchParams.categoryId));
         }
 
-        if (searchParams?.colorId) {
-          filters.push(eq(products.colorId, searchParams.colorId));
+        if (searchParams?.colorIds && searchParams.colorIds.length > 0) {
+          filters.push(inArray(products.colorId, searchParams.colorIds));
         }
 
-        if (searchParams?.sizeId) {
-          filters.push(eq(products.sizeId, searchParams.sizeId));
+        if (searchParams?.sizeIds && searchParams.sizeIds.length > 0) {
+          filters.push(inArray(products.sizeId, searchParams.sizeIds));
         }
 
         if (searchParams?.isFeatured !== undefined) {

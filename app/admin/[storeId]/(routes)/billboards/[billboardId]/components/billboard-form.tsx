@@ -93,6 +93,8 @@ const BillboardForm = ({ initialData }: BillboardFormProps) => {
     onSuccess: (data) => {
       toast.success(data.data?.message || toastMessage);
       form.reset();
+      setUploadedImageUrls([]);
+      setPrimaryImageUrl("");
       router.refresh();
     },
     onError: (error) => {

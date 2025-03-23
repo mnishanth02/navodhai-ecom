@@ -89,9 +89,7 @@ export const deleteBillboard = actionClient
     const result = await deleteBillboardQuery(billboardId);
 
     if (!result.success) {
-      throw new ActionError(
-        result.error?.message || "Make sure you removed all categories using this billboard",
-      );
+      throw new ActionError("Make sure you removed all categories using this billboard");
     }
 
     return {

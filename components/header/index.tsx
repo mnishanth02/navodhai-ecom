@@ -41,7 +41,7 @@ export async function Header() {
                 data={categories.success && categories.data ? categories.data : []}
                 containerStyles="hidden items-center gap-6 md:flex"
                 linkStyles="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-                underlineStyles="absolute left-0 top-full h-[2px] w-full origin-left scale-x-0 bg-foreground transition-transform duration-200 group-hover:scale-x-100"
+                underlineStyles="absolute left-0 top-full h-[2px] w-full origin-left  bg-foreground transition-transform duration-200 "
               />
 
               <div className="flex items-center gap-2">

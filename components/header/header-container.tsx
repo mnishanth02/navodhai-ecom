@@ -24,7 +24,7 @@ const HeaderContainer = ({ className, children }: HeaderProps) => {
   return (
     <header
       className={cn(
-        "sticky inset-x-0 top-0 z-30 w-full border-b transition-all duration-300",
+        "sticky inset-x-0 top-0 z-50 w-full border-b transition-all duration-300",
         isScrolled
           ? "border-border/40 bg-background/80 backdrop-blur-lg"
           : "border-transparent bg-background/0",
