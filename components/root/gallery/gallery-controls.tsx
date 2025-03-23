@@ -8,7 +8,7 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { cn } from "@/lib/utils";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useSwipeable } from "react-swipeable";
 import GalleryImage from "./gallery-image";
 
@@ -18,40 +18,94 @@ interface GalleryControlsProps {
 
 const GalleryControls = ({ images = [] }: GalleryControlsProps) => {
   const [selectedImage, setSelectedImage] = useState(images[0]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const preloadedImagesRef = useRef<Set<string>>(new Set());
+  const abortControllersRef = useRef<Map<string, AbortController>>(new Map());
+
+  // Preload images with improved error handling and cleanup
+  useEffect(() => {
+    const preloadImage = async (url: string) => {
+      if (!url || preloadedImagesRef.current.has(url)) return;
+
+      // Cleanup previous load attempt for this URL if it exists
+      abortControllersRef.current.get(url)?.abort();
+      const controller = new AbortController();
+      abortControllersRef.current.set(url, controller);
+
+      try {
+        const res = await fetch(url, { signal: controller.signal });
+        if (!res.ok) throw new Error(`Failed to load image: ${res.statusText}`);
+        const blob = await res.blob();
+        const objectUrl = URL.createObjectURL(blob);
+
+        const img = new Image();
+        img.src = objectUrl;
+        await new Promise((resolve, reject) => {
+          img.onload = resolve;
+          img.onerror = reject;
+        });
+
+        URL.revokeObjectURL(objectUrl);
+        preloadedImagesRef.current.add(url);
+      } catch (err) {
+        if (err instanceof Error && err.name !== "AbortError") {
+          console.error(`Error preloading image ${url}:`, err);
+        }
+      } finally {
+        abortControllersRef.current.delete(url);
+      }
+    };
+
+    const currentIndex = images.findIndex((img) => img.id === selectedImage.id);
+    const preloadRange = [-1, 0, 1, 2]; // Preload previous, current, and next two images
+
+    for (const offset of preloadRange) {
+      const index = currentIndex + offset;
+      if (index >= 0 && index < images.length) {
+        const imageUrl = images[index].url;
+        void preloadImage(imageUrl);
+      }
+    }
+
+    // Cleanup function
+    return () => {
+      for (const controller of abortControllersRef.current.values()) {
+        controller.abort();
+      }
+      abortControllersRef.current.clear();
+    };
+  }, [selectedImage, images]);
+
+  const handleImageChange = useCallback((newImage: typeof selectedImage) => {
+    setSelectedImage(newImage);
+    setIsLoading(!preloadedImagesRef.current.has(newImage.url));
+    setError(null);
+  }, []);
 
   const handleKeyNavigation = useCallback(
     (e: KeyboardEvent) => {
       const currentIndex = images.findIndex((img) => img.id === selectedImage.id);
       if (e.key === "ArrowLeft" && currentIndex > 0) {
-        setSelectedImage(images[currentIndex - 1]);
-        setIsLoading(true);
-        setError(null);
+        handleImageChange(images[currentIndex - 1]);
       } else if (e.key === "ArrowRight" && currentIndex < images.length - 1) {
-        setSelectedImage(images[currentIndex + 1]);
-        setIsLoading(true);
-        setError(null);
+        handleImageChange(images[currentIndex + 1]);
       }
     },
-    [images, selectedImage.id],
+    [images, selectedImage.id, handleImageChange],
   );
 
   const handlers = useSwipeable({
     onSwipedLeft: () => {
       const currentIndex = images.findIndex((img) => img.id === selectedImage.id);
       if (currentIndex < images.length - 1) {
-        setSelectedImage(images[currentIndex + 1]);
-        setIsLoading(true);
-        setError(null);
+        handleImageChange(images[currentIndex + 1]);
       }
     },
     onSwipedRight: () => {
       const currentIndex = images.findIndex((img) => img.id === selectedImage.id);
       if (currentIndex > 0) {
-        setSelectedImage(images[currentIndex - 1]);
-        setIsLoading(true);
-        setError(null);
+        handleImageChange(images[currentIndex - 1]);
       }
     },
     touchEventOptions: { passive: false },
@@ -66,7 +120,7 @@ const GalleryControls = ({ images = [] }: GalleryControlsProps) => {
   if (!images.length) {
     return (
       <div className="flex aspect-square w-full items-center justify-center rounded-lg">
-        <p className=" text-sm">No images available</p>
+        <p className="text-sm">No images available</p>
       </div>
     );
   }
@@ -89,11 +143,13 @@ const GalleryControls = ({ images = [] }: GalleryControlsProps) => {
               setError("Error loading image");
               setIsLoading(false);
             }}
-            priority
+            priority={true}
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 40vw"
+            quality={85}
           />
         )}
         {isLoading && (
-          <div className="absolute inset-0 flex items-center justify-center">
+          <div className="absolute inset-0 flex items-center justify-center bg-background/50 backdrop-blur-sm">
             <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
           </div>
         )}
@@ -106,11 +162,7 @@ const GalleryControls = ({ images = [] }: GalleryControlsProps) => {
             {images.map((image) => (
               <CarouselItem key={image.id} className="basis-1/4 cursor-pointer pl-4">
                 <button
-                  onClick={() => {
-                    setSelectedImage(image);
-                    setIsLoading(true);
-                    setError(null);
-                  }}
+                  onClick={() => handleImageChange(image)}
                   className={cn(
                     "relative aspect-square w-full overflow-hidden rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
                     selectedImage.id === image.id
@@ -125,6 +177,7 @@ const GalleryControls = ({ images = [] }: GalleryControlsProps) => {
                     isSelected={selectedImage.id === image.id}
                     sizes="(max-width: 768px) 25vw, 20vw"
                     quality={60}
+                    priority={selectedImage.id === image.id}
                   />
                 </button>
               </CarouselItem>

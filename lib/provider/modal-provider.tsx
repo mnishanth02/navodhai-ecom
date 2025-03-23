@@ -1,6 +1,7 @@
 "use client";
 
 import StoreModal from "@/components/modals/store-modal";
+import { PreviewModal } from "@/components/root/preview-modal";
 import { useMounted } from "@/hooks/general/use-mounted";
 
 export const ModalProvider = () => {
@@ -11,6 +12,7 @@ export const ModalProvider = () => {
   return (
     <>
       <StoreModal />
+      <PreviewModal />
     </>
   );
 };
