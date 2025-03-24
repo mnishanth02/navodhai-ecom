@@ -1,10 +1,10 @@
 "use client";
 
-import SignInFormProvider from "./signin-form-provider";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { DialogTitle } from "@radix-ui/react-dialog";
 import { useRouter } from "next/navigation";
-import { FC } from "react";
+import type { FC } from "react";
+import SignInFormProvider from "./signin-form-provider";
 
 interface SignInButtonProps {
   children: React.ReactNode;
@@ -23,7 +23,7 @@ const SignInButton: FC<SignInButtonProps> = ({ children, asChild, mode = "redire
       <Dialog>
         <DialogTrigger asChild={asChild}>{children}</DialogTrigger>
         <DialogContent className="w-auto border-none bg-transparent p-0">
-          <DialogTitle hidden></DialogTitle>
+          <DialogTitle hidden />
           <SignInFormProvider />
         </DialogContent>
       </Dialog>

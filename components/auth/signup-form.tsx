@@ -1,17 +1,18 @@
 "use client";
 
+import { signup } from "@/data/actions/auth.actions";
+import { SignupSchema, type SignupSchemaType } from "@/lib/validator/auth-validtor";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2 } from "lucide-react";
+import { useAction } from "next-safe-action/hooks";
+import { useRouter } from "next/navigation";
+import { type FC, useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import AppDialog from "../common/app-dialog";
 import { Button } from "../ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
 import { Input } from "../ui/input";
-import { signupAction } from "@/actions/auth.actions";
-import { SignupSchema, SignupSchemaType } from "@/lib/validator/auth-validtor";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { FC, useState } from "react";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
 
 export const SignUpForm: FC = () => {
   const router = useRouter();
@@ -29,46 +30,30 @@ export const SignUpForm: FC = () => {
     mode: "onSubmit",
   });
 
-  const onSubmit = async (data: SignupSchemaType) => {
-    setIsSubmitting(true);
-    setServerError(null);
-
-    try {
-      const formData = new FormData();
-      formData.append("name", data.name);
-      formData.append("email", data.email);
-      formData.append("password", data.password);
-
-      const result = await signupAction(formData);
-
-      if (result.success) {
-        toast.success("Account created successfully!");
-        form.reset();
-        setIsDialogOpen(true);
-      } else if (result.error) {
-        if (result.error.validationErrors) {
-          // Set form errors for each field
-          const errors = result.error.validationErrors;
-
-          Object.entries(errors).forEach(([field, messages]) => {
-            if (field === "name" || field === "email" || field === "password") {
-              form.setError(field as keyof SignupSchemaType, {
-                type: "server",
-                message: messages[0],
-              });
-            }
-          });
-        } else if (result.error.serverError) {
-          setServerError(result.error.serverError.message);
-        } else {
-          setServerError("Something went wrong");
-        }
+  const { execute } = useAction(signup, {
+    onExecute: () => {
+      setIsSubmitting(true);
+      setServerError(null);
+    },
+    onSuccess: (data) => {
+      toast.success(data.data?.message || "Account created successfully!");
+      form.reset();
+      setIsDialogOpen(true);
+    },
+    onError: (error) => {
+      if (error.error?.serverError) {
+        setServerError(error.error.serverError);
+      } else {
+        setServerError("Something went wrong");
       }
-    } catch {
-      setServerError("An unexpected error occurred");
-    } finally {
+    },
+    onSettled: () => {
       setIsSubmitting(false);
-    }
+    },
+  });
+
+  const onSubmit = (data: SignupSchemaType) => {
+    execute(data);
   };
 
   return (
@@ -76,7 +61,9 @@ export const SignUpForm: FC = () => {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           {serverError && (
-            <div className="text-destructive bg-destructive/10 rounded-md p-3 text-sm">{serverError}</div>
+            <div className="rounded-md bg-destructive/10 p-3 text-destructive text-sm">
+              {serverError}
+            </div>
           )}
 
           <div className="space-y-4">
@@ -87,7 +74,13 @@ export const SignUpForm: FC = () => {
                 <FormItem>
                   <FormLabel>Name</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="Enter your name" type="text" autoComplete="name" className="h-11" />
+                    <Input
+                      {...field}
+                      placeholder="Enter your name"
+                      type="text"
+                      autoComplete="name"
+                      className="h-11"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

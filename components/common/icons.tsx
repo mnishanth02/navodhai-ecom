@@ -1,5 +1,3 @@
-// https://svgl.app/
-import * as React from "react";
 import type { SVGProps } from "react";
 
 export const YouTube = (props: SVGProps<SVGSVGElement>) => (

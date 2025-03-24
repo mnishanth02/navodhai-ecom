@@ -1,4 +1,4 @@
-import { SiteConfig } from "@/types/app";
+import type { SiteConfig } from "@/types/app";
 
 export const siteConfig: SiteConfig = {
   name: "Navodhai Store",

@@ -159,13 +159,13 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
-    /* Form Elements */
-    input[type="number"]::-webkit-inner-spin-button,
-    input[type="number"]::-webkit-outer-spin-button {
-      -webkit-appearance: none;
-      margin: 0;
-    }
-    /* Focus States */
+  /* Form Elements */
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  /* Focus States */
   :focus {
     outline: none;
   }
@@ -183,9 +183,7 @@
   ::-webkit-scrollbar-thumb {
     @apply rounded-full bg-primary/60 transition-colors hover:bg-primary/80;
   }
-
 }
-
 
 /* Utility Classes */
 @layer utilities {
@@ -263,9 +261,7 @@
   .text-pretty {
     text-wrap: pretty;
   }
-  s
-  /* Links */
-  .link-subtle {
+  s /* Links */ .link-subtle {
     @apply text-foreground/80 transition-colors hover:text-foreground;
   }
   .link-underline {

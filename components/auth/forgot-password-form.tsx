@@ -1,16 +1,24 @@
 "use client";
 
-import AppDialog from "../common/app-dialog";
-import { forgotPasswordAction } from "@/actions/auth.actions";
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { ForgotPasswordSchema, ForgotPasswordSchemaType } from "@/lib/validator/auth-validtor";
+import { forgotPassword } from "@/data/actions/auth.actions";
+import { ForgotPasswordSchema, type ForgotPasswordSchemaType } from "@/lib/validator/auth-validtor";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
+import { useAction } from "next-safe-action/hooks";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import AppDialog from "../common/app-dialog";
 
 export const ForgotPasswordForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -23,50 +31,40 @@ export const ForgotPasswordForm = () => {
     mode: "onSubmit",
   });
 
-  const onSubmit = async (data: ForgotPasswordSchemaType) => {
-    setIsSubmitting(true);
-    setServerError(null);
-
-    try {
-      const formData = new FormData();
-      formData.append("email", data.email);
-
-      const result = await forgotPasswordAction(formData);
-
-      if (result.success) {
-        toast.success(result.message || "Password reset email sent successfully");
-        form.reset();
-        setIsDialogOpen(false);
-      } else if (result.error) {
-        if (result.error.validationErrors) {
-          // Set form errors for each field
-          const errors = result.error.validationErrors;
-
-          Object.entries(errors).forEach(([field, messages]) => {
-            if (field === "email") {
-              form.setError(field as keyof ForgotPasswordSchemaType, {
-                type: "server",
-                message: messages[0],
-              });
-            }
-          });
-        } else if (result.error.serverError) {
-          setServerError(result.error.serverError.message);
-        } else {
-          setServerError("Something went wrong");
-        }
+  const { execute } = useAction(forgotPassword, {
+    onExecute: () => {
+      setIsSubmitting(true);
+      setServerError(null);
+    },
+    onSuccess: (data) => {
+      toast.success(data.data?.message || "Password reset email sent successfully");
+      form.reset();
+      setIsDialogOpen(false);
+    },
+    onError: (error) => {
+      if (error.error?.serverError) {
+        setServerError(error.error.serverError);
+      } else {
+        setServerError("Something went wrong");
       }
-    } catch {
-      setServerError("An unexpected error occurred");
-    } finally {
+    },
+    onSettled: () => {
       setIsSubmitting(false);
-    }
+    },
+  });
+
+  const onSubmit = (data: ForgotPasswordSchemaType) => {
+    execute(data);
   };
 
   const formContent = (
     <Form {...form}>
       <form className="space-y-4">
-        {serverError && <div className="text-destructive bg-destructive/10 rounded-md p-3 text-sm">{serverError}</div>}
+        {serverError && (
+          <div className="rounded-md bg-destructive/10 p-3 text-destructive text-sm">
+            {serverError}
+          </div>
+        )}
 
         <div className="space-y-4">
           <FormField
@@ -76,7 +74,13 @@ export const ForgotPasswordForm = () => {
               <FormItem>
                 <FormLabel>Email</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="Enter your email" type="email" autoComplete="email" className="h-11" />
+                  <Input
+                    {...field}
+                    placeholder="Enter your email"
+                    type="email"
+                    autoComplete="email"
+                    className="h-11"
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -84,7 +88,12 @@ export const ForgotPasswordForm = () => {
           />
         </div>
 
-        <Button type="button" onClick={form.handleSubmit(onSubmit)} className="h-11 w-full" disabled={isSubmitting}>
+        <Button
+          type="button"
+          onClick={form.handleSubmit(onSubmit)}
+          className="h-11 w-full"
+          disabled={isSubmitting}
+        >
           {isSubmitting ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -100,7 +109,11 @@ export const ForgotPasswordForm = () => {
 
   return (
     <AppDialog
-      trigger={<span className="flex-1 text-end text-sm hover:cursor-pointer hover:underline">Forgot Password</span>}
+      trigger={
+        <span className="flex-1 text-end text-sm hover:cursor-pointer hover:underline">
+          Forgot Password
+        </span>
+      }
       title="Enter Your Email"
       message="We will send you an email with a link to reset your password."
       open={isDialogOpen}

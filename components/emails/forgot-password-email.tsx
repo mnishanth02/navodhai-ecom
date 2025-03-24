@@ -1,6 +1,18 @@
-import { Body, Button, Container, Head, Heading, Hr, Html, Preview, Section, Text } from "@react-email/components";
+import {
+  Body,
+  Button,
+  Container,
+  Head,
+  Heading,
+  Hr,
+  Html,
+  Preview,
+  Section,
+  Text,
+} from "@react-email/components";
 import { Tailwind } from "@react-email/tailwind";
-import * as React from "react";
+import Link from "next/link";
+import type * as React from "react";
 
 interface ForgotPasswordEmailProps {
   token: string;
@@ -8,10 +20,10 @@ interface ForgotPasswordEmailProps {
   baseUrl: string;
 }
 
-export const ForgotPasswordEmail: React.FC<ForgotPasswordEmailProps> = ({ 
-  token, 
-  verificationTokenExpMin, 
-  baseUrl 
+export const ForgotPasswordEmail: React.FC<ForgotPasswordEmailProps> = ({
+  token,
+  verificationTokenExpMin,
+  baseUrl,
 }) => {
   const currentYear = new Date().getFullYear();
   const resetUrl = `${baseUrl}/auth/forgot-password?token=${token}`;
@@ -26,19 +38,21 @@ export const ForgotPasswordEmail: React.FC<ForgotPasswordEmailProps> = ({
             <Section className="mx-auto max-w-600 rounded-lg bg-white shadow-sm">
               {/* Header */}
               <Section className="rounded-t-lg bg-yellow-500 px-8 py-10 text-center">
-                <Heading className="m-0 text-2xl font-bold text-white">Password Reset Request</Heading>
+                <Heading className="m-0 font-bold text-2xl text-white">
+                  Password Reset Request
+                </Heading>
               </Section>
 
               {/* Content */}
               <Section className="px-8 py-10">
-                <Text className="mb-5 text-base leading-6 text-gray-800">Hi there,</Text>
-                <Text className="mb-5 text-base leading-6 text-gray-800">
-                  We received a request to reset your password for your Navodhai Store account. Click the button below
-                  to reset your password.
+                <Text className="mb-5 text-base text-gray-800 leading-6">Hi there,</Text>
+                <Text className="mb-5 text-base text-gray-800 leading-6">
+                  We received a request to reset your password for your Navodhai Store account.
+                  Click the button below to reset your password.
                 </Text>
-                <Text className="mb-8 text-base leading-6 text-gray-800">
-                  This password reset link will expire in <strong>{verificationTokenExpMin} minutes</strong> for
-                  security reasons.
+                <Text className="mb-8 text-base text-gray-800 leading-6">
+                  This password reset link will expire in{" "}
+                  <strong>{verificationTokenExpMin} minutes</strong> for security reasons.
                 </Text>
 
                 <Section className="py-8 text-center">
@@ -51,35 +65,43 @@ export const ForgotPasswordEmail: React.FC<ForgotPasswordEmailProps> = ({
                 </Section>
 
                 {/* Alternative Link */}
-                <Text className="mb-8 text-sm leading-6 text-gray-600 text-center">
+                <Text className="mb-8 text-center text-gray-600 text-sm leading-6">
                   If the button doesn&apos;t work, copy and paste this link into your browser:
                   <br />
-                  <a href={resetUrl} className="text-blue-600 underline break-all">
+                  <Link href={resetUrl} className="break-all text-blue-600 underline">
                     {resetUrl}
-                  </a>
+                  </Link>
                 </Text>
 
                 {/* Security Notice */}
                 <Section className="mb-8 rounded-md bg-yellow-100 p-5">
-                  <Text className="mb-2 text-sm leading-5 font-bold text-yellow-800">Security Notice:</Text>
-                  <Text className="m-0 text-sm leading-5 text-yellow-800">
-                    If you didn&apos;t request a password reset, please ignore this email or contact our support team
-                    immediately. Someone may be trying to access your account.
+                  <Text className="mb-2 font-bold text-sm text-yellow-800 leading-5">
+                    Security Notice:
+                  </Text>
+                  <Text className="m-0 text-sm text-yellow-800 leading-5">
+                    If you didn&apos;t request a password reset, please ignore this email or contact
+                    our support team immediately. Someone may be trying to access your account.
                   </Text>
                 </Section>
 
                 {/* Security Tips */}
                 <Section>
-                  <Text className="mb-3 text-sm leading-5 font-bold text-gray-800">Security Tips:</Text>
+                  <Text className="mb-3 font-bold text-gray-800 text-sm leading-5">
+                    Security Tips:
+                  </Text>
                   <ul style={{ paddingLeft: "20px" }}>
                     <li style={{ marginBottom: "8px" }}>
-                      <Text className="m-0 text-sm leading-5 text-gray-600">Choose a strong, unique password</Text>
+                      <Text className="m-0 text-gray-600 text-sm leading-5">
+                        Choose a strong, unique password
+                      </Text>
                     </li>
                     <li style={{ marginBottom: "8px" }}>
-                      <Text className="m-0 text-sm leading-5 text-gray-600">Never share your password with anyone</Text>
+                      <Text className="m-0 text-gray-600 text-sm leading-5">
+                        Never share your password with anyone
+                      </Text>
                     </li>
                     <li>
-                      <Text className="m-0 text-sm leading-5 text-gray-600">
+                      <Text className="m-0 text-gray-600 text-sm leading-5">
                         Enable two-factor authentication if available
                       </Text>
                     </li>
@@ -91,7 +113,7 @@ export const ForgotPasswordEmail: React.FC<ForgotPasswordEmailProps> = ({
 
               {/* Footer */}
               <Section className="rounded-b-lg bg-yellow-100 px-8 py-6">
-                <Text className="mb-2 text-center text-sm leading-5 text-yellow-800">
+                <Text className="mb-2 text-center text-sm text-yellow-800 leading-5">
                   Need help? Contact our support team
                 </Text>
                 <Text className="m-0 text-center text-xs text-yellow-800">

@@ -1,6 +1,16 @@
-import { Body, Button, Container, Head, Heading, Hr, Html, Preview, Section, Text } from "@react-email/components";
+import {
+  Body,
+  Button,
+  Container,
+  Head,
+  Heading,
+  Hr,
+  Html,
+  Preview,
+  Section,
+  Text,
+} from "@react-email/components";
 import { Tailwind } from "@react-email/tailwind";
-import * as React from "react";
 
 interface VerifyEmailProps {
   token: string;
@@ -19,18 +29,19 @@ export const VerifyEmail = ({ token, verificationTokenExpMin, baseUrl }: VerifyE
             <Section className="mx-auto max-w-600 rounded-lg bg-white shadow-sm">
               {/* Header */}
               <Section className="rounded-t-lg bg-blue-500 px-8 py-10 text-center">
-                <Heading className="m-0 text-2xl font-bold text-white">Navodhai Store </Heading>
+                <Heading className="m-0 font-bold text-2xl text-white">Navodhai Store </Heading>
               </Section>
 
               {/* Content */}
               <Section className="px-8 py-10">
-                <Text className="mb-5 text-base leading-6 text-gray-800">Hi there,</Text>
-                <Text className="mb-5 text-base leading-6 text-gray-800">
-                  Welcome to Navodhai Store! We are excited to have you join our community. To get started, please
-                  verify your email address by clicking the button below.
+                <Text className="mb-5 text-base text-gray-800 leading-6">Hi there,</Text>
+                <Text className="mb-5 text-base text-gray-800 leading-6">
+                  Welcome to Navodhai Store! We are excited to have you join our community. To get
+                  started, please verify your email address by clicking the button below.
                 </Text>
-                <Text className="mb-8 text-base leading-6 text-gray-800">
-                  This verification link will expire in <strong>{verificationTokenExpMin} minutes</strong>.
+                <Text className="mb-8 text-base text-gray-800 leading-6">
+                  This verification link will expire in{" "}
+                  <strong>{verificationTokenExpMin} minutes</strong>.
                 </Text>
 
                 <Button
@@ -41,8 +52,9 @@ export const VerifyEmail = ({ token, verificationTokenExpMin, baseUrl }: VerifyE
                 </Button>
 
                 <Section className="mt-8 rounded-md bg-gray-50 p-5">
-                  <Text className="m-0 text-sm leading-5 text-gray-500">
-                    If you did not create an account with Navodhai Store, you can safely ignore this email.
+                  <Text className="m-0 text-gray-500 text-sm leading-5">
+                    If you did not create an account with Navodhai Store, you can safely ignore this
+                    email.
                   </Text>
                 </Section>
               </Section>
@@ -51,10 +63,10 @@ export const VerifyEmail = ({ token, verificationTokenExpMin, baseUrl }: VerifyE
 
               {/* Footer */}
               <Section className="rounded-b-lg bg-gray-50 px-8 py-6">
-                <Text className="mb-2 text-center text-sm leading-5 text-gray-500">
+                <Text className="mb-2 text-center text-gray-500 text-sm leading-5">
                   Need help? Contact our support team
                 </Text>
-                <Text className="m-0 text-center text-xs text-gray-400">
+                <Text className="m-0 text-center text-gray-400 text-xs">
                   © {new Date().getFullYear()} Navodhai Store. All rights reserved.
                 </Text>
               </Section>

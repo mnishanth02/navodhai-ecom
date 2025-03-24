@@ -1,4 +1,4 @@
-import { MainNavItem, NavConfig } from "@/types/app";
+import type { MainNavItem, NavConfig } from "@/types/app";
 
 export const navConfig: NavConfig = {
   mainNav: [

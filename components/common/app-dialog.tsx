@@ -74,7 +74,11 @@ const AppDialog: React.FC<AppDialogProps> = ({
         {showButtons && (
           <DialogFooter className="flex-col gap-2 sm:flex-row sm:justify-end">
             {showSecondaryButton && (
-              <Button type="button" variant={secondaryButton.variant} onClick={handleSecondaryClick}>
+              <Button
+                type="button"
+                variant={secondaryButton.variant}
+                onClick={handleSecondaryClick}
+              >
                 {secondaryButton.text}
               </Button>
             )}

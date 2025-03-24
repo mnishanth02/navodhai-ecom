@@ -12,7 +12,14 @@ const config = {
   endOfLine: "lf",
   importOrderSeparation: true,
   importOrderSortSpecifiers: true,
-  importOrder: ["^server-only$", "", "^(react|next?/?([a-zA-Z/]*))$", "<THIRD_PARTY_MODULES>", "^@/(.*)$", "^[./]"],
+  importOrder: [
+    "^server-only$",
+    "",
+    "^(react|next?/?([a-zA-Z/]*))$",
+    "<THIRD_PARTY_MODULES>",
+    "^@/(.*)$",
+    "^[./]",
+  ],
   importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"],
   plugins: ["@trivago/prettier-plugin-sort-imports", "prettier-plugin-tailwindcss"],
 };

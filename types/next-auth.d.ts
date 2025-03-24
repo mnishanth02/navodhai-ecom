@@ -1,6 +1,6 @@
-import { users } from "@/drizzle/schema";
+import type { users } from "@/drizzle/schema";
 import type { AdapterUser as DefaultAdapterUser } from "@auth/core/adapters";
-import { type DefaultSession } from "next-auth";
+import type { DefaultSession } from "next-auth";
 import type { User as DefaultUser } from "next-auth";
 
 declare module "next-auth" {
@@ -10,7 +10,9 @@ declare module "next-auth" {
   interface Session {
     user: {
       /** The user's postal address. */
-      //   address: string
+      role?: (typeof users.$inferSelect)["role"];
+      isActive?: (typeof users.$inferSelect)["isActive"];
+      emailVerified?: (typeof users.$inferSelect)["emailVerified"];
       /**
        * By default, TypeScript merges new interface properties and overwrites existing ones.
        * In this case, the default session user properties will be overwritten,
@@ -21,10 +23,9 @@ declare module "next-auth" {
   }
 
   interface User extends DefaultUser {
-    emailVerified: Date | null;
-    role: string;
-    isActive: boolean;
-    isBanned: boolean;
+    emailVerified: (typeof users.$inferSelect)["emailVerified"];
+    role: (typeof users.$inferSelect)["role"];
+    isActive: (typeof users.$inferSelect)["isActive"];
   }
 }
 
@@ -32,7 +33,9 @@ declare module "next-auth/jwt" {
   /** Returned by the `jwt` callback and `auth`, when using JWT sessions */
   interface JWT {
     /** OpenID ID Token */
-    idToken?: string;
+    // idToken?: string;
+    role?: (typeof users.$inferSelect)["role"];
+    isActive?: (typeof users.$inferSelect)["isActive"];
   }
 }
 
@@ -43,6 +46,5 @@ declare module "@auth/core/adapters" {
     emailVerified: (typeof users.$inferSelect)["emailVerified"];
     role: (typeof users.$inferSelect)["role"];
     isActive: (typeof users.$inferSelect)["isActive"];
-    isBanned: (typeof users.$inferSelect)["isBanned"];
   }
 }

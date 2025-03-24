@@ -1,8 +1,18 @@
-import { userRoleEnum } from "./enums";
 import { relations } from "drizzle-orm";
-import { boolean, index, integer, jsonb, pgTable, primaryKey, text, timestamp, varchar } from "drizzle-orm/pg-core";
+import {
+  boolean,
+  index,
+  integer,
+  jsonb,
+  pgTable,
+  primaryKey,
+  text,
+  timestamp,
+  varchar,
+} from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema, createUpdateSchema } from "drizzle-zod";
 import type { AdapterAccountType } from "next-auth/adapters";
+import { userRoleEnum } from "./enums";
 
 // ----------------------- USERS & AUTHENTICATION -----------------------
 export const users = pgTable(
@@ -18,19 +28,12 @@ export const users = pgTable(
     hashedPassword: text("hashed_password"),
     role: userRoleEnum("role").default("customer").notNull(),
     phoneNumber: varchar("phone_number", { length: 20 }),
-    phoneVerified: timestamp("phone_verified", { mode: "date" }),
     lastLoginAt: timestamp("last_login_at", { mode: "date" }),
     lastActiveAt: timestamp("last_active_at", { mode: "date" }),
-    metadata: jsonb("metadata"),
-    preferences: jsonb("preferences").default("{}"),
     isActive: boolean("is_active").default(true).notNull(),
-    isBanned: boolean("is_banned").default(false).notNull(),
-    banReason: text("ban_reason"),
     createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { mode: "date" }).defaultNow().notNull(),
     deletedAt: timestamp("deleted_at", { mode: "date" }), // For soft delete
-    isMarketingOptIn: boolean("is_marketing_opt_in").default(false),
-    marketingPreferences: jsonb("marketing_preferences").default("{}"),
   },
   (table) => [
     index("users_name_idx").on(table.name),
@@ -38,7 +41,7 @@ export const users = pgTable(
     index("users_phone_idx").on(table.phoneNumber),
     index("users_role_idx").on(table.role),
     index("users_last_active_idx").on(table.lastActiveAt),
-  ]
+  ],
 );
 
 export const accounts = pgTable(
@@ -64,7 +67,7 @@ export const accounts = pgTable(
         columns: [account.provider, account.providerAccountId],
       }),
     },
-  ]
+  ],
 );
 
 export const verificationTokens = pgTable(
@@ -78,7 +81,7 @@ export const verificationTokens = pgTable(
     primaryKey({
       columns: [table.identifier, table.token],
     }),
-  ]
+  ],
 );
 
 // Audit log for user actions
@@ -101,7 +104,7 @@ export const userAuditLogs = pgTable(
     index("user_audit_logs_user_id_idx").on(table.userId),
     index("user_audit_logs_action_idx").on(table.action),
     index("user_audit_logs_created_at_idx").on(table.createdAt),
-  ]
+  ],
 );
 
 /*******************************************

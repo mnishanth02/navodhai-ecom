@@ -1,14 +1,19 @@
+import { DrizzleAdapter } from "@auth/drizzle-adapter";
+import { eq, getTableColumns } from "drizzle-orm";
+import type { NextAuthConfig } from "next-auth";
+import Credentials from "next-auth/providers/credentials";
+import Google from "next-auth/providers/google";
+import type { z } from "zod";
+import { findUserByEmail, oauthVerifyEmailAction } from "./data/data-access/auth.queries";
 import { env } from "./data/env/server-env";
 import db from "./drizzle/db";
 import * as schema from "./drizzle/schema";
-import { usersInsertSchema } from "./drizzle/schema/auth";
+import type { usersInsertSchema } from "./drizzle/schema/auth";
 import { userRoleSchema } from "./drizzle/schema/enums";
-import { DrizzleAdapter } from "@auth/drizzle-adapter";
-import { getTableColumns } from "drizzle-orm";
-import { NextAuthConfig } from "next-auth";
-import Google from "next-auth/providers/google";
-import { z } from "zod";
-
+import { OAuthAccountAlreadyLinkedError } from "./lib/error";
+import { DEFAULT_SIGNIN_REDIRECT } from "./lib/routes";
+import { verifyPassword } from "./lib/utils/hash";
+import { SigninSchema } from "./lib/validator/auth-validtor";
 export default {
   providers: [
     Google({
@@ -20,6 +25,30 @@ export default {
           access_type: "offline",
           response_type: "code",
         },
+      },
+    }),
+    Credentials({
+      async authorize(credentials) {
+        const parsedCredentials = SigninSchema.safeParse(credentials);
+
+        if (parsedCredentials.success) {
+          const { email, password } = parsedCredentials.data;
+          const user = await findUserByEmail(email);
+
+          if (!user.success || !user.data) return null;
+
+          if (!user.data.hashedPassword) throw new OAuthAccountAlreadyLinkedError();
+
+          // const passwordsMatch = await argon2.verify(user.data.hashedPassword, password);
+
+          const passwordsMatch = await verifyPassword(password, user.data.hashedPassword);
+
+          if (passwordsMatch) {
+            const { hashedPassword, ...userWithoutPassword } = user.data;
+            return userWithoutPassword;
+          }
+        }
+        return null;
       },
     }),
   ],
@@ -39,14 +68,13 @@ export default {
     }),
     createUser: async (user) => {
       const { id, ...insertData } = user;
-      const hasDefaultId = getTableColumns(schema.users)["id"]["hasDefault"];
+      const hasDefaultId = getTableColumns(schema.users).id.hasDefault;
 
       // TODO need to check when ot udpate admin / customer
       const newUser: z.infer<typeof usersInsertSchema> = {
         ...insertData,
         role: userRoleSchema.enum.customer,
         isActive: true,
-        isBanned: false,
       };
 
       const dbUser = await db
@@ -56,6 +84,140 @@ export default {
         .then((res) => res[0]);
 
       return dbUser;
+    },
+  },
+  callbacks: {
+    authorized({ auth, request }) {
+      const { nextUrl } = request;
+      const isLoggedIn = !!auth?.user;
+
+      // Protected routes that require authentication
+      const protectedPaths = [
+        "/profile",
+        "/orders",
+        "/cart",
+        "/checkout",
+        "/wishlist",
+        "/settings",
+      ];
+
+      const isProtectedPath = protectedPaths.some((path) => nextUrl.pathname.startsWith(path));
+
+      // Admin/staff only routes
+      const adminPaths = ["/admin", "/dashboard"];
+      const isAdminPath = adminPaths.some((path) => nextUrl.pathname.startsWith(path));
+
+      if (isProtectedPath || isAdminPath) {
+        if (!isLoggedIn) {
+          return false; // Redirect to sign in
+        }
+
+        // For admin paths, check role
+        if (isAdminPath) {
+          const userRole = auth?.user?.role;
+          return userRole === "admin" || userRole === "staff";
+        }
+
+        return true;
+      }
+
+      // Auth pages redirect logged in users
+      const isAuthPath = nextUrl.pathname.startsWith("/auth");
+      if (isAuthPath && isLoggedIn) {
+        return Response.redirect(new URL(DEFAULT_SIGNIN_REDIRECT, nextUrl));
+      }
+
+      return true;
+    },
+
+    async signIn({ user, account, profile }) {
+      // For OAuth sign-in, update user data if needed
+      if (account?.provider === "google" && profile && user.id) {
+        const dbUser = await db.query.users.findFirst({
+          where: eq(schema.users.id, user.id),
+        });
+
+        if (dbUser) {
+          await db
+            .update(schema.users)
+            .set({
+              name: profile.name || dbUser.name,
+              image: profile.picture || dbUser.image,
+              emailVerified: profile.email_verified ? new Date() : dbUser.emailVerified,
+            })
+            .where(eq(schema.users.id, dbUser.id));
+        }
+      }
+
+      // Verify email for OAuth providers
+      if (account?.provider === "google" && profile?.email_verified) {
+        return true;
+      }
+
+      if (account?.provider === "credentials") {
+        return !!user.emailVerified;
+      }
+
+      return false;
+    },
+
+    async jwt({ token, user, trigger, session }) {
+      if (!token.maxAge) {
+        token.maxAge = 30 * 24 * 60 * 60;
+      }
+
+      if (user?.id) {
+        const dbUser = await db.query.users.findFirst({
+          where: eq(schema.users.id, user.id),
+          columns: {
+            id: true,
+            role: true,
+            isActive: true,
+            name: true,
+          },
+        });
+
+        if (dbUser) {
+          token.id = dbUser.id;
+          token.name = dbUser.name;
+          token.role = dbUser.role;
+          token.isActive = dbUser.isActive ?? false;
+        }
+      }
+
+      if (trigger === "update" && session?.user) {
+        return { ...token, ...session.user };
+      }
+
+      return token;
+    },
+
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.id = token.id as string;
+        session.user.role = token.role as "customer" | "admin" | "staff";
+        session.user.isActive = token.isActive as boolean;
+      }
+
+      return session;
+    },
+  },
+
+  events: {
+    async linkAccount({ user, account }) {
+      if (["google"].includes(account.provider) && user.email) {
+        await oauthVerifyEmailAction(user.email);
+      }
+    },
+
+    async signIn({ user }) {
+      if (user.id) {
+        // Update last login timestamp
+        await db
+          .update(schema.users)
+          .set({ lastLoginAt: new Date() })
+          .where(eq(schema.users.id, user.id));
+      }
     },
   },
 } satisfies NextAuthConfig;
