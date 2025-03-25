@@ -18,9 +18,9 @@ const OauthSignIn = () => {
   useEffect(() => {
     if (!error) return;
     if (error === "OAuthAccountNotLinked") {
-      toast.error("This account is already in use. Please sign in.");
+      toast.error("This account is already in use with different credentials");
     } else {
-      toast.error("An error occured. Please try again.");
+      toast.error("Authentication failed. Please try again");
     }
   }, [error]);
 
@@ -31,31 +31,31 @@ const OauthSignIn = () => {
         callbackUrl: callbackUrl || DEFAULT_SIGNIN_REDIRECT,
       });
     } catch (error) {
-      // Toast notification can be added here
       console.error("OAuth error:", error);
-      toast.error("An error occured. Please try again.");
+      toast.error("Authentication failed. Please try again");
     } finally {
       setIsLoading(null);
     }
   };
 
   return (
-    <div className="flex-center flex-col gap-4">
+    <div className="flex w-full flex-col space-y-3">
       <Button
         size="lg"
-        className="w-full font-medium"
+        variant="outline"
+        className="relative w-full border-input font-medium shadow-sm transition-all duration-300 hover:border-primary/50 hover:bg-secondary/30"
         onClick={() => onClick("google")}
         disabled={isLoading !== null}
       >
         {isLoading === "google" ? (
-          <div className="flex-center gap-2">
+          <div className="flex items-center justify-center gap-2">
             <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-            Signing in...
+            <span>Connecting...</span>
           </div>
         ) : (
-          <div className="flex-center gap-2">
-            <FaGoogle className="h-5 w-5" />
-            Sign in with Google
+          <div className="flex items-center justify-center gap-2">
+            <FaGoogle className="h-4 w-4" />
+            <span>Continue with Google</span>
           </div>
         )}
       </Button>
