@@ -1,12 +1,32 @@
 import Billboard from "@/components/root/billboard";
 import ProductList from "@/components/root/product-list";
-import { getBillboard, getProducts } from "@/data/actions/ui-store.actions";
+import { getProducts } from "@/data/actions/ui-store.actions";
+import { getAllBillBoardByStoreIdQuery } from "@/data/data-access/billboard.queries";
+import { env } from "@/data/env/server-env";
+import type { Metadata } from "next";
 
-// export const revalidate = 0;
+// Set to false for static generation
+export const revalidate = false;
+
+// Generate metadata for SEO
+export const metadata: Metadata = {
+  title: "Navodhai Store | Home",
+  description: "Discover our featured products and latest collections.",
+  openGraph: {
+    title: "Navodhai Store | Home",
+    description: "Discover our featured products and latest collections.",
+    type: "website",
+  },
+};
 
 const HomePage = async () => {
+  // Get featured products
   const products = await getProducts({ isFeatured: true });
-  const billboard = await getBillboard("9da2ad01-d285-47ed-9b4b-0000c10fa594");
+
+  // Get the first active billboard from the store
+  const billboardsResponse = await getAllBillBoardByStoreIdQuery(env.DEFAULT_STORE_ID);
+  const billboard =
+    billboardsResponse.success && billboardsResponse.data?.[0] ? billboardsResponse.data[0] : null;
 
   return (
     <div className="wrapper">

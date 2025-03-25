@@ -15,7 +15,7 @@ import NaveBarActions from "./navbar-actions";
 import { UserNav } from "./user-nav";
 
 export async function Header() {
-  const categories = await getAllCategoryByStoreIdQuery(env.APP_STORE_ID);
+  const categories = await getAllCategoryByStoreIdQuery(env.DEFAULT_STORE_ID);
 
   return (
     <HeaderContainer>

@@ -8,7 +8,7 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { cn } from "@/lib/utils";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useSwipeable } from "react-swipeable";
 import GalleryImage from "./gallery-image";
 
@@ -18,69 +18,11 @@ interface GalleryControlsProps {
 
 const GalleryControls = ({ images = [] }: GalleryControlsProps) => {
   const [selectedImage, setSelectedImage] = useState(images[0]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const preloadedImagesRef = useRef<Set<string>>(new Set());
-  const abortControllersRef = useRef<Map<string, AbortController>>(new Map());
-
-  // Preload images with improved error handling and cleanup
-  useEffect(() => {
-    const preloadImage = async (url: string) => {
-      if (!url || preloadedImagesRef.current.has(url)) return;
-
-      // Cleanup previous load attempt for this URL if it exists
-      abortControllersRef.current.get(url)?.abort();
-      const controller = new AbortController();
-      abortControllersRef.current.set(url, controller);
-
-      try {
-        const res = await fetch(url, { signal: controller.signal });
-        if (!res.ok) throw new Error(`Failed to load image: ${res.statusText}`);
-        const blob = await res.blob();
-        const objectUrl = URL.createObjectURL(blob);
-
-        const img = new Image();
-        img.src = objectUrl;
-        await new Promise((resolve, reject) => {
-          img.onload = resolve;
-          img.onerror = reject;
-        });
-
-        URL.revokeObjectURL(objectUrl);
-        preloadedImagesRef.current.add(url);
-      } catch (err) {
-        if (err instanceof Error && err.name !== "AbortError") {
-          console.error(`Error preloading image ${url}:`, err);
-        }
-      } finally {
-        abortControllersRef.current.delete(url);
-      }
-    };
-
-    const currentIndex = images.findIndex((img) => img.id === selectedImage.id);
-    const preloadRange = [-1, 0, 1, 2]; // Preload previous, current, and next two images
-
-    for (const offset of preloadRange) {
-      const index = currentIndex + offset;
-      if (index >= 0 && index < images.length) {
-        const imageUrl = images[index].url;
-        void preloadImage(imageUrl);
-      }
-    }
-
-    // Cleanup function
-    return () => {
-      for (const controller of abortControllersRef.current.values()) {
-        controller.abort();
-      }
-      abortControllersRef.current.clear();
-    };
-  }, [selectedImage, images]);
+  // const [isLoading, setIsLoading] = useState(false);
 
   const handleImageChange = useCallback((newImage: typeof selectedImage) => {
     setSelectedImage(newImage);
-    setIsLoading(!preloadedImagesRef.current.has(newImage.url));
-    setError(null);
+    // setIsLoading(true);
   }, []);
 
   const handleKeyNavigation = useCallback(
@@ -129,30 +71,21 @@ const GalleryControls = ({ images = [] }: GalleryControlsProps) => {
     <div className="flex flex-col gap-6" role="region" aria-label="Product gallery">
       {/* Main Image Display */}
       <div className="relative aspect-square w-full overflow-hidden rounded-lg" {...handlers}>
-        {error ? (
-          <div className="flex h-full items-center justify-center">
-            <p className="text-destructive text-sm">{error}</p>
-          </div>
-        ) : (
-          <GalleryImage
-            image={selectedImage}
-            isSelected={true}
-            isLoading={isLoading}
-            onLoad={() => setIsLoading(false)}
-            onError={() => {
-              setError("Error loading image");
-              setIsLoading(false);
-            }}
-            priority={true}
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 40vw"
-            quality={85}
-          />
-        )}
-        {isLoading && (
+        <GalleryImage
+          image={selectedImage}
+          isSelected={true}
+          // isLoading={ isLoading }
+          // onLoad={ () => setIsLoading(false) }
+          // onError={ () => setIsLoading(false) }
+          priority={true}
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 40vw"
+          quality={85}
+        />
+        {/* { isLoading && (
           <div className="absolute inset-0 flex items-center justify-center bg-background/50 backdrop-blur-sm">
             <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
           </div>
-        )}
+        ) } */}
       </div>
 
       {/* Thumbnail Navigation */}

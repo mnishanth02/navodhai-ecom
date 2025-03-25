@@ -3,6 +3,7 @@
 import { ActionError } from "@/lib/error";
 import { actionClient, storeActionClient } from "@/lib/utils/safe-action";
 import { ProductSchema } from "@/lib/validator/store-validator";
+import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import {
   createProductQuery,
@@ -10,6 +11,20 @@ import {
   getProductByIdQuery,
   updateProductQuery,
 } from "../data-access/products.queries";
+
+// Helper function to revalidate product-related paths
+const revalidateProductPaths = (productId: string, categoryId?: string) => {
+  // Revalidate product-specific pages
+  revalidatePath(`/products/${productId}`);
+
+  // Revalidate category pages if category is known
+  if (categoryId) {
+    revalidatePath(`/category/${categoryId}`);
+  }
+
+  // Revalidate checkout page for recommended products
+  revalidatePath("/checkout");
+};
 
 // Create product action
 export const createProduct = storeActionClient
@@ -34,9 +49,12 @@ export const createProduct = storeActionClient
       images,
     );
 
-    if (!result.success) {
-      throw new ActionError(result.error?.message || "Failed to create product");
+    if (!result.success || !result.data) {
+      throw new ActionError("Failed to create product");
     }
+
+    // Revalidate paths after successful creation
+    revalidateProductPaths(result.data.id, result.data.categoryId);
 
     return {
       product: result.data,
@@ -71,9 +89,12 @@ export const updateProduct = storeActionClient
       price: parsedInput.price.toFixed(2),
     });
 
-    if (!result.success) {
-      throw new ActionError(result.error?.message || "Failed to update product");
+    if (!result.success || !result.data) {
+      throw new ActionError("Failed to update product");
     }
+
+    // Revalidate paths after successful update
+    revalidateProductPaths(productId, result.data.categoryId);
 
     return {
       product: result.data,
@@ -95,13 +116,19 @@ export const deleteProduct = actionClient
   .action(async ({ parsedInput }) => {
     const { productId } = parsedInput;
 
+    // Get product details before deletion for category ID
+    const productCheck = await getProductByIdQuery(productId);
+    const categoryId =
+      productCheck.success && productCheck.data ? productCheck.data.categoryId : undefined;
+
     const result = await deleteProductQuery(productId);
 
     if (!result.success) {
-      throw new ActionError(
-        result.error?.message || "Make sure you removed all categories using this product",
-      );
+      throw new ActionError("Make sure you removed all categories using this product");
     }
+
+    // Revalidate paths after successful deletion
+    revalidateProductPaths(productId, categoryId);
 
     return {
       product: result.data,

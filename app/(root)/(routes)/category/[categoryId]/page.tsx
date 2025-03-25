@@ -6,10 +6,12 @@ import MobileFilters from "@/components/root/category/mobile-filters";
 import NoResults from "@/components/root/no-results";
 import ProductCard from "@/components/root/product-card";
 import { getCategory, getColors, getProducts, getSizes } from "@/data/actions/ui-store.actions";
+import { getAllCategoryByStoreIdQuery } from "@/data/data-access/category.queries";
+import { env } from "@/data/env/server-env";
 import { Suspense } from "react";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 3600; // Cache for 1 hour
+// Set revalidation time to 12 hours for optimal balance between freshness and performance
+export const revalidate = 43200;
 
 interface CategoryPageProps {
   params: Promise<{ categoryId: string }>;
@@ -17,6 +19,20 @@ interface CategoryPageProps {
     colorId?: string;
     sizeId?: string;
   }>;
+}
+
+export async function generateStaticParams() {
+  // Get all categories from the default store
+  const defaultStoreId = env.DEFAULT_STORE_ID || "";
+  const categoriesResponse = await getAllCategoryByStoreIdQuery(defaultStoreId);
+
+  if (!categoriesResponse.success || !categoriesResponse.data) {
+    return [];
+  }
+
+  return categoriesResponse.data.map((category) => ({
+    categoryId: category.id,
+  }));
 }
 
 // Metadata generation for SEO

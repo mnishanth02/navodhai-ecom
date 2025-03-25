@@ -10,13 +10,14 @@ export const env = createEnv({
     AUTH_SECRET: z.string().min(1),
     GOOGLE_CLIENT_ID: z.string().min(1),
     GOOGLE_CLIENT_SECRET: z.string().min(1),
+    NEXTAUTH_URL: z.string().url().optional().default("http://localhost:3000"),
 
     CLOUDFLARE_R2_ENDPOINT: z.string().url(),
     CLOUDFLARE_R2_ACCESS_KEY_ID: z.string().min(1),
     CLOUDFLARE_R2_SECRET_ACCESS_KEY: z.string().min(1),
     CLOUDFLARE_R2_BUCKET_NAME: z.string().min(1),
     CLOUDFLARE_R2_PUBLIC_URL: z.string().url().optional(),
-    APP_STORE_ID: z.string().min(1),
+    DEFAULT_STORE_ID: z.string().min(1),
 
     // ARCJET_KEY: z.string().min(1),
     // TEST_IP_ADDRESS: z.string().min(1).optional(),

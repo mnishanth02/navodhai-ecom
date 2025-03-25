@@ -20,7 +20,7 @@ interface Query {
 }
 
 export const getProducts = async (query: Query): Promise<ProductWithDetails[] | []> => {
-  const result = await getAllProductsByStoreIdQuery(env.APP_STORE_ID, {
+  const result = await getAllProductsByStoreIdQuery(env.DEFAULT_STORE_ID, {
     ...query,
     colorIds: query.colorId ? query.colorId.split(",").filter(Boolean) : undefined,
     sizeIds: query.sizeId ? query.sizeId.split(",").filter(Boolean) : undefined,
@@ -52,7 +52,7 @@ export const getBillboard = async (billboardId: string) => {
 };
 
 export const getSizes = async (): Promise<SizeType[] | null> => {
-  const result = await getAllSizesByStoreIdQuery(env.APP_STORE_ID);
+  const result = await getAllSizesByStoreIdQuery(env.DEFAULT_STORE_ID);
 
   if (result.success && result.data) {
     return result.data;
@@ -61,7 +61,7 @@ export const getSizes = async (): Promise<SizeType[] | null> => {
 };
 
 export const getColors = async (): Promise<ColorType[] | null> => {
-  const result = await getAllColorsByStoreIdQuery(env.APP_STORE_ID);
+  const result = await getAllColorsByStoreIdQuery(env.DEFAULT_STORE_ID);
 
   if (result.success && result.data) {
     return result.data;
