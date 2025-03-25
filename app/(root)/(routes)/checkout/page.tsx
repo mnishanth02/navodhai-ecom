@@ -3,6 +3,20 @@ import CheckoutClient from "@/components/root/checkout/checkout-client";
 import ProductList from "@/components/root/product-list";
 import { Separator } from "@/components/ui/separator";
 import { getProducts } from "@/data/actions/ui-store.actions";
+import type { Metadata } from "next";
+
+// Set revalidation time to 1 hour for recommended products
+export const revalidate = 3600;
+
+// Generate metadata for SEO
+export const metadata: Metadata = {
+  title: "Checkout | Navodhai Store",
+  description: "Complete your purchase securely.",
+  robots: {
+    index: false, // Don't index checkout pages
+    follow: false,
+  },
+};
 
 async function CheckoutPage() {
   // Fetch recommended products
