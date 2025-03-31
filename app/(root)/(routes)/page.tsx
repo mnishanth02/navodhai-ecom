@@ -5,8 +5,8 @@ import { getAllBillBoardByStoreIdQuery } from "@/data/data-access/billboard.quer
 import { env } from "@/data/env/server-env";
 import type { Metadata } from "next";
 
-// Set to false for static generation
-export const revalidate = false;
+// Set revalidation time to 24 hours since product details rarely change
+export const revalidate = 86400;
 
 // Generate metadata for SEO
 export const metadata: Metadata = {

@@ -11,6 +11,11 @@ import { CheckCircle, XCircle } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
 
+export const metadata = {
+  title: "Verify Email | Navodhai",
+  description: "Verify your email address for your Navodhai account",
+};
+
 type PageProps = { searchParams: Promise<{ token?: string }> };
 
 export default async function VerifyEmailPage({ searchParams }: PageProps) {
@@ -21,8 +26,14 @@ export default async function VerifyEmailPage({ searchParams }: PageProps) {
   }
 
   return (
-    <main className="container py-8">
-      <Suspense fallback={<Loader />}>
+    <main className="container flex min-h-[80vh] items-center justify-center py-8">
+      <Suspense
+        fallback={
+          <VerificationCard>
+            <Loader className="mx-auto my-8" />
+          </VerificationCard>
+        }
+      >
         <VerificationContent token={token} />
       </Suspense>
     </main>
@@ -65,9 +76,9 @@ async function VerificationContent({ token }: { token: string }) {
 }
 
 const VerificationCard = ({ children }: { children: React.ReactNode }) => (
-  <Card className="mx-auto mt-8 max-w-md">
+  <Card className="mx-auto max-w-md shadow-md">
     <CardHeader>
-      <CardTitle className="font-bold text-2xl">Email Verification</CardTitle>
+      <CardTitle className="text-center font-bold text-2xl">Email Verification</CardTitle>
     </CardHeader>
     <CardContent>{children}</CardContent>
   </Card>
@@ -94,9 +105,9 @@ const TokenIsInvalidState = ({ message }: { message?: string }) => (
 
 const VerificationSuccess = () => (
   <VerificationCard>
-    <Alert className="mb-4 border-green-200 bg-green-50">
-      <CheckCircle className="h-4 w-4 text-green-600" />
-      <AlertDescription className="text-green-600">
+    <Alert className="mb-4 border-green-200 bg-green-50 dark:border-green-950 dark:bg-green-950/50">
+      <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-500" />
+      <AlertDescription className="text-green-600 dark:text-green-500">
         Your email has been successfully verified!
       </AlertDescription>
     </Alert>

@@ -1,6 +1,17 @@
-export default function Loader() {
+import { cn } from "@/lib/utils";
+import type { ComponentProps } from "react";
+
+interface LoaderProps extends ComponentProps<"div"> {}
+
+export default function Loader({ className, ...props }: LoaderProps) {
   return (
-    <div className="flex grid h-screen w-screen animate-pulse items-center justify-center p-4 text-muted-foreground">
+    <div
+      className={cn(
+        "grid h-screen w-screen animate-pulse items-center justify-center p-4 text-muted-foreground",
+        className,
+      )}
+      {...props}
+    >
       <div role="status">
         <svg
           aria-hidden="true"

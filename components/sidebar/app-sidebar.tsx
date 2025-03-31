@@ -59,25 +59,6 @@ const getDashboardNavItems = (storeId: string) => [
     url: `/admin/${storeId}/products`,
     icon: Shirt,
   },
-  // {
-  //   title: "Products",
-  //   url: `/admin/${storeId}/products`,
-  //   icon: Package,
-  //   items: [
-  //     {
-  //       title: "All Products",
-  //       url: `/admin/${storeId}/products`,
-  //     },
-  //     {
-  //       title: "Categories",
-  //       url: `/admin/${storeId}/products/categories`,
-  //     },
-  //     {
-  //       title: "Inventory",
-  //       url: `/admin/${storeId}/products/inventory`,
-  //     },
-  //   ],
-  // },
   {
     title: "Orders",
     url: `/admin/${storeId}/orders`,
