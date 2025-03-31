@@ -1,4 +1,3 @@
-// import Info from "@/components/info";
 import Gallery from "@/components/root/gallery/index";
 import Info from "@/components/root/info";
 import ProductList from "@/components/root/product-list";
