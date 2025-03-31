@@ -8,7 +8,7 @@ export const metadata = {
   description: "Sign in to your Navodhai account using email",
 };
 
-const EmailSignInPage = () => {
+const EmailSignInPage = async () => {
   return (
     <div className="container flex min-h-[80vh] items-center justify-center py-8">
       <Suspense fallback={<Loader />}>
