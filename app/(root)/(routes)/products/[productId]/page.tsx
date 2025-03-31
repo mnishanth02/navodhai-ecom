@@ -22,8 +22,16 @@ export async function generateStaticParams() {
     return [];
   }
 
-  return productsResponse.data.map((product) => ({
-    productId: product.id,
+  const validProducts = productsResponse.data.filter(
+    (product): product is NonNullable<typeof product> =>
+      product != null &&
+      typeof product === "object" &&
+      "id" in product &&
+      typeof product.id !== "undefined",
+  );
+
+  return validProducts.map((product) => ({
+    productId: product.id.toString(),
   }));
 }
 
@@ -53,16 +61,19 @@ const ProductPage: React.FC<ProductPagesProps> = async ({ params }) => {
     redirect("/products");
   }
 
+  // Get suggested products based on category if available, otherwise get featured products
   const suggestedProducts = await getProducts({
-    categoryId: product?.category?.id,
+    ...(product.category?.id ? { categoryId: product.category.id } : { isFeatured: true }),
   });
+
+  // Ensure product.images is always an array
+  const productImages = product.images || [];
 
   return (
     <div className="wrapper">
       <div className="px-4 py-10 sm:px-6 lg:px-8">
         <div className="lg:grid lg:grid-cols-2 lg:items-start lg:gap-x-8">
-          <Gallery images={product.images} />
-
+          <Gallery images={productImages} />
           <div className="mt-10 px-4 sm:mt-16 sm:px-0 lg:mt-0">
             <Info data={product} />
           </div>
