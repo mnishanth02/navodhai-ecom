@@ -15,41 +15,71 @@ interface ProductPagesProps {
 
 // Generate static paths for all products
 export async function generateStaticParams() {
-  const productsResponse = await getAllProductsByStoreIdQuery(env.DEFAULT_STORE_ID);
+  try {
+    const productsResponse = await getAllProductsByStoreIdQuery(env.DEFAULT_STORE_ID);
 
-  if (!productsResponse.success || !productsResponse.data) {
+    if (!productsResponse.success || (productsResponse.success && !productsResponse.data)) {
+      console.error("Failed to fetch products for static generation:");
+      return [];
+    }
+
+    const validProducts = productsResponse.data
+      ? productsResponse.data.filter(
+          (product): product is NonNullable<typeof product> =>
+            product != null &&
+            typeof product === "object" &&
+            "id" in product &&
+            typeof product.id !== "undefined" &&
+            typeof product.id === "string",
+        )
+      : [];
+
+    if (validProducts.length === 0) {
+      console.warn("No valid products found for static generation");
+    }
+
+    return validProducts.map((product) => ({
+      productId: product.id,
+    }));
+  } catch (error) {
+    console.error("Error during static generation:", error);
     return [];
   }
-
-  const validProducts = productsResponse.data.filter(
-    (product): product is NonNullable<typeof product> =>
-      product != null &&
-      typeof product === "object" &&
-      "id" in product &&
-      typeof product.id !== "undefined",
-  );
-
-  return validProducts.map((product) => ({
-    productId: product.id.toString(),
-  }));
 }
 
 // Generate metadata for SEO
 export async function generateMetadata({ params }: ProductPagesProps) {
   const { productId } = await params;
-  const product = await getProduct(productId);
 
-  if (!product) {
+  try {
+    const product = await getProduct(productId);
+
+    if (!product) {
+      console.warn(`Product not found during metadata generation: ${productId}`);
+      return {
+        title: "Product Not Found | Navodhai Store",
+        description: "The requested product could not be found.",
+        robots: "noindex",
+      };
+    }
+
     return {
-      title: "Product Not Found | Navodhai Store",
-      description: "The requested product could not be found.",
+      title: `${product.name} | Navodhai Store`,
+      description: product.description || "View product details and make a purchase.",
+      openGraph: {
+        title: product.name,
+        description: product.description || "View product details and make a purchase.",
+        images: product.images?.[0]?.url ? [{ url: product.images[0].url }] : [],
+      },
+    };
+  } catch (error) {
+    console.error("Error generating metadata:", error);
+    return {
+      title: "Error | Navodhai Store",
+      description: "An error occurred while loading the product.",
+      robots: "noindex",
     };
   }
-
-  return {
-    title: `${product.name} | Navodhai Store`,
-    description: product.description || "View product details and make a purchase.",
-  };
 }
 
 const ProductPage: React.FC<ProductPagesProps> = async ({ params }) => {
@@ -57,16 +87,22 @@ const ProductPage: React.FC<ProductPagesProps> = async ({ params }) => {
   const product = await getProduct(productId);
 
   if (!product) {
+    console.warn(`Product not found during page render: ${productId}`);
     redirect("/products");
   }
 
   // Get suggested products based on category if available, otherwise get featured products
   const suggestedProducts = await getProducts({
     ...(product.category?.id ? { categoryId: product.category.id } : { isFeatured: true }),
+  }).catch((error) => {
+    console.error("Error fetching suggested products:", error);
+    return [];
   });
 
-  // Ensure product.images is always an array
-  const productImages = product.images || [];
+  // Ensure product.images is always an array and validate image URLs
+  const productImages = (product.images || []).filter(
+    (image) => image && typeof image.url === "string" && image.url.length > 0,
+  );
 
   return (
     <div className="wrapper">
