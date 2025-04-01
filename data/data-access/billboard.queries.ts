@@ -3,7 +3,7 @@ import db from "@/drizzle/db";
 import { billboard } from "@/drizzle/schema";
 import type { BillboardType } from "@/drizzle/schema/store";
 import type { ApiResponse } from "@/types/api";
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 
 // ******************************************************
 // *******************  getBillboardById ****************
@@ -50,6 +50,41 @@ export async function getAllBillBoardByStoreIdQuery(
   try {
     const billboards = await db.query.billboard.findMany({
       where: eq(billboard.storeId, storeId),
+      orderBy: [desc(billboard.createdAt)],
+    });
+
+    if (billboards) {
+      return {
+        success: true,
+        data: billboards,
+      };
+    }
+
+    return {
+      success: false,
+      error: {
+        code: 404,
+        message: "No billboards found for this store",
+      },
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: {
+        code: 500,
+        message: error instanceof Error ? error.message : "An unknown error occurred",
+      },
+    };
+  }
+}
+
+//  getbillboards for home page
+export async function getBillboardsForHomePageQuery(
+  storeId: string,
+): Promise<ApiResponse<BillboardType[]>> {
+  try {
+    const billboards = await db.query.billboard.findMany({
+      where: and(eq(billboard.isHome, true), eq(billboard.storeId, storeId)),
       orderBy: [desc(billboard.createdAt)],
     });
 
@@ -201,6 +236,53 @@ export async function deleteBillboardQuery(
       error: {
         code: 404,
         message: "Billboard deletion failed",
+      },
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: {
+        code: 500,
+        message: error instanceof Error ? error.message : "An unknown error occurred",
+      },
+    };
+  }
+}
+
+// ******************************************************
+// ************  updateBillboardHomeStatusQuery  **********
+// ******************************************************
+
+export async function updateBillboardHomeStatusQuery(
+  billboardId: string,
+  isHome: boolean,
+): Promise<ApiResponse<BillboardType>> {
+  try {
+    // If setting to true, first unset any existing home billboard
+    if (isHome) {
+      await db.update(billboard).set({ isHome: false }).where(eq(billboard.isHome, true));
+    }
+
+    const billboardData = await db
+      .update(billboard)
+      .set({ isHome })
+      .where(eq(billboard.id, billboardId))
+      .returning()
+      .then((res) => res[0] ?? null);
+
+    if (billboardData) {
+      return {
+        success: true,
+        data: billboardData,
+        message: "Billboard home status updated successfully",
+      };
+    }
+
+    return {
+      success: false,
+      error: {
+        code: 404,
+        message: "Billboard update failed",
       },
     };
   } catch (error) {

@@ -28,12 +28,15 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   searchKey: string;
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  meta?: Record<string, any>;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
   searchKey,
+  meta,
 }: DataTableProps<TData, TValue>) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
@@ -47,6 +50,7 @@ export function DataTable<TData, TValue>({
     state: {
       columnFilters,
     },
+    meta,
   });
 
   return (

@@ -18,6 +18,7 @@ const BilboardPage = async ({ params }: BillboardPageProps) => {
         id: item.id,
         label: item.label,
         createdAt: format(item.createdAt, "MMMM do, yyyy"),
+        isHome: item.isHome,
       }))
     : [];
 

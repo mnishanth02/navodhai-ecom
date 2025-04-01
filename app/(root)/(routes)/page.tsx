@@ -1,7 +1,7 @@
 import Billboard from "@/components/root/billboard";
 import ProductList from "@/components/root/product-list";
 import { getProducts } from "@/data/actions/ui-store.actions";
-import { getAllBillBoardByStoreIdQuery } from "@/data/data-access/billboard.queries";
+import { getBillboardsForHomePageQuery } from "@/data/data-access/billboard.queries";
 import { env } from "@/data/env/server-env";
 import type { Metadata } from "next";
 
@@ -24,7 +24,7 @@ const HomePage = async () => {
   const products = await getProducts({ isFeatured: true });
 
   // Get the first active billboard from the store
-  const billboardsResponse = await getAllBillBoardByStoreIdQuery(env.DEFAULT_STORE_ID);
+  const billboardsResponse = await getBillboardsForHomePageQuery(env.DEFAULT_STORE_ID);
   const billboard =
     billboardsResponse.success && billboardsResponse.data?.[0] ? billboardsResponse.data[0] : null;
 

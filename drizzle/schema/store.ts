@@ -32,6 +32,7 @@ export const billboard = pgTable(
     label: text("label").notNull(),
     imageUrls: json("image_urls").$type<string[]>(),
     primaryImageUrl: text("primary_image_url"),
+    isHome: boolean("is_home").default(false).notNull(),
     createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { mode: "date" }).defaultNow().notNull(),
   },

@@ -8,6 +8,7 @@ import {
   createBillboardQuery,
   deleteBillboardQuery,
   getBillboardByIdQuery,
+  updateBillboardHomeStatusQuery,
   updateBillboardQuery,
 } from "../data-access/billboard.queries";
 
@@ -95,5 +96,40 @@ export const deleteBillboard = actionClient
     return {
       billboard: result.data,
       message: "Billboard deleted successfully",
+    };
+  });
+
+// Update billboard home status action
+export const updateBillboardHomeStatusAction = storeActionClient
+  .metadata({
+    actionName: "updateBillboardHomeStatusAction",
+    requiresAuth: true,
+  })
+  .schema(
+    z.object({
+      billboardId: z.string().min(1, "Billboard ID is required"),
+      storeId: z.string().min(1),
+      isHome: z.boolean(),
+    }),
+  )
+  .action(async ({ parsedInput }) => {
+    const { billboardId, isHome } = parsedInput;
+
+    // Verify billboard exists in this store
+    const billboardCheck = await getBillboardByIdQuery(billboardId);
+
+    if (!billboardCheck.success) {
+      throw new ActionError("Billboard not found in this store");
+    }
+
+    const result = await updateBillboardHomeStatusQuery(billboardId, isHome);
+
+    if (!result.success) {
+      throw new ActionError(result.error?.message || "Failed to update billboard home status");
+    }
+
+    return {
+      billboard: result.data,
+      message: "Billboard home status updated successfully",
     };
   });
