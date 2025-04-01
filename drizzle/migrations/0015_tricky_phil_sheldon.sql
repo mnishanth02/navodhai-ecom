@@ -1,0 +1,1 @@
+ALTER TABLE "billboard" ADD COLUMN "is_home" boolean DEFAULT false NOT NULL;
