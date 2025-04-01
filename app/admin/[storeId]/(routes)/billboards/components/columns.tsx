@@ -43,7 +43,7 @@ export const columns: ColumnDef<BillboardColumn>[] = [
       const isUpdating = meta.state.isUpdating && meta.state.updatingId === row.original.id;
 
       return (
-        <div className="flex items-center justify-center">
+        <div className="">
           {isUpdating ? (
             <Loader2 className="h-4 w-4 animate-spin" />
           ) : (

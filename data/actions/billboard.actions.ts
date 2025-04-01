@@ -3,6 +3,7 @@
 import { ActionError } from "@/lib/error";
 import { actionClient, storeActionClient } from "@/lib/utils/safe-action";
 import { BillboardSchema } from "@/lib/validator/store-validator";
+import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import {
   createBillboardQuery,
@@ -127,6 +128,8 @@ export const updateBillboardHomeStatusAction = storeActionClient
     if (!result.success) {
       throw new ActionError(result.error?.message || "Failed to update billboard home status");
     }
+
+    revalidatePath("/");
 
     return {
       billboard: result.data,
